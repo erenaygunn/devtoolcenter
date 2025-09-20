@@ -1,39 +1,123 @@
 <template>
-	<footer class="bg-gray-50 border-t">
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-			<div class="flex flex-col md:flex-row justify-between items-center">
-				<div class="text-gray-600 text-sm">
-					© {{ currentYear }} DevShelf. All rights reserved.
+	<footer class="glass border-t border-white/10 mt-20">
+		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<div class="grid md:grid-cols-4 gap-8">
+				<div class="col-span-2">
+					<div class="flex items-center space-x-2 mb-4">
+						<Icon
+							name="heroicons:cube-transparent"
+							class="h-8 w-8 neon-green"
+						/>
+						<span class="text-xl font-bold gradient-text">DevShelf</span>
+					</div>
+					<p class="text-gray-400 mb-4">
+						The open-source, community-driven platform for discovering the best
+						free productivity tools for developers.
+					</p>
+					<div class="flex space-x-4">
+						<a
+							href="#"
+							class="glass glass-hover p-2 rounded-lg"
+						>
+							<Icon
+								name="simple-icons:github"
+								class="h-5 w-5 text-gray-300"
+							/>
+						</a>
+						<a
+							href="#"
+							class="glass glass-hover p-2 rounded-lg"
+						>
+							<Icon
+								name="simple-icons:discord"
+								class="h-5 w-5 text-gray-300"
+							/>
+						</a>
+						<a
+							href="#"
+							class="glass glass-hover p-2 rounded-lg"
+						>
+							<Icon
+								name="simple-icons:twitter"
+								class="h-5 w-5 text-gray-300"
+							/>
+						</a>
+					</div>
 				</div>
-				<div class="flex space-x-6 mt-4 md:mt-0">
-					<a
-						href="#"
-						class="text-gray-600 hover:text-gray-900"
-					>
-						<Icon
-							name="heroicons:envelope"
-							class="h-5 w-5"
-						/>
-					</a>
-					<a
-						href="#"
-						class="text-gray-600 hover:text-gray-900"
-					>
-						<Icon
-							name="simple-icons:github"
-							class="h-5 w-5"
-						/>
-					</a>
-					<a
-						href="#"
-						class="text-gray-600 hover:text-gray-900"
-					>
-						<Icon
-							name="simple-icons:twitter"
-							class="h-5 w-5"
-						/>
-					</a>
+
+				<div>
+					<h3 class="font-semibold text-green-400 mb-4">Quick Links</h3>
+					<ul class="space-y-2 text-gray-400">
+						<li>
+							<NuxtLink
+								to="/tools"
+								class="hover:text-green-400 transition-colors"
+								>Browse Tools</NuxtLink
+							>
+						</li>
+						<li>
+							<NuxtLink
+								to="/categories"
+								class="hover:text-green-400 transition-colors"
+								>Categories</NuxtLink
+							>
+						</li>
+						<li>
+							<NuxtLink
+								to="/submit"
+								class="hover:text-green-400 transition-colors"
+								>Submit Tool</NuxtLink
+							>
+						</li>
+						<li>
+							<NuxtLink
+								to="/about"
+								class="hover:text-green-400 transition-colors"
+								>About</NuxtLink
+							>
+						</li>
+					</ul>
 				</div>
+
+				<div>
+					<h3 class="font-semibold text-green-400 mb-4">Community</h3>
+					<ul class="space-y-2 text-gray-400">
+						<li>
+							<a
+								href="#"
+								class="hover:text-green-400 transition-colors"
+								>Contribute</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="hover:text-green-400 transition-colors"
+								>Guidelines</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="hover:text-green-400 transition-colors"
+								>Discord</a
+							>
+						</li>
+						<li>
+							<a
+								href="#"
+								class="hover:text-green-400 transition-colors"
+								>GitHub</a
+							>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-400">
+				<p>
+					&copy; {{ currentYear }} DevShelf. Open source and community driven.
+				</p>
 			</div>
 		</div>
 	</footer>
