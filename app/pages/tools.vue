@@ -1,35 +1,35 @@
 <template>
-	<div class="pt-16 py-8 px-4 sm:px-6 lg:px-8">
-		<div class="max-w-7xl mx-auto">
+	<div class="pt-16 section">
+		<div class="container">
 			<!-- Header -->
 			<div class="mb-8">
-				<h1 class="text-4xl font-bold text-white mb-4">Browse Tools</h1>
-				<p class="text-gray-400">
+				<h1 class="text-h1 mb-4">Browse Tools</h1>
+				<p class="text-muted">
 					Discover productivity tools curated by the developer community
 				</p>
 			</div>
 
 			<!-- Search and Filters -->
-			<div class="glass rounded-xl p-6 mb-8">
+			<div class="card mb-8">
 				<div class="flex flex-col lg:flex-row gap-4">
 					<div class="flex-1">
 						<div class="relative">
 							<Icon
 								name="heroicons:magnifying-glass"
-								class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+								class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted"
 							/>
 							<input
 								v-model="searchQuery"
 								type="text"
 								placeholder="Search tools..."
-								class="w-full pl-10 pr-4 py-3 glass rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400/50"
+								class="form-input pl-10"
 							/>
 						</div>
 					</div>
 
 					<select
 						v-model="selectedCategory"
-						class="glass rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-400/50"
+						class="form-select"
 					>
 						<option value="">All Categories</option>
 						<option value="frontend">Frontend</option>
@@ -40,7 +40,7 @@
 
 					<select
 						v-model="sortBy"
-						class="glass rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-400/50"
+						class="form-select"
 					>
 						<option value="rating">Sort by Rating</option>
 						<option value="name">Sort by Name</option>
@@ -61,14 +61,14 @@
 			<!-- Empty State -->
 			<div
 				v-if="filteredTools.length === 0"
-				class="text-center py-12"
+				class="text-center section-sm"
 			>
 				<Icon
 					name="heroicons:magnifying-glass"
-					class="h-16 w-16 text-gray-500 mx-auto mb-4"
+					class="h-16 w-16 text-subtle mx-auto mb-4"
 				/>
-				<h3 class="text-xl font-semibold text-gray-400 mb-2">No tools found</h3>
-				<p class="text-gray-500">Try adjusting your search or filters</p>
+				<h3 class="text-h4 text-muted mb-2">No tools found</h3>
+				<p class="text-subtle">Try adjusting your search or filters</p>
 			</div>
 		</div>
 	</div>

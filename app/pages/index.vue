@@ -1,13 +1,13 @@
 <template>
 	<div class="pt-16">
 		<!-- Hero Section -->
-		<section class="py-20 px-4 sm:px-6 lg:px-8">
-			<div class="max-w-7xl mx-auto text-center">
+		<section class="section-lg">
+			<div class="container text-center">
 				<div class="mb-8">
 					<h1 class="text-5xl md:text-7xl font-bold mb-6">
 						<span class="gradient-text">DevShelf</span>
 					</h1>
-					<p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+					<p class="text-body-lg max-w-3xl mx-auto mb-8">
 						Discover the best
 						<span class="neon-green">free productivity tools</span> for
 						developers. Community-driven, open-source, and always growing.
@@ -19,21 +19,21 @@
 				>
 					<NuxtLink
 						to="/tools"
-						class="glass glass-hover px-8 py-4 rounded-xl font-semibold text-green-400 border border-green-400/30 hover:bg-green-400/10 transition-all neon-glow"
+						class="btn btn-primary btn-lg neon-glow"
 					>
 						<Icon
 							name="heroicons:magnifying-glass"
-							class="h-5 w-5 inline mr-2"
+							class="h-5 w-5 mr-2"
 						/>
 						Browse Tools
 					</NuxtLink>
 					<NuxtLink
 						to="/submit"
-						class="glass glass-hover px-8 py-4 rounded-xl font-semibold text-gray-300 hover:text-green-400 transition-all"
+						class="btn btn-tertiary btn-lg"
 					>
 						<Icon
 							name="heroicons:plus"
-							class="h-5 w-5 inline mr-2"
+							class="h-5 w-5 mr-2"
 						/>
 						Submit Tool
 					</NuxtLink>
@@ -42,27 +42,27 @@
 				<!-- Stats -->
 				<div class="grid grid-cols-3 gap-8 max-w-md mx-auto">
 					<div class="text-center">
-						<div class="text-3xl font-bold neon-green">150+</div>
-						<div class="text-gray-400 text-sm">Tools</div>
+						<div class="text-h2 neon-green">150+</div>
+						<div class="text-small">Tools</div>
 					</div>
 					<div class="text-center">
-						<div class="text-3xl font-bold neon-green">12</div>
-						<div class="text-gray-400 text-sm">Categories</div>
+						<div class="text-h2 neon-green">12</div>
+						<div class="text-small">Categories</div>
 					</div>
 					<div class="text-center">
-						<div class="text-3xl font-bold neon-green">5K+</div>
-						<div class="text-gray-400 text-sm">Users</div>
+						<div class="text-h2 neon-green">5K+</div>
+						<div class="text-small">Users</div>
 					</div>
 				</div>
 			</div>
 		</section>
 
 		<!-- Featured Tools -->
-		<section class="py-16 px-4 sm:px-6 lg:px-8">
-			<div class="max-w-7xl mx-auto">
+		<section class="section">
+			<div class="container">
 				<div class="text-center mb-12">
-					<h2 class="text-3xl font-bold text-white mb-4">Featured Tools</h2>
-					<p class="text-gray-400">
+					<h2 class="text-h2 mb-4">Featured Tools</h2>
+					<p class="text-muted">
 						Hand-picked tools that stand out in the community
 					</p>
 				</div>
@@ -78,7 +78,7 @@
 				<div class="text-center mt-8">
 					<NuxtLink
 						to="/tools"
-						class="glass glass-hover px-6 py-3 rounded-lg text-green-400 border border-green-400/30 hover:bg-green-400/10 transition-all inline-flex items-center"
+						class="btn btn-secondary"
 					>
 						View All Tools
 						<Icon
@@ -91,11 +91,11 @@
 		</section>
 
 		<!-- Categories -->
-		<section class="py-16 px-4 sm:px-6 lg:px-8">
-			<div class="max-w-7xl mx-auto">
+		<section class="section">
+			<div class="container">
 				<div class="text-center mb-12">
-					<h2 class="text-3xl font-bold text-white mb-4">Browse by Category</h2>
-					<p class="text-gray-400">
+					<h2 class="text-h2 mb-4">Browse by Category</h2>
+					<p class="text-muted">
 						Tools organized into clear categories for easy discovery
 					</p>
 				</div>

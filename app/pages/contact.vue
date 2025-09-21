@@ -1,12 +1,12 @@
 <template>
-	<div class="py-16">
-		<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-			<h1 class="text-4xl font-bold text-center mb-8">Contact Us</h1>
+	<div class="section pt-16">
+		<div class="container">
+			<h1 class="text-h1 text-center mb-8">Contact Us</h1>
 
 			<div class="grid md:grid-cols-2 gap-12">
 				<!-- Contact Form -->
 				<div>
-					<h2 class="text-2xl font-semibold mb-6">Get in Touch</h2>
+					<h2 class="text-h3 mb-6">Get in Touch</h2>
 					<form
 						@submit.prevent="submitForm"
 						class="space-y-6"
@@ -14,7 +14,7 @@
 						<div>
 							<label
 								for="name"
-								class="block text-sm font-medium text-gray-700 mb-2"
+								class="block text-body-sm font-medium text-secondary mb-2"
 							>
 								Name
 							</label>
@@ -23,13 +23,13 @@
 								v-model="form.name"
 								type="text"
 								required
-								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+								class="form-input"
 							/>
 						</div>
 						<div>
 							<label
 								for="email"
-								class="block text-sm font-medium text-gray-700 mb-2"
+								class="block text-body-sm font-medium text-secondary mb-2"
 							>
 								Email
 							</label>
@@ -38,27 +38,27 @@
 								v-model="form.email"
 								type="email"
 								required
-								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+								class="form-input"
 							/>
 						</div>
 						<div>
 							<label
 								for="message"
-								class="block text-sm font-medium text-gray-700 mb-2"
+								class="block text-body-sm font-medium text-secondary mb-2"
 							>
 								Message
 							</label>
 							<textarea
 								id="message"
 								v-model="form.message"
-								rows="5"
 								required
-								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+								class="form-textarea"
+								placeholder="Tell us how we can help you..."
 							></textarea>
 						</div>
 						<button
 							type="submit"
-							class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+							class="btn btn-primary btn-lg w-full"
 						>
 							Send Message
 						</button>
@@ -67,26 +67,26 @@
 
 				<!-- Contact Info -->
 				<div>
-					<h2 class="text-2xl font-semibold mb-6">Contact Information</h2>
+					<h2 class="text-h3 mb-6">Contact Information</h2>
 					<div class="space-y-6">
 						<div class="flex items-start space-x-4">
 							<Icon
 								name="heroicons:envelope"
-								class="h-6 w-6 text-blue-600 mt-1"
+								class="h-6 w-6 text-primary mt-1"
 							/>
 							<div>
-								<h3 class="font-semibold">Email</h3>
-								<p class="text-gray-600">hello@devshelf.com</p>
+								<h3 class="text-h6">Email</h3>
+								<p class="text-muted">hello@devshelf.com</p>
 							</div>
 						</div>
 						<div class="flex items-start space-x-4">
 							<Icon
 								name="heroicons:map-pin"
-								class="h-6 w-6 text-blue-600 mt-1"
+								class="h-6 w-6 text-primary mt-1"
 							/>
 							<div>
-								<h3 class="font-semibold">Address</h3>
-								<p class="text-gray-600">
+								<h3 class="text-h6">Address</h3>
+								<p class="text-muted">
 									123 Developer Street<br />
 									Tech City, TC 12345
 								</p>
@@ -95,11 +95,11 @@
 						<div class="flex items-start space-x-4">
 							<Icon
 								name="heroicons:phone"
-								class="h-6 w-6 text-blue-600 mt-1"
+								class="h-6 w-6 text-primary mt-1"
 							/>
 							<div>
-								<h3 class="font-semibold">Phone</h3>
-								<p class="text-gray-600">+1 (555) 123-4567</p>
+								<h3 class="text-h6">Phone</h3>
+								<p class="text-muted">+1 (555) 123-4567</p>
 							</div>
 						</div>
 					</div>
