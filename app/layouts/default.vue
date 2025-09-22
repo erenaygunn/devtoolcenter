@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h-screen flex flex-col bg-gray-950">
+	<div class="min-h-screen flex flex-col bg-black/30">
 		<!-- Animated background -->
 		<div class="fixed inset-0 overflow-hidden pointer-events-none">
 			<!-- Primary floating light -->

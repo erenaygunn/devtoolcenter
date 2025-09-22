@@ -24,14 +24,14 @@
 					<div class="relative md:w-auto w-full h-[50px] flex-1">
 						<Icon
 							name="heroicons:magnifying-glass"
-							class="absolute left-3 cursor-pointer top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted"
+							class="absolute z-10 right-3 cursor-pointer hover:text-primary duration-300 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted"
 							@click="handleSearch"
 						/>
 						<input
 							v-model="searchQuery"
 							type="text"
 							placeholder="Search for tools..."
-							class="w-full pl-10 pr-4 text-gray-600 py-3 rounded-lg bg-background text-foreground placeholder-muted focus:outline-none focus:border-transparent"
+							class="w-full pl-10 pr-4 text-primary !border-gray-600 py-3 rounded-lg form-input text-foreground placeholder-muted focus:outline-none focus:border-transparent"
 							@keyup.enter="handleSearch"
 						/>
 					</div>
