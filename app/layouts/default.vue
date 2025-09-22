@@ -257,7 +257,7 @@
 		backdrop-filter: blur(12px);
 		background-color: rgba(255, 255, 255, 0.05);
 		border: 1px solid rgba(255, 255, 255, 0.1);
-		box-shadow: 0 8px 32px 0 rgba(31, 135, 107, 0.37);
+		box-shadow: 0 4px 32px 0 rgba(31, 135, 107, 0.2);
 	}
 
 	.glass-hover {
