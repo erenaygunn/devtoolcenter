@@ -1,7 +1,7 @@
 <template>
-	<div class="card card-hover group">
-		<div class="flex items-start space-x-4">
-			<div class="flex-shrink-0">
+	<div class="card h-full card-hover group">
+		<div class="flex items-start justify-start gap-y-6 flex-col h-full">
+			<div class="flex items-start justify-start">
 				<div
 					class="w-12 h-12 glass rounded-lg flex items-center justify-center"
 				>
@@ -17,17 +17,17 @@
 				</div>
 			</div>
 
-			<div class="flex-1 min-w-0">
+			<div class="h-full flex flex-col items-start justify-start min-w-0">
 				<h3 class="text-h5 mb-2 group-hover:text-primary transition-colors">
 					{{ tool.name }}
 				</h3>
-				<p class="text-body-sm text-muted mb-3 line-clamp-2">
+				<p class="text-body-sm text-muted mb-3 line-clamp-4">
 					{{ tool.description }}
 				</p>
 
 				<div class="flex flex-wrap gap-2 mb-4">
 					<span
-						v-for="tag in tool.tags"
+						v-for="tag in tool.tags.slice(0, 3)"
 						:key="tag"
 						class="px-2 py-1 text-small glass rounded-full text-primary border border-green-400/30"
 					>
@@ -35,7 +35,7 @@
 					</span>
 				</div>
 
-				<div class="flex items-center justify-between">
+				<div class="flex items-start mt-auto flex-col justify-between">
 					<div class="flex items-center space-x-2">
 						<div class="flex items-center">
 							<Icon
@@ -47,27 +47,31 @@
 							}}</span>
 						</div>
 						<span class="text-subtle">•</span>
-						<span class="text-body-sm text-muted">{{ tool.category }}</span>
+						<span class="text-body-sm whitespace-nowrap text-muted">{{
+							tool.category
+						}}</span>
 					</div>
-
-					<a
-						:href="tool.url"
-						target="_blank"
-						class="btn btn-secondary btn-sm"
-					>
-						Visit
-						<Icon
-							name="heroicons:arrow-top-right-on-square"
-							class="h-3 w-3 ml-1"
-						/>
-					</a>
 				</div>
+
+				<a
+					:href="tool.url"
+					target="_blank"
+					class="btn btn-primary mt-3 btn-sm"
+				>
+					Visit
+					<Icon
+						name="heroicons:arrow-top-right-on-square"
+						class="h-3 w-3 ml-1"
+					/>
+				</a>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
+	import Index from "~/pages/index.vue";
+
 	defineProps({
 		tool: {
 			type: Object,

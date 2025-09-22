@@ -427,10 +427,6 @@
 		transition: all 0.3s ease;
 	}
 
-	.card-hover {
-		cursor: pointer;
-	}
-
 	.card-hover:hover {
 		background-color: rgba(255, 255, 255, 0.08);
 		border-color: rgba(34, 197, 94, 0.3);
