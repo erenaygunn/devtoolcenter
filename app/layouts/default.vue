@@ -214,6 +214,34 @@
 		border-radius: 1rem;
 	}
 
+	.header-link::after {
+		content: "";
+		display: block;
+		width: 0;
+		height: 2px;
+		background: transparent;
+		transition: width 0.3s, background-color 0.3s;
+	}
+
+	.header-link:hover::after {
+		width: 100%;
+		background: #22c55e;
+	}
+
+	.header-link.router-link-active {
+		color: #22c55e !important;
+		transition: all 0.3s;
+	}
+
+	.header-link.router-link-active::after {
+		content: "";
+		display: block;
+		width: 100%;
+		height: 2px;
+		background: #22c55e;
+		border-radius: 1px;
+	}
+
 	/* Glass Effects */
 	.glass {
 		backdrop-filter: blur(12px);

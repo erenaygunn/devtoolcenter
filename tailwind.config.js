@@ -14,6 +14,8 @@ module.exports = {
 				"neon-green": "#22c55e",
 				"glass-white": "rgba(255, 255, 255, 0.05)",
 				"glass-border": "rgba(255, 255, 255, 0.1)",
+				primary: "#22c55e",
+				secondary: "#d1d5db",
 			},
 			animation: {
 				float: "float 6s ease-in-out infinite",

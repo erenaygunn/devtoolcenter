@@ -39,11 +39,11 @@
 						to="/submit"
 						class="btn w-full md:w-auto btn-primary h-[50px] px-6 py-3 whitespace-nowrap"
 					>
+						Submit a Tool
 						<Icon
 							name="heroicons:plus"
-							class="h-5 w-5 mr-2"
+							class="h-5 w-5 ml-2"
 						/>
-						Submit a Tool
 					</NuxtLink>
 				</div>
 			</div>
