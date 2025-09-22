@@ -67,7 +67,27 @@
 					</p>
 				</div>
 
-				<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<!-- Mobile Slider -->
+				<div class="block md:hidden">
+					<div
+						class="swiper-container"
+						ref="swiperContainer"
+					>
+						<div class="swiper-wrapper">
+							<div
+								class="swiper-slide px-3"
+								v-for="tool in featuredTools"
+								:key="tool.id"
+							>
+								<ToolCard :tool="tool" />
+							</div>
+						</div>
+						<div class="swiper-pagination mt-6"></div>
+					</div>
+				</div>
+
+				<!-- Desktop Grid -->
+				<div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 					<ToolCard
 						v-for="tool in featuredTools"
 						:key="tool.id"
@@ -113,6 +133,10 @@
 </template>
 
 <script setup>
+	import { Swiper } from "swiper";
+	import "swiper/css";
+	import "swiper/css/pagination";
+
 	useHead({
 		title: "DevShelf - Discover the Best Free Developer Tools",
 		meta: [
@@ -122,6 +146,28 @@
 					"Open-source, community-driven platform for discovering the best free productivity tools for developers.",
 			},
 		],
+	});
+
+	const swiperContainer = ref(null);
+
+	onMounted(() => {
+		if (swiperContainer.value) {
+			new Swiper(swiperContainer.value, {
+				slidesPerView: 1.2,
+				spaceBetween: 16,
+				centeredSlides: false,
+				pagination: {
+					el: ".swiper-pagination",
+					clickable: true,
+				},
+				breakpoints: {
+					640: {
+						slidesPerView: 2,
+						spaceBetween: 20,
+					},
+				},
+			});
+		}
 	});
 
 	const featuredTools = ref([

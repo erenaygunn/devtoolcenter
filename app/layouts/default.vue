@@ -285,6 +285,10 @@
 		padding: 0 1rem;
 	}
 
+	section {
+		overflow: hidden;
+	}
+
 	.section {
 		padding: 4rem 0;
 	}
@@ -471,5 +475,39 @@
 		.section-lg {
 			padding: 3rem 0;
 		}
+
+		/* Footer specific mobile adjustments */
+		footer .container {
+			padding: 2rem 1rem;
+		}
+
+		footer .grid {
+			gap: 1.5rem;
+		}
+	}
+
+	/* Swiper Custom Styles */
+	.swiper-container {
+		overflow: visible;
+		padding-bottom: 2rem;
+	}
+
+	.swiper-slide {
+		height: auto;
+	}
+
+	.swiper-pagination {
+		position: relative;
+		bottom: auto;
+		margin-top: 1rem;
+	}
+
+	.swiper-pagination-bullet {
+		background-color: rgba(255, 255, 255, 0.3);
+		opacity: 1;
+	}
+
+	.swiper-pagination-bullet-active {
+		background-color: #22c55e;
 	}
 </style>

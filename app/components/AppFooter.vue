@@ -1,8 +1,10 @@
 <template>
 	<footer class="glass border-t border-white/10 mt-20">
-		<div class="container section">
-			<div class="grid md:grid-cols-4 gap-8">
-				<div class="col-span-2">
+		<div class="container section px-4 sm:px-6 lg:px-8">
+			<div
+				class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
+			>
+				<div class="col-span-1 sm:col-span-2">
 					<div class="flex items-center space-x-2 mb-4">
 						<Icon
 							name="heroicons:cube-transparent"
@@ -14,7 +16,7 @@
 						The open-source, community-driven platform for discovering the best
 						free productivity tools for developers.
 					</p>
-					<div class="flex space-x-4">
+					<div class="flex flex-wrap justify-center sm:justify-start space-x-4">
 						<a
 							href="#"
 							class="btn btn-tertiary btn-sm p-2"
@@ -114,7 +116,9 @@
 				</div>
 			</div>
 
-			<div class="border-t border-white/10 mt-8 pt-8 text-center text-muted">
+			<div
+				class="border-t border-white/10 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-muted px-4"
+			>
 				<p class="text-body-sm">
 					&copy; {{ currentYear }} DevShelf. Open source and community driven.
 				</p>
