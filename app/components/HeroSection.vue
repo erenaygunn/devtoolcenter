@@ -1,6 +1,6 @@
 <template>
 	<section
-		class="section-lg !pt-36 h-auto md:h-[70svh] flex flex-col items-center justify-center"
+		class="section-lg min-[405px]:!pt-36 h-auto md:h-[70svh] flex flex-col items-center justify-center"
 	>
 		<div class="container text-center">
 			<div class="mb-8">
@@ -21,7 +21,7 @@
 			<!-- Search Box with CTA -->
 			<div class="max-w-lg mx-auto md:mt-10 mb-8">
 				<div class="relative flex items-center md:flex-row flex-col gap-6">
-					<div class="relative h-[50px] flex-1">
+					<div class="relative md:w-auto w-full h-[50px] flex-1">
 						<Icon
 							name="heroicons:magnifying-glass"
 							class="absolute left-3 cursor-pointer top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted"
@@ -37,7 +37,7 @@
 					</div>
 					<NuxtLink
 						to="/submit"
-						class="btn btn-primary h-[50px] px-6 py-3 whitespace-nowrap"
+						class="btn w-full md:w-auto btn-primary h-[50px] px-6 py-3 whitespace-nowrap"
 					>
 						<Icon
 							name="heroicons:plus"
