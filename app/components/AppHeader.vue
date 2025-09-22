@@ -1,5 +1,5 @@
 <template>
-	<header class="glass fixed top-0 left-0 right-0 z-50">
+	<header class="glass fixed top-0 left-0 right-0 z-20">
 		<div class="container !py-2">
 			<div class="flex justify-between md:justify-around items-center h-16">
 				<div class="flex items-center">
@@ -44,6 +44,16 @@
 							class="h-5 w-5 ml-2"
 						/>
 					</NuxtLink>
+					<a
+						href="#"
+						class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
+						target="_blank"
+					>
+						<Icon
+							name="simple-icons:github"
+							class="h-5 w-5"
+						/>
+					</a>
 				</nav>
 
 				<div class="flex md:hidden items-center space-x-2">
@@ -103,6 +113,16 @@
 					class="h-5 w-5 ml-2"
 				/>
 			</NuxtLink>
+			<a
+				href="#"
+				class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
+				target="_blank"
+			>
+				<Icon
+					name="simple-icons:github"
+					class="h-5 w-5"
+				/>
+			</a>
 		</div>
 	</div>
 </template>
@@ -119,11 +139,13 @@
 			toggleMenu() {
 				this.isMenuOpen = !this.isMenuOpen;
 				document.body.classList.toggle("overflow-hidden", this.isMenuOpen);
+				document.body.classList.toggle("overlay-active", this.isMenuOpen);
 			},
 
 			closeMenu() {
 				this.isMenuOpen = false;
 				document.body.classList.remove("overflow-hidden");
+				document.body.classList.remove("overlay-active");
 			},
 		},
 	});

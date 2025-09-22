@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h-screen flex flex-col bg-gray-900">
+	<div class="min-h-screen flex flex-col bg-gray-950">
 		<!-- Animated background -->
 		<div class="fixed inset-0 overflow-hidden pointer-events-none">
 			<!-- Primary floating light -->
@@ -39,6 +39,8 @@
 		</main>
 		<AppFooter />
 	</div>
+
+	<div class="black-overlay bg-black/30 fixed inset-0 z-30 h-full"></div>
 </template>
 
 <style>
@@ -54,6 +56,14 @@
 		background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
 		min-height: 100vh;
 		line-height: 1.6;
+	}
+
+	.overlay-active .black-overlay {
+		display: block;
+	}
+
+	.black-overlay {
+		display: none;
 	}
 
 	/* Typography System */
