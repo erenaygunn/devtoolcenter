@@ -41,7 +41,7 @@
 	/* Typography System */
 	h1,
 	.text-h1 {
-		font-size: 3rem;
+		font-size: 4.5rem;
 		font-weight: 700;
 		line-height: 1.2;
 		letter-spacing: -0.025em;
@@ -98,7 +98,7 @@
 	}
 
 	.text-body-lg {
-		font-size: 1.125rem;
+		font-size: 1.525rem;
 		font-weight: 400;
 		line-height: 1.7;
 		color: #d1d5db;
@@ -290,7 +290,7 @@
 	}
 
 	.section {
-		padding: 4rem 0;
+		padding: 6rem 0;
 	}
 
 	.section-sm {
@@ -392,66 +392,12 @@
 	}
 
 	/* Utility Classes */
-	.text-center {
-		text-align: center;
-	}
-	.text-left {
-		text-align: left;
-	}
-	.text-right {
-		text-align: right;
-	}
-
-	.font-light {
-		font-weight: 300;
-	}
-	.font-normal {
-		font-weight: 400;
-	}
-	.font-medium {
-		font-weight: 500;
-	}
-	.font-semibold {
-		font-weight: 600;
-	}
-	.font-bold {
-		font-weight: 700;
-	}
-	.font-extrabold {
-		font-weight: 800;
-	}
-
-	.opacity-50 {
-		opacity: 0.5;
-	}
-	.opacity-75 {
-		opacity: 0.75;
-	}
-	.opacity-90 {
-		opacity: 0.9;
-	}
-
-	.rounded-sm {
-		border-radius: 0.25rem;
-	}
-	.rounded {
-		border-radius: 0.5rem;
-	}
-	.rounded-lg {
-		border-radius: 0.75rem;
-	}
-	.rounded-xl {
-		border-radius: 1rem;
-	}
-	.rounded-2xl {
-		border-radius: 1.5rem;
-	}
 
 	/* Responsive Typography */
 	@media (max-width: 768px) {
 		h1,
 		.text-h1 {
-			font-size: 2.25rem;
+			font-size: 3rem;
 		}
 
 		h2,
@@ -469,11 +415,11 @@
 		}
 
 		.section {
-			padding: 2rem 0;
+			padding: 4rem 0;
 		}
 
 		.section-lg {
-			padding: 3rem 0;
+			padding: 4rem 0;
 		}
 
 		/* Footer specific mobile adjustments */
