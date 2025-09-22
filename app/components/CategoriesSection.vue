@@ -8,12 +8,23 @@
 				</p>
 			</div>
 
-			<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+			<div
+				class="flex flex-col items-center md:items-start md:flex-row justify-center w-full gap-6"
+			>
 				<CategoryCard
-					v-for="category in categories"
+					v-for="category in categories.slice(0, 4)"
 					:key="category.id"
 					:category="category"
 				/>
+			</div>
+
+			<div class="text-center mt-10">
+				<NuxtLink
+					to="/categories"
+					class="btn btn-secondary"
+				>
+					View All Categories
+				</NuxtLink>
 			</div>
 		</div>
 	</section>

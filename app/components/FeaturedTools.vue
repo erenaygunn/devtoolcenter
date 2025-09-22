@@ -43,10 +43,6 @@
 					class="btn btn-secondary"
 				>
 					View All Tools
-					<Icon
-						name="heroicons:arrow-right"
-						class="h-4 w-4 ml-2"
-					/>
 				</NuxtLink>
 			</div>
 		</div>

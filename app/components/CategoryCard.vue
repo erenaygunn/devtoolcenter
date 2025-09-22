@@ -1,9 +1,11 @@
 <template>
 	<NuxtLink
 		:to="`/categories/${category.slug}`"
-		class="block group"
+		class="block group w-full max-w-[300px]"
 	>
-		<div class="card card-hover text-center">
+		<div
+			class="card flex flex-col md:min-h-[300px] lg:min-h-[250px] card-hover text-center"
+		>
 			<div
 				class="w-16 h-16 glass rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:neon-glow transition-all"
 			>
@@ -19,12 +21,12 @@
 				{{ category.description }}
 			</p>
 			<div
-				class="flex items-center justify-center space-x-2 text-small text-subtle"
+				class="flex mt-auto items-center justify-center space-x-2 text-small text-subtle"
 			>
 				<span>{{ category.toolCount }} tools</span>
 				<Icon
 					name="heroicons:arrow-right"
-					class="h-3 w-3 group-hover:translate-x-1 transition-transform"
+					class="h-3 w-3 group-hover:translate-x-1 duration-300 transition-transform"
 				/>
 			</div>
 		</div>
