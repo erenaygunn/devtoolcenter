@@ -2,9 +2,10 @@
 	<section class="section">
 		<div class="container">
 			<div class="text-center mb-12">
-				<h2 class="text-h2 mb-4">Featured Tools</h2>
+				<h2 class="text-h2 mb-4">Trending Tools</h2>
 				<p class="text-muted">
-					Hand-picked tools that stand out in the community
+					Explore some of the most popular and highly rated developer tools
+					loved by community.
 				</p>
 			</div>
 
