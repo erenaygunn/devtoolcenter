@@ -31,41 +31,59 @@
 					<!-- Filters Row -->
 					<div class="flex flex-col lg:flex-row gap-4">
 						<!-- Category Filter -->
-						<select
-							v-model="selectedCategory"
-							class="form-select"
-						>
-							<option value="">All Categories</option>
-							<option value="frontend">Frontend</option>
-							<option value="backend">Backend</option>
-							<option value="ai-helpers">AI Helpers</option>
-							<option value="documentation">Documentation</option>
-							<option value="design">Design</option>
-							<option value="devops">DevOps</option>
-							<option value="testing">Testing</option>
-						</select>
+						<div class="flex relative items-center">
+							<select
+								v-model="selectedCategory"
+								class="form-select !pr-7"
+							>
+								<option value="">All Categories</option>
+								<option value="frontend">Frontend</option>
+								<option value="backend">Backend</option>
+								<option value="ai-helpers">AI Helpers</option>
+								<option value="documentation">Documentation</option>
+								<option value="design">Design</option>
+								<option value="devops">DevOps</option>
+								<option value="testing">Testing</option>
+							</select>
+							<Icon
+								name="heroicons:chevron-down"
+								class="h-4 w-4 absolute right-3 pointer-events-none"
+							/>
+						</div>
 
 						<!-- Price Filter -->
-						<select
-							v-model="selectedPrice"
-							class="form-select"
-						>
-							<option value="">All Pricing</option>
-							<option value="free">Free</option>
-							<option value="free-plan">Free Plan Available</option>
-							<option value="paid">Paid</option>
-						</select>
+						<div class="flex relative items-center">
+							<select
+								v-model="selectedPrice"
+								class="form-select"
+							>
+								<option value="">All Pricing</option>
+								<option value="free">Free</option>
+								<option value="free-plan">Free Plan Available</option>
+								<option value="paid">Paid</option>
+							</select>
+							<Icon
+								name="heroicons:chevron-down"
+								class="h-4 w-4 absolute right-3 pointer-events-none"
+							/>
+						</div>
 
 						<!-- Sort Options -->
-						<select
-							v-model="sortBy"
-							class="form-select"
-						>
-							<option value="rating">Sort by Rating</option>
-							<option value="name">Sort by Name</option>
-							<option value="category">Sort by Category</option>
-							<option value="price">Sort by Price</option>
-						</select>
+						<div class="flex relative items-center">
+							<select
+								v-model="sortBy"
+								class="form-select"
+							>
+								<option value="rating">Sort by Rating</option>
+								<option value="name">Sort by Name</option>
+								<option value="category">Sort by Category</option>
+								<option value="price">Sort by Price</option>
+							</select>
+							<Icon
+								name="heroicons:chevron-down"
+								class="h-4 w-4 absolute right-3 pointer-events-none"
+							/>
+						</div>
 					</div>
 
 					<!-- Keywords Filter -->

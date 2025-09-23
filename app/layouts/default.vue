@@ -299,7 +299,7 @@
 	}
 
 	.text-muted {
-		color: #9ca3af;
+		color: #9ca3af !important;
 	}
 
 	.text-subtle {
@@ -415,6 +415,10 @@
 		transition: all 0.2s ease;
 		resize: vertical;
 		min-height: 120px;
+	}
+
+	select {
+		appearance: none;
 	}
 
 	.form-textarea::placeholder {
