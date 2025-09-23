@@ -34,7 +34,7 @@
 						<div class="relative">
 							<button
 								@click="categoryExpanded = !categoryExpanded"
-								class="flex items-center justify-between w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-w-[200px]"
+								class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
 								ref="categoryButton"
 							>
 								<span class="flex items-center gap-2 text-sm font-medium">
@@ -60,7 +60,7 @@
 											? 'heroicons:chevron-up'
 											: 'heroicons:chevron-down'
 									"
-									class="h-4 w-4 text-muted"
+									class="h-4 w-4"
 								/>
 							</button>
 						</div>
@@ -69,20 +69,20 @@
 						<Teleport to="body">
 							<div
 								v-if="categoryExpanded"
-								class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999]"
+								class="fixed glass rounded-lg shadow-xl z-[9999]"
 								:style="categoryDropdownStyle"
 							>
 								<div class="p-2">
 									<button
 										@click="selectCategory('')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										class="flex items-center form-select gap-3 w-full p-2 transition-colors"
 										:class="{
-											'bg-primary/10 text-primary': selectedCategory === '',
+											' text-primary': selectedCategory === '',
 										}"
 									>
 										<Icon
 											name="heroicons:squares-2x2"
-											class="h-4 w-4 text-muted"
+											class="h-4 w-4"
 										/>
 										All Categories
 									</button>
@@ -201,7 +201,7 @@
 							</select>
 							<Icon
 								name="heroicons:chevron-down"
-								class="h-4 w-4 absolute right-3 pointer-events-none"
+								class="h-4 w-4 absolute right-4 pointer-events-none"
 							/>
 						</div>
 
@@ -218,7 +218,7 @@
 							</select>
 							<Icon
 								name="heroicons:chevron-down"
-								class="h-4 w-4 absolute right-3 pointer-events-none"
+								class="h-4 w-4 absolute right-4 pointer-events-none"
 							/>
 						</div>
 					</div>
@@ -227,7 +227,7 @@
 					<div class="relative">
 						<button
 							@click="keywordsExpanded = !keywordsExpanded"
-							class="flex items-center justify-between w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+							class="flex items-center justify-between w-full p-3 border rounded-lg form-select transition-colors"
 							ref="keywordsButton"
 						>
 							<span class="text-sm font-medium">
@@ -245,7 +245,7 @@
 										? 'heroicons:chevron-up'
 										: 'heroicons:chevron-down'
 								"
-								class="h-4 w-4 text-muted"
+								class="h-4 w-4"
 							/>
 						</button>
 					</div>
@@ -254,7 +254,7 @@
 					<Teleport to="body">
 						<div
 							v-if="keywordsExpanded"
-							class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999]"
+							class="fixed glass rounded-lg shadow-xl z-[9999]"
 							:style="keywordsDropdownStyle"
 						>
 							<div class="p-4">
@@ -267,7 +267,7 @@
 											'px-2 py-1 btn-secondary text-xs rounded-full transition-colors',
 											selectedKeywords.includes(keyword)
 												? 'bg-primary text-white'
-												: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
+												: 'bg-gray-100 ',
 										]"
 									>
 										{{ keyword }}
@@ -280,7 +280,7 @@
 								>
 									<button
 										@click="clearSelectedKeywords"
-										class="text-xs text-red-500 hover:text-red-600"
+										class="text-xs flex items-center text-red-500 hover:text-red-600"
 									>
 										Clear all keywords
 									</button>
@@ -317,7 +317,7 @@
 							Price: {{ selectedPrice }}
 							<button
 								@click="selectedPrice = ''"
-								class="hover:text-red-400"
+								class="hover:text-red-400 flex items-center"
 							>
 								<Icon
 									name="heroicons:x-mark"
@@ -333,7 +333,7 @@
 							{{ keyword }}
 							<button
 								@click="removeKeyword(keyword)"
-								class="hover:text-red-400"
+								class="hover:text-red-400 flex items-center"
 							>
 								<Icon
 									name="heroicons:x-mark"
