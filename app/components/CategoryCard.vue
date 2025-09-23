@@ -1,6 +1,6 @@
 <template>
 	<NuxtLink
-		:to="`/categories/${category.slug}`"
+		:to="`/tools?category=${category.slug}`"
 		class="block group w-full max-w-[300px]"
 	>
 		<div
