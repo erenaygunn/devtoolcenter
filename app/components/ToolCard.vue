@@ -1,7 +1,7 @@
 <template>
 	<div class="card h-full card-hover group">
 		<div class="flex items-start justify-start gap-y-6 flex-col h-full">
-			<div class="flex items-start justify-start">
+			<div class="flex items-center gap-x-4 justify-start">
 				<div
 					class="w-12 h-12 glass rounded-lg flex items-center justify-center"
 				>
@@ -14,6 +14,16 @@
 						v-else
 						class="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded"
 					></div>
+				</div>
+
+				<div
+					class="flex"
+					v-if="tool.price"
+				>
+					<span
+						class="px-2 py-1 glass rounded-lg text-primary border border-green-400/30"
+						>{{ tool.price }}</span
+					>
 				</div>
 			</div>
 

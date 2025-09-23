@@ -101,6 +101,7 @@
 			tags: ["Editor", "Free", "Extensions"],
 			rating: 4.9,
 			category: "frontend",
+			price: "Free",
 			url: "https://code.visualstudio.com",
 		},
 		// Add more tools...
