@@ -31,25 +31,162 @@
 					<!-- Filters Row -->
 					<div class="flex flex-col lg:flex-row gap-4">
 						<!-- Category Filter -->
-						<div class="flex relative items-center">
-							<select
-								v-model="selectedCategory"
-								class="form-select !pr-7"
+						<div class="relative">
+							<button
+								@click="categoryExpanded = !categoryExpanded"
+								class="flex items-center justify-between w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-w-[200px]"
+								ref="categoryButton"
 							>
-								<option value="">All Categories</option>
-								<option value="frontend">Frontend</option>
-								<option value="backend">Backend</option>
-								<option value="ai-helpers">AI Helpers</option>
-								<option value="documentation">Documentation</option>
-								<option value="design">Design</option>
-								<option value="devops">DevOps</option>
-								<option value="testing">Testing</option>
-							</select>
-							<Icon
-								name="heroicons:chevron-down"
-								class="h-4 w-4 absolute right-3 pointer-events-none"
-							/>
+								<span class="flex items-center gap-2 text-sm font-medium">
+									<Icon
+										v-if="selectedCategory"
+										:name="getCategoryIcon(selectedCategory)"
+										class="h-4 w-4"
+									/>
+									<Icon
+										v-else
+										name="heroicons:squares-2x2"
+										class="h-4 w-4 text-muted"
+									/>
+									{{
+										selectedCategory
+											? getCategoryLabel(selectedCategory)
+											: "All Categories"
+									}}
+								</span>
+								<Icon
+									:name="
+										categoryExpanded
+											? 'heroicons:chevron-up'
+											: 'heroicons:chevron-down'
+									"
+									class="h-4 w-4 text-muted"
+								/>
+							</button>
 						</div>
+
+						<!-- Teleported Category Dropdown -->
+						<Teleport to="body">
+							<div
+								v-if="categoryExpanded"
+								class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999]"
+								:style="categoryDropdownStyle"
+							>
+								<div class="p-2">
+									<button
+										@click="selectCategory('')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary': selectedCategory === '',
+										}"
+									>
+										<Icon
+											name="heroicons:squares-2x2"
+											class="h-4 w-4 text-muted"
+										/>
+										All Categories
+									</button>
+									<button
+										@click="selectCategory('frontend')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary':
+												selectedCategory === 'frontend',
+										}"
+									>
+										<Icon
+											name="heroicons:code-bracket"
+											class="h-4 w-4"
+										/>
+										Frontend
+									</button>
+									<button
+										@click="selectCategory('backend')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary':
+												selectedCategory === 'backend',
+										}"
+									>
+										<Icon
+											name="heroicons:server"
+											class="h-4 w-4"
+										/>
+										Backend
+									</button>
+									<button
+										@click="selectCategory('ai-helpers')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary':
+												selectedCategory === 'ai-helpers',
+										}"
+									>
+										<Icon
+											name="heroicons:cpu-chip"
+											class="h-4 w-4"
+										/>
+										AI Helpers
+									</button>
+									<button
+										@click="selectCategory('documentation')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary':
+												selectedCategory === 'documentation',
+										}"
+									>
+										<Icon
+											name="heroicons:document-text"
+											class="h-4 w-4"
+										/>
+										Documentation
+									</button>
+									<button
+										@click="selectCategory('design')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary':
+												selectedCategory === 'design',
+										}"
+									>
+										<Icon
+											name="heroicons:paint-brush"
+											class="h-4 w-4"
+										/>
+										Design
+									</button>
+									<button
+										@click="selectCategory('devops')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary':
+												selectedCategory === 'devops',
+										}"
+									>
+										<Icon
+											name="heroicons:cog-6-tooth"
+											class="h-4 w-4"
+										/>
+										DevOps
+									</button>
+									<button
+										@click="selectCategory('testing')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary':
+												selectedCategory === 'testing',
+										}"
+									>
+										<Icon
+											name="heroicons:beaker"
+											class="h-4 w-4"
+										/>
+										Testing
+									</button>
+								</div>
+							</div>
+						</Teleport>
 
 						<!-- Price Filter -->
 						<div class="flex relative items-center">
@@ -87,10 +224,11 @@
 					</div>
 
 					<!-- Keywords Filter -->
-					<div>
+					<div class="relative">
 						<button
 							@click="keywordsExpanded = !keywordsExpanded"
 							class="flex items-center justify-between w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+							ref="keywordsButton"
 						>
 							<span class="text-sm font-medium">
 								Filter by Keywords
@@ -110,40 +248,46 @@
 								class="h-4 w-4 text-muted"
 							/>
 						</button>
+					</div>
 
+					<!-- Teleported Keywords Dropdown -->
+					<Teleport to="body">
 						<div
 							v-if="keywordsExpanded"
-							class="mt-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50/50 dark:bg-gray-800/50"
+							class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999]"
+							:style="keywordsDropdownStyle"
 						>
-							<div class="flex flex-wrap gap-2">
-								<button
-									v-for="keyword in availableKeywords"
-									:key="keyword"
-									@click="toggleKeyword(keyword)"
-									:class="[
-										'px-2 py-1 btn-secondary text-xs rounded-full transition-colors',
-										selectedKeywords.includes(keyword)
-											? 'bg-primary text-white'
-											: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
-									]"
-								>
-									{{ keyword }}
-								</button>
-							</div>
+							<div class="p-4">
+								<div class="flex flex-wrap gap-2">
+									<button
+										v-for="keyword in availableKeywords"
+										:key="keyword"
+										@click="toggleKeyword(keyword)"
+										:class="[
+											'px-2 py-1 btn-secondary text-xs rounded-full transition-colors',
+											selectedKeywords.includes(keyword)
+												? 'bg-primary text-white'
+												: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
+										]"
+									>
+										{{ keyword }}
+									</button>
+								</div>
 
-							<div
-								v-if="selectedKeywords.length > 0"
-								class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
-							>
-								<button
-									@click="clearSelectedKeywords"
-									class="text-xs text-red-500 hover:text-red-600"
+								<div
+									v-if="selectedKeywords.length > 0"
+									class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
 								>
-									Clear all keywords
-								</button>
+									<button
+										@click="clearSelectedKeywords"
+										class="text-xs text-red-500 hover:text-red-600"
+									>
+										Clear all keywords
+									</button>
+								</div>
 							</div>
 						</div>
-					</div>
+					</Teleport>
 
 					<!-- Active Filters Display -->
 					<div
@@ -158,7 +302,7 @@
 							Category: {{ selectedCategory }}
 							<button
 								@click="selectedCategory = ''"
-								class="hover:text-red-400"
+								class="hover:text-red-400 flex items-center"
 							>
 								<Icon
 									name="heroicons:x-mark"
@@ -260,6 +404,67 @@
 	const selectedKeywords = ref([]);
 	const sortBy = ref("rating");
 	const keywordsExpanded = ref(false);
+	const categoryExpanded = ref(false);
+	const categoryButton = ref(null);
+	const keywordsButton = ref(null);
+
+	const categoryDropdownStyle = ref({});
+	const keywordsDropdownStyle = ref({});
+
+	const updateDropdownPositions = () => {
+		if (categoryButton.value && categoryExpanded.value) {
+			const rect = categoryButton.value.getBoundingClientRect();
+			categoryDropdownStyle.value = {
+				top: `${rect.bottom + 8}px`,
+				left: `${rect.left}px`,
+				width: `${rect.width}px`,
+			};
+		}
+
+		if (keywordsButton.value && keywordsExpanded.value) {
+			const rect = keywordsButton.value.getBoundingClientRect();
+			keywordsDropdownStyle.value = {
+				top: `${rect.bottom + 8}px`,
+				left: `${rect.left}px`,
+				right: `${window.innerWidth - rect.right}px`,
+			};
+		}
+	};
+
+	watch([categoryExpanded, keywordsExpanded], () => {
+		nextTick(() => {
+			updateDropdownPositions();
+		});
+	});
+
+	onMounted(() => {
+		window.addEventListener("resize", updateDropdownPositions);
+		window.addEventListener("scroll", updateDropdownPositions);
+
+		const handleClickOutside = (event) => {
+			if (
+				categoryExpanded.value &&
+				!categoryButton.value?.contains(event.target) &&
+				!event.target.closest(".fixed")
+			) {
+				categoryExpanded.value = false;
+			}
+			if (
+				keywordsExpanded.value &&
+				!keywordsButton.value?.contains(event.target) &&
+				!event.target.closest(".fixed")
+			) {
+				keywordsExpanded.value = false;
+			}
+		};
+		document.addEventListener("click", handleClickOutside);
+
+		onUnmounted(() => {
+			window.removeEventListener("resize", updateDropdownPositions);
+			window.removeEventListener("scroll", updateDropdownPositions);
+			document.removeEventListener("click", handleClickOutside);
+		});
+	});
 
 	// Initialize from URL query params
 	onMounted(() => {
@@ -369,6 +574,38 @@
 		selectedPrice.value = "";
 		selectedKeywords.value = [];
 		keywordsExpanded.value = false;
+		categoryExpanded.value = false;
+	};
+
+	const selectCategory = (category) => {
+		selectedCategory.value = category;
+		categoryExpanded.value = false;
+	};
+
+	const getCategoryIcon = (category) => {
+		const icons = {
+			frontend: "heroicons:code-bracket",
+			backend: "heroicons:server",
+			"ai-helpers": "heroicons:cpu-chip",
+			documentation: "heroicons:document-text",
+			design: "heroicons:paint-brush",
+			devops: "heroicons:cog-6-tooth",
+			testing: "heroicons:beaker",
+		};
+		return icons[category] || "heroicons:squares-2x2";
+	};
+
+	const getCategoryLabel = (category) => {
+		const labels = {
+			frontend: "Frontend",
+			backend: "Backend",
+			"ai-helpers": "AI Helpers",
+			documentation: "Documentation",
+			design: "Design",
+			devops: "DevOps",
+			testing: "Testing",
+		};
+		return labels[category] || category;
 	};
 
 	const filteredTools = computed(() => {
