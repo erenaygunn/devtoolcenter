@@ -72,7 +72,11 @@
 
 	const handleSearch = () => {
 		if (searchQuery.value.trim()) {
-			navigateTo(`/tools?search=${encodeURIComponent(searchQuery.value)}`);
+			navigateTo(
+				`/tools?search=${encodeURIComponent(searchQuery.value.trim())}`
+			);
+		} else {
+			navigateTo("/tools");
 		}
 	};
 </script>

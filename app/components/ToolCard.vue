@@ -21,7 +21,7 @@
 					v-if="tool.price"
 				>
 					<span
-						class="px-2 py-1 glass rounded-lg text-primary border border-green-400/30"
+						class="px-2 py-1 capitalize glass rounded-lg text-primary border border-green-400/30"
 						>{{ tool.price }}</span
 					>
 				</div>
@@ -57,9 +57,10 @@
 							}}</span>
 						</div>
 						<span class="text-subtle">•</span>
-						<span class="text-body-sm whitespace-nowrap text-muted">{{
-							tool.category
-						}}</span>
+						<span
+							class="text-body-sm capitalize whitespace-nowrap text-muted"
+							>{{ tool.category }}</span
+						>
 					</div>
 				</div>
 
@@ -80,8 +81,6 @@
 </template>
 
 <script setup>
-	import Index from "~/pages/index.vue";
-
 	defineProps({
 		tool: {
 			type: Object,
