@@ -41,9 +41,14 @@
 						v-model="form.description"
 						required
 						rows="4"
+						maxlength="300"
 						class="form-input w-full"
-						placeholder="Brief description of what the tool does..."
+						placeholder="Brief description of what the tool does (2-3 sentences max)..."
 					></textarea>
+					<div class="flex justify-between mt-1">
+						<p class="text-xs text-muted">Keep it concise - 2-3 sentences</p>
+						<p class="text-xs text-muted">{{ form.description.length }}/300</p>
+					</div>
 				</div>
 
 				<!-- URL -->
@@ -62,20 +67,69 @@
 				<!-- Category -->
 				<div>
 					<label class="block text-sm font-medium mb-2">Category *</label>
-					<select
-						v-model="form.category"
-						required
-						class="form-select w-full"
-					>
-						<option value="">Select a category</option>
-						<option value="frontend">Frontend</option>
-						<option value="backend">Backend</option>
-						<option value="ai-helpers">AI Helpers</option>
-						<option value="documentation">Documentation</option>
-						<option value="design">Design</option>
-						<option value="devops">DevOps</option>
-						<option value="testing">Testing</option>
-					</select>
+					<div class="relative">
+						<button
+							@click="categoryExpanded = !categoryExpanded"
+							type="button"
+							class="flex items-center justify-between w-full p-3 form-select transition-colors"
+							ref="categoryButton"
+						>
+							<span class="flex items-center gap-2 text-sm font-medium">
+								<Icon
+									v-if="form.category"
+									:name="getCategoryIcon(form.category)"
+									class="h-4 w-4"
+								/>
+								<Icon
+									v-else
+									name="heroicons:squares-2x2"
+									class="h-4 w-4 text-muted"
+								/>
+								{{
+									form.category
+										? getCategoryLabel(form.category)
+										: "Select a category"
+								}}
+							</span>
+							<Icon
+								:name="
+									categoryExpanded
+										? 'heroicons:chevron-up'
+										: 'heroicons:chevron-down'
+								"
+								class="h-4 w-4"
+							/>
+						</button>
+					</div>
+
+					<!-- Teleported Category Dropdown -->
+					<Teleport to="body">
+						<div
+							v-if="categoryExpanded"
+							class="fixed glass rounded-lg shadow-xl z-[9999]"
+							:style="categoryDropdownStyle"
+						>
+							<div class="p-2">
+								<button
+									v-for="category in categories"
+									:key="category.slug"
+									@click="selectCategory(category.slug)"
+									type="button"
+									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+									:class="{
+										'bg-primary/10 text-primary':
+											form.category === category.slug,
+									}"
+								>
+									<Icon
+										:name="category.icon"
+										class="h-4 w-4"
+									/>
+									{{ category.name }}
+								</button>
+							</div>
+						</div>
+					</Teleport>
 				</div>
 
 				<!-- Price -->
@@ -127,14 +181,92 @@
 
 				<!-- Tags -->
 				<div>
-					<label class="block text-sm font-medium mb-2">Tags</label>
-					<input
-						v-model="tagInput"
-						type="text"
-						class="form-input w-full"
-						placeholder="Enter tags separated by commas"
-						@keyup.enter="addTag"
-					/>
+					<label class="block text-sm font-medium mb-2">Tags *</label>
+					<div class="relative">
+						<button
+							@click="tagsExpanded = !tagsExpanded"
+							type="button"
+							class="flex items-center justify-between w-full p-3 form-select transition-colors"
+							ref="tagsButton"
+						>
+							<span class="text-sm font-medium">
+								Select tags
+								<span
+									v-if="form.tags.length > 0"
+									class="text-primary ml-1"
+								>
+									({{ form.tags.length }} selected)
+								</span>
+							</span>
+							<Icon
+								:name="
+									tagsExpanded
+										? 'heroicons:chevron-up'
+										: 'heroicons:chevron-down'
+								"
+								class="h-4 w-4"
+							/>
+						</button>
+					</div>
+
+					<!-- Teleported Tags Dropdown -->
+					<Teleport to="body">
+						<div
+							v-if="tagsExpanded"
+							class="fixed glass rounded-lg shadow-xl z-[9999]"
+							:style="tagsDropdownStyle"
+						>
+							<div class="p-4">
+								<div class="flex flex-wrap gap-2">
+									<button
+										v-for="tag in existingTags"
+										:key="tag"
+										@click="toggleTag(tag)"
+										type="button"
+										:class="[
+											'px-2 py-1 text-xs rounded-full transition-colors',
+											form.tags.includes(tag)
+												? 'bg-primary text-white'
+												: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
+										]"
+									>
+										{{ tag }}
+									</button>
+									<button
+										@click="showNewTagInput = true"
+										type="button"
+										class="px-2 py-1 text-xs rounded-full transition-colors bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+									>
+										+ Add new tag
+									</button>
+								</div>
+
+								<input
+									v-if="showNewTagInput"
+									v-model="newTagInput"
+									type="text"
+									class="form-input w-full mt-3"
+									placeholder="Enter new tag"
+									@keyup.enter="addNewTag"
+									@blur="cancelNewTag"
+								/>
+
+								<div
+									v-if="form.tags.length > 0"
+									class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
+								>
+									<button
+										@click="clearSelectedTags"
+										type="button"
+										class="text-xs text-red-500 hover:text-red-600 transition-colors"
+									>
+										Clear all tags
+									</button>
+								</div>
+							</div>
+						</div>
+					</Teleport>
+
 					<div
 						v-if="form.tags.length > 0"
 						class="flex flex-wrap gap-2 mt-2"
@@ -142,49 +274,13 @@
 						<span
 							v-for="(tag, index) in form.tags"
 							:key="index"
-							class="px-2 py-1 bg-primary/10 text-primary rounded-full text-sm flex items-center gap-1"
+							class="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-full text-sm"
 						>
 							{{ tag }}
 							<button
 								type="button"
 								@click="removeTag(index)"
-								class="hover:text-red-400"
-							>
-								<Icon
-									name="heroicons:x-mark"
-									class="h-3 w-3"
-								/>
-							</button>
-						</span>
-					</div>
-				</div>
-
-				<!-- Keywords -->
-				<div>
-					<label class="block text-sm font-medium mb-2"
-						>Keywords (for search)</label
-					>
-					<input
-						v-model="keywordInput"
-						type="text"
-						class="form-input w-full"
-						placeholder="Enter keywords separated by commas"
-						@keyup.enter="addKeyword"
-					/>
-					<div
-						v-if="form.keywords.length > 0"
-						class="flex flex-wrap gap-2 mt-2"
-					>
-						<span
-							v-for="(keyword, index) in form.keywords"
-							:key="index"
-							class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded text-sm flex items-center gap-1"
-						>
-							{{ keyword }}
-							<button
-								type="button"
-								@click="removeKeyword(index)"
-								class="hover:text-red-400"
+								class="inline-flex items-center justify-center hover:text-red-400 transition-colors"
 							>
 								<Icon
 									name="heroicons:x-mark"
@@ -203,7 +299,7 @@
 						class="btn btn-primary w-full"
 					>
 						<span v-if="isSubmitting">Submitting...</span>
-						<span v-else>Submit Tool</span>
+						<span v-else>Send a Submit Request</span>
 					</button>
 				</div>
 			</form>
@@ -230,19 +326,62 @@
 		price: "",
 		icon: "",
 		tags: [],
-		keywords: [],
 	});
 
 	const tagInput = ref("");
-	const keywordInput = ref("");
+	const newTagInput = ref("");
+	const showNewTagInput = ref(false);
+	const tagsExpanded = ref(false);
+	const categoryExpanded = ref(false);
+	const categoryButton = ref(null);
+	const tagsButton = ref(null);
 	const isSubmitting = ref(false);
 	const duplicateWarning = ref(false);
+
+	const categoryDropdownStyle = ref({});
+	const tagsDropdownStyle = ref({});
 
 	// Mock existing tools for duplicate detection
 	const existingTools = ref([
 		{ name: "VS Code", url: "https://code.visualstudio.com" },
 		{ name: "Figma", url: "https://figma.com" },
 		{ name: "Notion", url: "https://notion.so" },
+	]);
+
+	// Categories (matching exactly from tools page)
+	const categories = ref([
+		{ slug: "frontend", name: "Frontend", icon: "heroicons:code-bracket" },
+		{ slug: "backend", name: "Backend", icon: "heroicons:server" },
+		{ slug: "ai-helpers", name: "AI Helpers", icon: "heroicons:cpu-chip" },
+		{
+			slug: "documentation",
+			name: "Documentation",
+			icon: "heroicons:document-text",
+		},
+		{ slug: "design", name: "Design", icon: "heroicons:paint-brush" },
+		{ slug: "devops", name: "DevOps", icon: "heroicons:cog-6-tooth" },
+		{ slug: "testing", name: "Testing", icon: "heroicons:beaker" },
+	]);
+
+	// Existing tags (from tools page)
+	const existingTags = ref([
+		"code",
+		"editor",
+		"microsoft",
+		"programming",
+		"development",
+		"design",
+		"ui",
+		"ux",
+		"prototype",
+		"collaboration",
+		"notes",
+		"productivity",
+		"workspace",
+		"organization",
+		"free",
+		"extensions",
+		"database",
 	]);
 
 	const checkForDuplicate = () => {
@@ -257,6 +396,7 @@
 	};
 
 	const addTag = () => {
+		// Keep this for backward compatibility but it's now replaced by the dropdown
 		if (tagInput.value.trim()) {
 			const tags = tagInput.value
 				.split(",")
@@ -271,19 +411,133 @@
 		form.value.tags.splice(index, 1);
 	};
 
-	const addKeyword = () => {
-		if (keywordInput.value.trim()) {
-			const keywords = keywordInput.value
-				.split(",")
-				.map((keyword) => keyword.trim())
-				.filter((keyword) => keyword);
-			form.value.keywords.push(...keywords);
-			keywordInput.value = "";
+	const updateDropdownPositions = () => {
+		if (categoryButton.value && categoryExpanded.value) {
+			const rect = categoryButton.value.getBoundingClientRect();
+			categoryDropdownStyle.value = {
+				top: `${rect.bottom + 8}px`,
+				left: `${rect.left}px`,
+				width: `${rect.width}px`,
+			};
+		}
+
+		if (tagsButton.value && tagsExpanded.value) {
+			const rect = tagsButton.value.getBoundingClientRect();
+			tagsDropdownStyle.value = {
+				top: `${rect.bottom + 8}px`,
+				left: `${rect.left}px`,
+				right: `${window.innerWidth - rect.right}px`,
+			};
 		}
 	};
 
-	const removeKeyword = (index) => {
-		form.value.keywords.splice(index, 1);
+	watch([categoryExpanded, tagsExpanded], () => {
+		nextTick(() => {
+			updateDropdownPositions();
+		});
+	});
+
+	onMounted(() => {
+		window.addEventListener("resize", updateDropdownPositions);
+		window.addEventListener("scroll", updateDropdownPositions);
+
+		const handleClickOutside = (event) => {
+			if (
+				categoryExpanded.value &&
+				!categoryButton.value?.contains(event.target) &&
+				!event.target.closest(".fixed")
+			) {
+				categoryExpanded.value = false;
+			}
+			if (
+				tagsExpanded.value &&
+				!tagsButton.value?.contains(event.target) &&
+				!event.target.closest(".fixed")
+			) {
+				tagsExpanded.value = false;
+			}
+		};
+		document.addEventListener("click", handleClickOutside);
+
+		onUnmounted(() => {
+			window.removeEventListener("resize", updateDropdownPositions);
+			window.removeEventListener("scroll", updateDropdownPositions);
+			document.removeEventListener("click", handleClickOutside);
+		});
+	});
+
+	const selectCategory = (category) => {
+		form.value.category = category;
+		categoryExpanded.value = false;
+	};
+
+	const getCategoryIcon = (category) => {
+		const icons = {
+			frontend: "heroicons:code-bracket",
+			backend: "heroicons:server",
+			"ai-helpers": "heroicons:cpu-chip",
+			documentation: "heroicons:document-text",
+			design: "heroicons:paint-brush",
+			devops: "heroicons:cog-6-tooth",
+			testing: "heroicons:beaker",
+		};
+		return icons[category] || "heroicons:squares-2x2";
+	};
+
+	const getCategoryLabel = (category) => {
+		const labels = {
+			frontend: "Frontend",
+			backend: "Backend",
+			"ai-helpers": "AI Helpers",
+			documentation: "Documentation",
+			design: "Design",
+			devops: "DevOps",
+			testing: "Testing",
+		};
+		return labels[category] || category;
+	};
+
+	const toggleTag = (tag) => {
+		const index = form.value.tags.indexOf(tag);
+		if (index > -1) {
+			form.value.tags.splice(index, 1);
+		} else {
+			form.value.tags.push(tag);
+		}
+	};
+
+	const clearSelectedTags = () => {
+		form.value.tags = [];
+	};
+
+	const addNewTag = () => {
+		if (
+			newTagInput.value.trim() &&
+			!form.value.tags.includes(newTagInput.value.trim()) &&
+			!existingTags.value.includes(newTagInput.value.trim())
+		) {
+			form.value.tags.push(newTagInput.value.trim());
+			// Add to existing tags for future use
+			existingTags.value.push(newTagInput.value.trim());
+			existingTags.value.sort();
+			newTagInput.value = "";
+			showNewTagInput.value = false;
+		} else if (
+			newTagInput.value.trim() &&
+			existingTags.value.includes(newTagInput.value.trim()) &&
+			!form.value.tags.includes(newTagInput.value.trim())
+		) {
+			// If tag exists but not selected, just select it
+			form.value.tags.push(newTagInput.value.trim());
+			newTagInput.value = "";
+			showNewTagInput.value = false;
+		}
+	};
+
+	const cancelNewTag = () => {
+		if (!newTagInput.value.trim()) {
+			showNewTagInput.value = false;
+		}
 	};
 
 	const submitTool = async () => {
