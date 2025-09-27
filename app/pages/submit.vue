@@ -359,6 +359,66 @@
 			</form>
 		</div>
 	</div>
+
+	<!-- Success Modal -->
+	<div
+		v-if="showSuccessModal"
+		class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+		@click="closeSuccessModal"
+	>
+		<div
+			class="card max-w-md w-full"
+			@click.stop
+		>
+			<div class="text-center">
+				<div class="mb-6">
+					<div
+						class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4"
+					>
+						<Icon
+							name="heroicons:check-circle"
+							class="h-8 w-8 text-green-600"
+						/>
+					</div>
+					<h2 class="text-h3 mb-2">Submission Received!</h2>
+					<p class="text-muted">
+						Thank you for your contribution to the DevShelf community.
+					</p>
+				</div>
+
+				<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6 text-left">
+					<h3 class="font-medium mb-2 text-sm">What happens next?</h3>
+					<ul class="text-sm text-muted space-y-1">
+						<li>• Your submission is now in our review queue</li>
+						<li>• Our team will review it within 24 hours</li>
+					</ul>
+				</div>
+
+				<div class="flex flex-col sm:flex-row gap-3">
+					<button
+						@click="submitAnother"
+						class="btn btn-secondary flex-1"
+					>
+						<Icon
+							name="heroicons:plus"
+							class="h-4 w-4 mr-2"
+						/>
+						Submit Another
+					</button>
+					<button
+						@click="closeSuccessModal"
+						class="btn btn-primary flex-1"
+					>
+						<Icon
+							name="heroicons:squares-2x2"
+							class="h-4 w-4 mr-2"
+						/>
+						Browse Tools
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
 <script lang="ts" setup>
@@ -403,6 +463,7 @@
 	const tagsButton = ref(null);
 	const priceButton = ref(null);
 	const isSubmitting = ref(false);
+	const showSuccessModal = ref(false);
 
 	const categoryDropdownStyle = ref({});
 	const tagsDropdownStyle = ref({});
@@ -483,7 +544,7 @@
 
 		isSubmitting.value = true;
 		try {
-			await $fetch(`${apiBase}/submissions`, {
+			const response = await $fetch(`${apiBase}/submissions`, {
 				method: "POST",
 				body: {
 					name: form.value.name,
@@ -495,20 +556,58 @@
 					keywords: form.value.tags,
 				},
 			});
-			navigateTo("/tools?submitted=true");
+
+			// Show success modal if we get here without throwing
+			showSuccessModal.value = true;
 		} catch (e: any) {
+			console.error("Submission error:", e);
+
+			// Check if it's actually a success but different status code
+			if (e?.data?.message && e.data.message.includes("success")) {
+				showSuccessModal.value = true;
+				return;
+			}
+
 			if (e?.data?.error?.code === "VALIDATION_ERROR") {
 				alert(
 					e.data.error.issues
 						.map((issue: any) => `${issue.path.join(".")}: ${issue.message}`)
 						.join("\n")
 				);
+			} else if (e?.statusCode === 201 || e?.statusCode === 200) {
+				// Sometimes 201/200 status codes are thrown as "errors"
+				showSuccessModal.value = true;
 			} else {
-				alert("Submission failed. Please try again.");
+				const errorMessage =
+					e?.data?.message || e?.message || "Unknown error occurred";
+				alert(`Submission failed: ${errorMessage}. Please try again.`);
 			}
 		} finally {
 			isSubmitting.value = false;
 		}
+	};
+
+	const closeSuccessModal = () => {
+		showSuccessModal.value = false;
+		navigateTo("/tools");
+	};
+
+	const submitAnother = () => {
+		showSuccessModal.value = false;
+		// Reset form
+		form.value = {
+			name: "",
+			description: "",
+			url: "",
+			category: "",
+			tags: [],
+			price: "",
+		};
+		// Clear any existing errors
+		Object.keys(errors).forEach((key) => {
+			errors[key] = "";
+		});
+		duplicateWarning.value = false;
 	};
 
 	// Mock existing tools for duplicate detection
