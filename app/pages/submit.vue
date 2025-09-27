@@ -10,6 +10,60 @@
 				</p>
 			</div>
 
+			<!-- Submission Guidelines -->
+			<div class="card mb-8">
+				<h2 class="text-h4 mb-4 flex items-center gap-2">
+					<Icon
+						name="heroicons:information-circle"
+						class="h-5 w-5 text-primary"
+					/>
+					Submission Guidelines
+				</h2>
+
+				<div class="space-y-4">
+					<div>
+						<h3 class="font-medium text-sm mb-2 text-primary">
+							What we're looking for:
+						</h3>
+						<ul class="text-sm text-muted space-y-1 ml-4">
+							<li>
+								• <strong>Developer tools</strong> that improve productivity
+							</li>
+							<li>
+								• <strong>Well-maintained</strong> tools with active development
+							</li>
+							<li>
+								• Tools with <strong>clear documentation</strong> and good UX
+							</li>
+							<li>• <strong>Free or freemium</strong> tools are preferred</li>
+						</ul>
+					</div>
+
+					<div>
+						<h3 class="font-medium text-sm mb-2 text-yellow-600">
+							Please avoid:
+						</h3>
+						<ul class="text-sm text-muted space-y-1 ml-4">
+							<li>• Broken or abandoned projects</li>
+							<li>• Duplicate submissions (we'll check for you)</li>
+							<li>• Non-developer tools or general software</li>
+							<li>• Tools without proper documentation</li>
+						</ul>
+					</div>
+
+					<div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+						<p class="text-sm text-blue-800 dark:text-blue-200">
+							<Icon
+								name="heroicons:light-bulb"
+								class="h-4 w-4 inline mr-1"
+							/>
+							<strong>Tip:</strong> Include specific, relevant tags to help
+							other developers discover your tool more easily.
+						</p>
+					</div>
+				</div>
+			</div>
+
 			<form
 				@submit.prevent="submitTool"
 				class="space-y-6"
