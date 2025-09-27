@@ -15,8 +15,8 @@
 			<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 				<NuxtLink
 					v-for="category in categories"
-					:key="category.id"
-					:to="`/tools?category=${category.id}`"
+					:key="category.slug"
+					:to="`/tools?category=${category.slug}`"
 					class="card card-hover group"
 				>
 					<div class="flex items-start gap-4">
@@ -71,6 +71,10 @@
 </template>
 
 <script setup>
+	const apiBase = "http://localhost:5050/api/v1";
+	const { data } = await useFetch(`${apiBase}/categories`);
+	const categories = computed(() => data.value?.data ?? []);
+
 	useHead({
 		title: "Categories - DevShelf",
 		meta: [
@@ -81,64 +85,4 @@
 			},
 		],
 	});
-
-	// Mock data for tool counts - in a real app, this would come from your data source
-	const categories = ref([
-		{
-			id: "frontend",
-			name: "Frontend",
-			description:
-				"Client-side development tools, frameworks, and libraries for building user interfaces and web applications.",
-			icon: "heroicons:code-bracket",
-			toolCount: 15,
-		},
-		{
-			id: "backend",
-			name: "Backend",
-			description:
-				"Server-side development tools, APIs, databases, and infrastructure for building robust applications.",
-			icon: "heroicons:server",
-			toolCount: 12,
-		},
-		{
-			id: "ai-helpers",
-			name: "AI Helpers",
-			description:
-				"AI-powered tools and assistants to boost productivity and automate development tasks.",
-			icon: "heroicons:cpu-chip",
-			toolCount: 8,
-		},
-		{
-			id: "design",
-			name: "Design",
-			description:
-				"UI/UX design tools, prototyping software, and resources for creating beautiful interfaces.",
-			icon: "heroicons:paint-brush",
-			toolCount: 10,
-		},
-		{
-			id: "devops",
-			name: "DevOps",
-			description:
-				"Deployment, monitoring, CI/CD, and infrastructure tools for streamlined development operations.",
-			icon: "heroicons:cog-6-tooth",
-			toolCount: 14,
-		},
-		{
-			id: "testing",
-			name: "Testing",
-			description:
-				"Testing frameworks, automation tools, and quality assurance resources for reliable software.",
-			icon: "heroicons:beaker",
-			toolCount: 9,
-		},
-		{
-			id: "documentation",
-			name: "Documentation",
-			description:
-				"Tools for creating, managing, and sharing project documentation and knowledge bases.",
-			icon: "heroicons:document-text",
-			toolCount: 7,
-		},
-	]);
 </script>

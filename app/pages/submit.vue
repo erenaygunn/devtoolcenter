@@ -307,7 +307,7 @@
 	</div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 	useHead({
 		title: "Submit a Tool - DevShelf",
 		meta: [
@@ -317,6 +317,16 @@
 			},
 		],
 	});
+
+	const apiBase = "http://localhost:5050/api/v1";
+	const { data: catData } = await useFetch(`${apiBase}/categories`);
+	const categories = computed(() =>
+		(catData.value?.data ?? []).map((c: any) => ({
+			slug: c.slug,
+			name: c.name,
+			icon: c.icon,
+		}))
+	);
 
 	const form = ref({
 		name: "",
@@ -336,31 +346,57 @@
 	const categoryButton = ref(null);
 	const tagsButton = ref(null);
 	const isSubmitting = ref(false);
-	const duplicateWarning = ref(false);
 
 	const categoryDropdownStyle = ref({});
 	const tagsDropdownStyle = ref({});
+
+	const duplicateWarning = ref(false);
+
+	const checkForDuplicate = async () => {
+		if (!form.value.name && !form.value.url) return;
+		const r: any = await $fetch(`${apiBase}/tools/exists`, {
+			params: {
+				name: form.value.name || undefined,
+				url: form.value.url || undefined,
+			},
+		});
+		duplicateWarning.value = r?.exists === true;
+	};
+
+	const submitTool = async () => {
+		if (duplicateWarning.value) {
+			const ok = window.confirm(
+				"This tool might already exist. Submit anyway?"
+			);
+			if (!ok) return;
+		}
+		isSubmitting.value = true;
+		try {
+			await $fetch(`${apiBase}/submissions`, {
+				method: "POST",
+				body: {
+					name: form.value.name,
+					description: form.value.description,
+					url: form.value.url,
+					category: form.value.category,
+					tags: form.value.tags,
+					keywords: form.value.tags, // (optional) or keep separate
+				},
+			});
+			navigateTo("/tools?submitted=true");
+		} catch (e) {
+			console.error(e);
+			alert("Submission failed.");
+		} finally {
+			isSubmitting.value = false;
+		}
+	};
 
 	// Mock existing tools for duplicate detection
 	const existingTools = ref([
 		{ name: "VS Code", url: "https://code.visualstudio.com" },
 		{ name: "Figma", url: "https://figma.com" },
 		{ name: "Notion", url: "https://notion.so" },
-	]);
-
-	// Categories (matching exactly from tools page)
-	const categories = ref([
-		{ slug: "frontend", name: "Frontend", icon: "heroicons:code-bracket" },
-		{ slug: "backend", name: "Backend", icon: "heroicons:server" },
-		{ slug: "ai-helpers", name: "AI Helpers", icon: "heroicons:cpu-chip" },
-		{
-			slug: "documentation",
-			name: "Documentation",
-			icon: "heroicons:document-text",
-		},
-		{ slug: "design", name: "Design", icon: "heroicons:paint-brush" },
-		{ slug: "devops", name: "DevOps", icon: "heroicons:cog-6-tooth" },
-		{ slug: "testing", name: "Testing", icon: "heroicons:beaker" },
 	]);
 
 	// Existing tags (from tools page)
@@ -383,17 +419,6 @@
 		"extensions",
 		"database",
 	]);
-
-	const checkForDuplicate = () => {
-		const nameMatch = existingTools.value.some(
-			(tool) => tool.name.toLowerCase() === form.value.name.toLowerCase()
-		);
-		const urlMatch = existingTools.value.some(
-			(tool) => tool.url.toLowerCase() === form.value.url.toLowerCase()
-		);
-
-		duplicateWarning.value = nameMatch || urlMatch;
-	};
 
 	const addTag = () => {
 		// Keep this for backward compatibility but it's now replaced by the dropdown
@@ -537,32 +562,6 @@
 	const cancelNewTag = () => {
 		if (!newTagInput.value.trim()) {
 			showNewTagInput.value = false;
-		}
-	};
-
-	const submitTool = async () => {
-		if (duplicateWarning.value) {
-			const confirm = window.confirm(
-				"This tool might already exist. Do you want to continue submitting?"
-			);
-			if (!confirm) return;
-		}
-
-		isSubmitting.value = true;
-
-		try {
-			// Here you would make an API call to submit the tool
-			console.log("Submitting tool:", form.value);
-
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 2000));
-
-			// Redirect to success page or show success message
-			navigateTo("/tools?submitted=true");
-		} catch (error) {
-			console.error("Error submitting tool:", error);
-		} finally {
-			isSubmitting.value = false;
 		}
 	};
 </script>

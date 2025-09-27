@@ -387,6 +387,8 @@
 </template>
 
 <script setup>
+	const apiBase = "http://localhost:5050/api/v1";
+
 	useHead({
 		title: "Browse Tools - DevShelf",
 		meta: [
@@ -430,6 +432,36 @@
 			};
 		}
 	};
+
+	const buildParams = () => ({
+		search: searchQuery.value || undefined,
+		category: selectedCategory.value || undefined,
+		price: selectedPrice.value || undefined,
+		keywords: selectedKeywords.value.length
+			? selectedKeywords.value
+			: undefined,
+		sort: sortBy.value || "rating",
+		page: 1,
+		limit: 24,
+	});
+
+	const {
+		data: apiData,
+		pending,
+		refresh,
+	} = await useAsyncData(
+		"tools-list",
+		() => $fetch(`${apiBase}/tools`, { params: buildParams() }),
+		{
+			watch: [
+				searchQuery,
+				selectedCategory,
+				selectedPrice,
+				selectedKeywords,
+				sortBy,
+			],
+		}
+	);
 
 	watch([categoryExpanded, keywordsExpanded], () => {
 		nextTick(() => {
@@ -484,50 +516,6 @@
 				: [route.query.keywords];
 		}
 	});
-
-	// Enhanced mock data with more properties
-	const tools = ref([
-		{
-			id: 1,
-			name: "VS Code",
-			description:
-				"Free, powerful code editor with extensive extensions and built-in Git support.",
-			icon: "simple-icons:visualstudiocode",
-			tags: ["Editor", "Free", "Extensions"],
-			keywords: ["code", "editor", "microsoft", "programming", "development"],
-			rating: 4.9,
-			category: "frontend",
-			price: "free",
-			url: "https://code.visualstudio.com",
-		},
-		{
-			id: 2,
-			name: "Figma",
-			description:
-				"Collaborative interface design tool with real-time collaboration features.",
-			icon: "simple-icons:figma",
-			tags: ["Design", "Collaboration", "UI/UX"],
-			keywords: ["design", "ui", "ux", "prototype", "collaboration"],
-			rating: 4.8,
-			category: "design",
-			price: "free-plan",
-			url: "https://figma.com",
-		},
-		{
-			id: 3,
-			name: "Notion",
-			description:
-				"All-in-one workspace for notes, tasks, wikis, and databases.",
-			icon: "simple-icons:notion",
-			tags: ["Productivity", "Notes", "Database"],
-			keywords: ["notes", "productivity", "workspace", "organization"],
-			rating: 4.7,
-			category: "documentation",
-			price: "free-plan",
-			url: "https://notion.so",
-		},
-		// Add more tools...
-	]);
 
 	// Get all unique keywords from tools
 	const availableKeywords = computed(() => {
@@ -608,61 +596,7 @@
 		return labels[category] || category;
 	};
 
-	const filteredTools = computed(() => {
-		let filtered = tools.value;
-
-		// Filter by search query (title, description, URL)
-		if (searchQuery.value) {
-			const query = searchQuery.value.toLowerCase();
-			filtered = filtered.filter((tool) => {
-				return (
-					tool.name.toLowerCase().includes(query) ||
-					tool.description.toLowerCase().includes(query) ||
-					tool.url.toLowerCase().includes(query) ||
-					tool.tags.some((tag) => tag.toLowerCase().includes(query))
-				);
-			});
-		}
-
-		// Filter by category
-		if (selectedCategory.value) {
-			filtered = filtered.filter(
-				(tool) => tool.category === selectedCategory.value
-			);
-		}
-
-		// Filter by price
-		if (selectedPrice.value) {
-			filtered = filtered.filter((tool) => tool.price === selectedPrice.value);
-		}
-
-		// Filter by keywords
-		if (selectedKeywords.value.length > 0) {
-			filtered = filtered.filter((tool) =>
-				selectedKeywords.value.some((selectedKeyword) =>
-					tool.keywords.includes(selectedKeyword)
-				)
-			);
-		}
-
-		// Sort
-		filtered.sort((a, b) => {
-			switch (sortBy.value) {
-				case "name":
-					return a.name.localeCompare(b.name);
-				case "category":
-					return a.category.localeCompare(b.category);
-				case "price":
-					const priceOrder = { free: 0, "free-plan": 1, paid: 2 };
-					return priceOrder[a.price] - priceOrder[b.price];
-				case "rating":
-				default:
-					return b.rating - a.rating;
-			}
-		});
-
-		return filtered;
-	});
+	const filteredTools = computed(() => apiData.value?.data ?? []);
 
 	// Watch for URL updates
 	watch(

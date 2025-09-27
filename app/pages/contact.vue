@@ -127,15 +127,19 @@
 		message: "",
 	});
 
-	const submitForm = () => {
-		// Handle form submission here
-		console.log("Form submitted:", form.value);
-		// Reset form
-		form.value = {
-			name: "",
-			email: "",
-			message: "",
-		};
-		alert("Thank you for your message! We will get back to you soon.");
+	const apiBase = "http://localhost:5050/api/v1";
+
+	const submitForm = async () => {
+		try {
+			await $fetch(`${apiBase}/contact`, {
+				method: "POST",
+				body: form.value,
+			});
+			form.value = { name: "", email: "", message: "" };
+			alert("Thank you for your message! We will get back to you soon.");
+		} catch (e) {
+			console.error(e);
+			alert("Sending failed.");
+		}
 	};
 </script>
