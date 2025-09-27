@@ -10,4 +10,14 @@ export default defineNuxtConfig({
 			},
 		},
 	},
+
+	runtimeConfig: {
+		// private server-only vars (not exposed to client)
+		adminSecret: process.env.ADMIN_SECRET,
+
+		// public vars (exposed to client, safe)
+		public: {
+			adminToken: process.env.NUXT_PUBLIC_ADMIN_TOKEN,
+		},
+	},
 });

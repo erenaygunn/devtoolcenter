@@ -1,8 +1,10 @@
 <template>
-	<div class="pt-16 section">
+	<div class="!pt-40 section">
 		<div class="container max-w-2xl">
 			<div class="mb-8">
-				<h1 class="text-h1 mb-4">Submit a Tool</h1>
+				<h1 class="text-h1 mb-4">
+					Submit a <span class="gradient-text">Tool</span>
+				</h1>
 				<p class="text-muted">
 					Share a great tool with the developer community
 				</p>
@@ -135,16 +137,74 @@
 				<!-- Price -->
 				<div>
 					<label class="block text-sm font-medium mb-2">Pricing *</label>
-					<select
-						v-model="form.price"
-						required
-						class="form-select w-full"
-					>
-						<option value="">Select pricing model</option>
-						<option value="free">Free</option>
-						<option value="free-plan">Free Plan Available</option>
-						<option value="paid">Paid</option>
-					</select>
+					<div class="relative">
+						<button
+							@click="priceExpanded = !priceExpanded"
+							type="button"
+							class="flex items-center justify-between w-full p-3 form-select transition-colors"
+							ref="priceButton"
+						>
+							<span class="flex items-center gap-2 text-sm font-medium">
+								<Icon
+									v-if="form.price"
+									:name="getPriceIcon(form.price)"
+									class="h-4 w-4"
+								/>
+								<Icon
+									v-else
+									name="heroicons:currency-dollar"
+									class="h-4 w-4 text-muted"
+								/>
+								{{
+									form.price
+										? getPriceLabel(form.price)
+										: "Select pricing model"
+								}}
+							</span>
+							<Icon
+								:name="
+									priceExpanded
+										? 'heroicons:chevron-up'
+										: 'heroicons:chevron-down'
+								"
+								class="h-4 w-4"
+							/>
+						</button>
+					</div>
+
+					<!-- Teleported Price Dropdown -->
+					<Teleport to="body">
+						<div
+							v-if="priceExpanded"
+							class="fixed glass rounded-lg shadow-xl z-[9999]"
+							:style="priceDropdownStyle"
+						>
+							<div class="p-2">
+								<button
+									v-for="priceOption in priceOptions"
+									:key="priceOption.value"
+									@click="selectPrice(priceOption.value)"
+									type="button"
+									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+									:class="{
+										'bg-primary/10 text-primary':
+											form.price === priceOption.value,
+									}"
+								>
+									<Icon
+										:name="priceOption.icon"
+										class="h-4 w-4"
+									/>
+									<div class="text-left">
+										<div class="font-medium">{{ priceOption.label }}</div>
+										<div class="text-xs text-muted">
+											{{ priceOption.description }}
+										</div>
+									</div>
+								</button>
+							</div>
+						</div>
+					</Teleport>
 				</div>
 
 				<!-- Icon -->
@@ -333,24 +393,67 @@
 		description: "",
 		url: "",
 		category: "",
+		tags: [] as string[],
 		price: "",
 		icon: "",
-		tags: [],
 	});
+
+	const errors = reactive<{ [k: string]: string }>({});
 
 	const tagInput = ref("");
 	const newTagInput = ref("");
 	const showNewTagInput = ref(false);
 	const tagsExpanded = ref(false);
 	const categoryExpanded = ref(false);
+	const priceExpanded = ref(false);
 	const categoryButton = ref(null);
 	const tagsButton = ref(null);
+	const priceButton = ref(null);
 	const isSubmitting = ref(false);
 
 	const categoryDropdownStyle = ref({});
 	const tagsDropdownStyle = ref({});
+	const priceDropdownStyle = ref({});
 
 	const duplicateWarning = ref(false);
+
+	const priceOptions = [
+		{
+			value: "free",
+			label: "Free",
+			description: "Completely free to use",
+			icon: "heroicons:gift",
+		},
+		{
+			value: "free-plan",
+			label: "Free Plan Available",
+			description: "Has free tier with paid upgrades",
+			icon: "heroicons:star",
+		},
+		{
+			value: "paid",
+			label: "Paid",
+			description: "Requires payment to use",
+			icon: "heroicons:currency-dollar",
+		},
+	];
+
+	const validateForm = () => {
+		errors.name =
+			form.value.name.length < 2 ? "Name must be at least 2 characters" : "";
+		errors.description =
+			form.value.description.length < 10
+				? "Description must be at least 10 characters"
+				: "";
+		errors.url = !/^https?:\/\//.test(form.value.url)
+			? "URL must start with http:// or https://"
+			: "";
+		errors.price = !form.value.price ? "Price is required" : "";
+		errors.category = !form.value.category ? "Category required" : "";
+		errors.tags =
+			form.value.tags.length === 0 ? "At least one tag required" : "";
+		return !Object.values(errors).some(Boolean);
+	};
 
 	const checkForDuplicate = async () => {
 		if (!form.value.name && !form.value.url) return;
@@ -364,13 +467,7 @@
 	};
 
 	const submitTool = async () => {
-		if (duplicateWarning.value) {
-			const ok = window.confirm(
-				"This tool might already exist. Submit anyway?"
-			);
-			if (!ok) return;
-		}
-		isSubmitting.value = true;
+		if (!validateForm()) return;
 		try {
 			await $fetch(`${apiBase}/submissions`, {
 				method: "POST",
@@ -380,15 +477,21 @@
 					url: form.value.url,
 					category: form.value.category,
 					tags: form.value.tags,
-					keywords: form.value.tags, // (optional) or keep separate
+					price: form.value.price,
+					keywords: form.value.tags,
 				},
 			});
 			navigateTo("/tools?submitted=true");
-		} catch (e) {
-			console.error(e);
-			alert("Submission failed.");
-		} finally {
-			isSubmitting.value = false;
+		} catch (e: any) {
+			if (e?.data?.error?.code === "VALIDATION_ERROR") {
+				alert(
+					e.data.error.issues
+						.map((issue: any) => `${issue.path.join(".")}: ${issue.message}`)
+						.join("\n")
+				);
+			} else {
+				alert("Submission failed. Please try again.");
+			}
 		}
 	};
 
@@ -446,6 +549,15 @@
 			};
 		}
 
+		if (priceButton.value && priceExpanded.value) {
+			const rect = priceButton.value.getBoundingClientRect();
+			priceDropdownStyle.value = {
+				top: `${rect.bottom + 8}px`,
+				left: `${rect.left}px`,
+				width: `${rect.width}px`,
+			};
+		}
+
 		if (tagsButton.value && tagsExpanded.value) {
 			const rect = tagsButton.value.getBoundingClientRect();
 			tagsDropdownStyle.value = {
@@ -456,7 +568,7 @@
 		}
 	};
 
-	watch([categoryExpanded, tagsExpanded], () => {
+	watch([categoryExpanded, priceExpanded, tagsExpanded], () => {
 		nextTick(() => {
 			updateDropdownPositions();
 		});
@@ -473,6 +585,13 @@
 				!event.target.closest(".fixed")
 			) {
 				categoryExpanded.value = false;
+			}
+			if (
+				priceExpanded.value &&
+				!priceButton.value?.contains(event.target) &&
+				!event.target.closest(".fixed")
+			) {
+				priceExpanded.value = false;
 			}
 			if (
 				tagsExpanded.value &&
@@ -494,6 +613,11 @@
 	const selectCategory = (category) => {
 		form.value.category = category;
 		categoryExpanded.value = false;
+	};
+
+	const selectPrice = (price) => {
+		form.value.price = price;
+		priceExpanded.value = false;
 	};
 
 	const getCategoryIcon = (category) => {
@@ -520,6 +644,24 @@
 			testing: "Testing",
 		};
 		return labels[category] || category;
+	};
+
+	const getPriceIcon = (price) => {
+		const icons = {
+			free: "heroicons:gift",
+			"free-plan": "heroicons:star",
+			paid: "heroicons:currency-dollar",
+		};
+		return icons[price] || "heroicons:currency-dollar";
+	};
+
+	const getPriceLabel = (price) => {
+		const labels = {
+			free: "Free",
+			"free-plan": "Free Plan Available",
+			paid: "Paid",
+		};
+		return labels[price] || price;
 	};
 
 	const toggleTag = (tag) => {
