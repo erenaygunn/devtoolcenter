@@ -13,6 +13,7 @@
 	const categoryButton = ref(null);
 	const priceDropdownStyle = ref({});
 	const categoryDropdownStyle = ref({});
+	const search = ref("");
 
 	const priceOptions = [
 		{
@@ -156,6 +157,7 @@
 
 	const loadTools = async () => {
 		const res: any = await $fetch(`${apiBase}/tools`, {
+			params: { search: search.value },
 			headers: { Authorization: `Bearer ${adminToken}` },
 		});
 		tools.value = res.data;
@@ -316,6 +318,24 @@
 							</div>
 						</div>
 					</div>
+				</div>
+			</div>
+
+			<!-- Search Bar -->
+			<div class="card mb-6">
+				<div class="relative">
+					<input
+						v-model="search"
+						@input="loadTools"
+						type="text"
+						placeholder="Search tools by name, category, URL, or tags..."
+						class="form-input pl-10 w-full"
+					/>
+
+					<Icon
+						name="heroicons:magnifying-glass"
+						class="absolute text-primary right-3 top-1/2 transform -translate-y-1/2 h-5 w-5"
+					/>
 				</div>
 			</div>
 
