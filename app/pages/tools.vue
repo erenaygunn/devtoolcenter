@@ -386,7 +386,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 	const apiBase = "http://localhost:5050/api/v1";
 
 	useHead({
@@ -412,6 +412,10 @@
 
 	const categoryDropdownStyle = ref({});
 	const keywordsDropdownStyle = ref({});
+
+	const keywordsKey = computed(
+		() => selectedKeywords.value.slice().sort().join("|") // a stable string
+	);
 
 	const updateDropdownPositions = () => {
 		if (categoryButton.value && categoryExpanded.value) {
@@ -457,7 +461,7 @@
 				searchQuery,
 				selectedCategory,
 				selectedPrice,
-				selectedKeywords,
+				keywordsKey,
 				sortBy,
 			],
 		}
@@ -520,7 +524,7 @@
 	// Get all unique keywords from tools
 	const availableKeywords = computed(() => {
 		const keywords = new Set();
-		tools.value.forEach((tool) => {
+		filteredTools.value.forEach((tool) => {
 			tool.keywords.forEach((keyword) => {
 				keywords.add(keyword);
 			});
@@ -537,13 +541,11 @@
 		);
 	});
 
-	const toggleKeyword = (keyword) => {
-		const index = selectedKeywords.value.indexOf(keyword);
-		if (index > -1) {
-			selectedKeywords.value.splice(index, 1);
-		} else {
-			selectedKeywords.value.push(keyword);
-		}
+	const toggleKeyword = (keyword: string) => {
+		const had = selectedKeywords.value.includes(keyword);
+		selectedKeywords.value = had
+			? selectedKeywords.value.filter((k) => k !== keyword) // new array
+			: [...selectedKeywords.value, keyword]; // new array
 	};
 
 	const removeKeyword = (keyword) => {
@@ -553,7 +555,7 @@
 	};
 
 	const clearSelectedKeywords = () => {
-		selectedKeywords.value = [];
+		selectedKeywords.value = []; // new array
 	};
 
 	const clearAllFilters = () => {
@@ -599,17 +601,14 @@
 	const filteredTools = computed(() => apiData.value?.data ?? []);
 
 	// Watch for URL updates
-	watch(
-		[searchQuery, selectedCategory, selectedPrice, selectedKeywords],
-		() => {
-			const query = {};
-			if (searchQuery.value) query.search = searchQuery.value;
-			if (selectedCategory.value) query.category = selectedCategory.value;
-			if (selectedPrice.value) query.price = selectedPrice.value;
-			if (selectedKeywords.value.length > 0)
-				query.keywords = selectedKeywords.value;
-
-			navigateTo({ query }, { replace: true });
-		}
-	);
+	watch([searchQuery, selectedCategory, selectedPrice, keywordsKey], () => {
+		// 👈
+		const query: any = {};
+		if (searchQuery.value) query.search = searchQuery.value;
+		if (selectedCategory.value) query.category = selectedCategory.value;
+		if (selectedPrice.value) query.price = selectedPrice.value;
+		if (selectedKeywords.value.length > 0)
+			query.keywords = selectedKeywords.value;
+		navigateTo({ query }, { replace: true });
+	});
 </script>
