@@ -189,38 +189,183 @@
 						</Teleport>
 
 						<!-- Price Filter -->
-						<div class="flex relative items-center">
-							<select
-								v-model="selectedPrice"
-								class="form-select"
+						<div class="relative">
+							<button
+								@click="priceExpanded = !priceExpanded"
+								class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
+								ref="priceButton"
 							>
-								<option value="">All Pricing</option>
-								<option value="free">Free</option>
-								<option value="free-plan">Free Plan Available</option>
-								<option value="paid">Paid</option>
-							</select>
-							<Icon
-								name="heroicons:chevron-down"
-								class="h-4 w-4 absolute right-4 pointer-events-none"
-							/>
+								<span class="flex items-center gap-2 text-sm font-medium">
+									<Icon
+										name="heroicons:currency-dollar"
+										class="h-4 w-4 text-muted"
+									/>
+									{{ getPriceLabel(selectedPrice) }}
+								</span>
+								<Icon
+									:name="
+										priceExpanded
+											? 'heroicons:chevron-up'
+											: 'heroicons:chevron-down'
+									"
+									class="h-4 w-4"
+								/>
+							</button>
 						</div>
 
-						<!-- Sort Options -->
-						<div class="flex relative items-center">
-							<select
-								v-model="sortBy"
-								class="form-select"
+						<!-- Teleported Price Dropdown -->
+						<Teleport to="body">
+							<div
+								v-if="priceExpanded"
+								class="fixed glass rounded-lg shadow-xl z-[9999]"
+								:style="priceDropdownStyle"
 							>
-								<option value="rating">Sort by Rating</option>
-								<option value="name">Sort by Name</option>
-								<option value="category">Sort by Category</option>
-								<option value="price">Sort by Price</option>
-							</select>
-							<Icon
-								name="heroicons:chevron-down"
-								class="h-4 w-4 absolute right-4 pointer-events-none"
-							/>
+								<div class="p-2">
+									<button
+										@click="selectPrice('')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary': selectedPrice === '',
+										}"
+									>
+										<Icon
+											name="heroicons:currency-dollar"
+											class="h-4 w-4"
+										/>
+										All Pricing
+									</button>
+									<button
+										@click="selectPrice('free')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary': selectedPrice === 'free',
+										}"
+									>
+										<Icon
+											name="heroicons:gift"
+											class="h-4 w-4"
+										/>
+										Free
+									</button>
+									<button
+										@click="selectPrice('free-plan')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary':
+												selectedPrice === 'free-plan',
+										}"
+									>
+										<Icon
+											name="heroicons:sparkles"
+											class="h-4 w-4"
+										/>
+										Free Plan Available
+									</button>
+									<button
+										@click="selectPrice('paid')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary': selectedPrice === 'paid',
+										}"
+									>
+										<Icon
+											name="heroicons:credit-card"
+											class="h-4 w-4"
+										/>
+										Paid
+									</button>
+								</div>
+							</div>
+						</Teleport>
+
+						<!-- Sort Options -->
+						<div class="relative">
+							<button
+								@click="sortExpanded = !sortExpanded"
+								class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
+								ref="sortButton"
+							>
+								<span class="flex items-center gap-2 text-sm font-medium">
+									<Icon
+										:name="getSortIcon(sortBy)"
+										class="h-4 w-4 text-muted"
+									/>
+									{{ getSortLabel(sortBy) }}
+								</span>
+								<Icon
+									:name="
+										sortExpanded
+											? 'heroicons:chevron-up'
+											: 'heroicons:chevron-down'
+									"
+									class="h-4 w-4"
+								/>
+							</button>
 						</div>
+
+						<!-- Teleported Sort Dropdown -->
+						<Teleport to="body">
+							<div
+								v-if="sortExpanded"
+								class="fixed glass rounded-lg shadow-xl z-[9999]"
+								:style="sortDropdownStyle"
+							>
+								<div class="p-2">
+									<button
+										@click="selectSort('rating')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary': sortBy === 'rating',
+										}"
+									>
+										<Icon
+											name="heroicons:star"
+											class="h-4 w-4"
+										/>
+										Sort by Rating
+									</button>
+									<button
+										@click="selectSort('name')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary': sortBy === 'name',
+										}"
+									>
+										<Icon
+											name="heroicons:bars-3-bottom-left"
+											class="h-4 w-4"
+										/>
+										Sort by Name
+									</button>
+									<button
+										@click="selectSort('category')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary': sortBy === 'category',
+										}"
+									>
+										<Icon
+											name="heroicons:squares-2x2"
+											class="h-4 w-4"
+										/>
+										Sort by Category
+									</button>
+									<button
+										@click="selectSort('price')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary': sortBy === 'price',
+										}"
+									>
+										<Icon
+											name="heroicons:currency-dollar"
+											class="h-4 w-4"
+										/>
+										Sort by Price
+									</button>
+								</div>
+							</div>
+						</Teleport>
 					</div>
 
 					<!-- Keywords Filter -->
@@ -407,11 +552,17 @@
 	const sortBy = ref("rating");
 	const keywordsExpanded = ref(false);
 	const categoryExpanded = ref(false);
+	const priceExpanded = ref(false);
+	const sortExpanded = ref(false);
 	const categoryButton = ref(null);
 	const keywordsButton = ref(null);
+	const priceButton = ref(null);
+	const sortButton = ref(null);
 
 	const categoryDropdownStyle = ref({});
 	const keywordsDropdownStyle = ref({});
+	const priceDropdownStyle = ref({});
+	const sortDropdownStyle = ref({});
 
 	const keywordsKey = computed(
 		() => selectedKeywords.value.slice().sort().join("|") // a stable string
@@ -421,6 +572,24 @@
 		if (categoryButton.value && categoryExpanded.value) {
 			const rect = categoryButton.value.getBoundingClientRect();
 			categoryDropdownStyle.value = {
+				top: `${rect.bottom + 8}px`,
+				left: `${rect.left}px`,
+				width: `${rect.width}px`,
+			};
+		}
+
+		if (priceButton.value && priceExpanded.value) {
+			const rect = priceButton.value.getBoundingClientRect();
+			priceDropdownStyle.value = {
+				top: `${rect.bottom + 8}px`,
+				left: `${rect.left}px`,
+				width: `${rect.width}px`,
+			};
+		}
+
+		if (sortButton.value && sortExpanded.value) {
+			const rect = sortButton.value.getBoundingClientRect();
+			sortDropdownStyle.value = {
 				top: `${rect.bottom + 8}px`,
 				left: `${rect.left}px`,
 				width: `${rect.width}px`,
@@ -467,11 +636,14 @@
 		}
 	);
 
-	watch([categoryExpanded, keywordsExpanded], () => {
-		nextTick(() => {
-			updateDropdownPositions();
-		});
-	});
+	watch(
+		[categoryExpanded, keywordsExpanded, priceExpanded, sortExpanded],
+		() => {
+			nextTick(() => {
+				updateDropdownPositions();
+			});
+		}
+	);
 
 	onMounted(() => {
 		window.addEventListener("resize", updateDropdownPositions);
@@ -484,6 +656,20 @@
 				!event.target.closest(".fixed")
 			) {
 				categoryExpanded.value = false;
+			}
+			if (
+				priceExpanded.value &&
+				!priceButton.value?.contains(event.target) &&
+				!event.target.closest(".fixed")
+			) {
+				priceExpanded.value = false;
+			}
+			if (
+				sortExpanded.value &&
+				!sortButton.value?.contains(event.target) &&
+				!event.target.closest(".fixed")
+			) {
+				sortExpanded.value = false;
 			}
 			if (
 				keywordsExpanded.value &&
@@ -565,6 +751,8 @@
 		selectedKeywords.value = [];
 		keywordsExpanded.value = false;
 		categoryExpanded.value = false;
+		priceExpanded.value = false;
+		sortExpanded.value = false;
 	};
 
 	const selectCategory = (category) => {
@@ -572,30 +760,44 @@
 		categoryExpanded.value = false;
 	};
 
-	const getCategoryIcon = (category) => {
-		const icons = {
-			frontend: "heroicons:code-bracket",
-			backend: "heroicons:server",
-			"ai-helpers": "heroicons:cpu-chip",
-			documentation: "heroicons:document-text",
-			design: "heroicons:paint-brush",
-			devops: "heroicons:cog-6-tooth",
-			testing: "heroicons:beaker",
-		};
-		return icons[category] || "heroicons:squares-2x2";
+	const selectPrice = (price) => {
+		selectedPrice.value = price;
+		priceExpanded.value = false;
 	};
 
-	const getCategoryLabel = (category) => {
+	const selectSort = (sort) => {
+		sortBy.value = sort;
+		sortExpanded.value = false;
+	};
+
+	const getPriceLabel = (price) => {
 		const labels = {
-			frontend: "Frontend",
-			backend: "Backend",
-			"ai-helpers": "AI Helpers",
-			documentation: "Documentation",
-			design: "Design",
-			devops: "DevOps",
-			testing: "Testing",
+			"": "All Pricing",
+			free: "Free",
+			"free-plan": "Free Plan Available",
+			paid: "Paid",
 		};
-		return labels[category] || category;
+		return labels[price] || "All Pricing";
+	};
+
+	const getSortLabel = (sort) => {
+		const labels = {
+			rating: "Sort by Rating",
+			name: "Sort by Name",
+			category: "Sort by Category",
+			price: "Sort by Price",
+		};
+		return labels[sort] || "Sort by Rating";
+	};
+
+	const getSortIcon = (sort) => {
+		const icons = {
+			rating: "heroicons:star",
+			name: "heroicons:bars-3-bottom-left",
+			category: "heroicons:squares-2x2",
+			price: "heroicons:currency-dollar",
+		};
+		return icons[sort] || "heroicons:star";
 	};
 
 	const filteredTools = computed(() => apiData.value?.data ?? []);
