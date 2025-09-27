@@ -2,10 +2,9 @@
 	<section class="section">
 		<div class="container">
 			<div class="text-center mb-12">
-				<h2 class="text-h2 mb-4">Trending Tools</h2>
+				<h2 class="text-h2 mb-4">Latest Tools</h2>
 				<p class="text-muted">
-					Explore some of the most popular and highly rated developer tools
-					loved by community.
+					Check out the newest developer tools recently added to our platform.
 				</p>
 			</div>
 
@@ -18,8 +17,8 @@
 					<div class="swiper-wrapper">
 						<div
 							class="swiper-slide px-3"
-							v-for="tool in featuredTools"
-							:key="tool.id"
+							v-for="tool in latestTools"
+							:key="tool.id || tool._id"
 						>
 							<ToolCard :tool="tool" />
 						</div>
@@ -31,8 +30,8 @@
 			<!-- Desktop Grid -->
 			<div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 				<ToolCard
-					v-for="tool in featuredTools"
-					:key="tool.id"
+					v-for="tool in latestTools"
+					:key="tool.id || tool._id"
 					:tool="tool"
 				/>
 			</div>
@@ -54,7 +53,18 @@
 	import "swiper/css";
 	import "swiper/css/pagination";
 
+	const apiBase = "http://localhost:5050/api/v1";
 	const swiperContainer = ref(null);
+
+	// Fetch latest 3 tools
+	const { data: apiData } = await useFetch(`${apiBase}/tools`, {
+		params: {
+			sort: "date",
+			limit: 3,
+		},
+	});
+
+	const latestTools = computed(() => apiData.value?.data ?? []);
 
 	onMounted(() => {
 		if (swiperContainer.value) {
@@ -75,40 +85,4 @@
 			});
 		}
 	});
-
-	const featuredTools = ref([
-		{
-			id: 1,
-			name: "VS Code",
-			description:
-				"Free, powerful code editor with extensive extensions and built-in Git support.",
-			icon: "simple-icons:visualstudiocode",
-			tags: ["Editor", "Free", "Extensions"],
-			rating: 4.9,
-			category: "Development",
-			url: "https://code.visualstudio.com",
-		},
-		{
-			id: 2,
-			name: "Figma",
-			description:
-				"Collaborative design tool for creating user interfaces and prototypes.",
-			icon: "simple-icons:figma",
-			tags: ["Design", "Collaboration", "Prototyping"],
-			rating: 4.8,
-			category: "Design",
-			url: "https://figma.com",
-		},
-		{
-			id: 3,
-			name: "GitHub",
-			description:
-				"Version control and collaboration platform for developers worldwide.",
-			icon: "simple-icons:github",
-			tags: ["Git", "Collaboration", "Open Source"],
-			rating: 4.9,
-			category: "Version Control",
-			url: "https://github.com",
-		},
-	]);
 </script>
