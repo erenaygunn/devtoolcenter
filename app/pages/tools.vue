@@ -312,19 +312,6 @@
 							>
 								<div class="p-2">
 									<button
-										@click="selectSort('rating')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary': sortBy === 'rating',
-										}"
-									>
-										<Icon
-											name="heroicons:star"
-											class="h-4 w-4"
-										/>
-										Sort by Rating
-									</button>
-									<button
 										@click="selectSort('name')"
 										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
 										:class="{
@@ -549,7 +536,7 @@
 	const selectedCategory = ref("");
 	const selectedPrice = ref("");
 	const selectedKeywords = ref([]);
-	const sortBy = ref("rating");
+	const sortBy = ref("name");
 	const keywordsExpanded = ref(false);
 	const categoryExpanded = ref(false);
 	const priceExpanded = ref(false);
@@ -613,7 +600,7 @@
 		keywords: selectedKeywords.value.length
 			? selectedKeywords.value
 			: undefined,
-		sort: sortBy.value || "rating",
+		sort: sortBy.value || "name",
 		page: 1,
 		limit: 24,
 	});
@@ -782,17 +769,15 @@
 
 	const getSortLabel = (sort) => {
 		const labels = {
-			rating: "Sort by Rating",
 			name: "Sort by Name",
 			category: "Sort by Category",
 			price: "Sort by Price",
 		};
-		return labels[sort] || "Sort by Rating";
+		return labels[sort] || "Sort by Name";
 	};
 
 	const getSortIcon = (sort) => {
 		const icons = {
-			rating: "heroicons:star",
 			name: "heroicons:bars-3-bottom-left",
 			category: "heroicons:squares-2x2",
 			price: "heroicons:currency-dollar",

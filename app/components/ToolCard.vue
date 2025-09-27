@@ -47,16 +47,6 @@
 
 				<div class="flex items-start mt-auto flex-col justify-between">
 					<div class="flex items-center space-x-2">
-						<div class="flex items-center">
-							<Icon
-								name="heroicons:star-solid"
-								class="h-4 w-4 text-yellow-400"
-							/>
-							<span class="text-body-sm text-muted ml-1">{{
-								tool.rating
-							}}</span>
-						</div>
-						<span class="text-subtle">•</span>
 						<span
 							class="text-body-sm capitalize whitespace-nowrap text-muted"
 							>{{ tool.category }}</span
