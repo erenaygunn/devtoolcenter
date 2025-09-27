@@ -5,15 +5,18 @@
 				<div
 					class="w-12 h-12 glass rounded-lg flex items-center justify-center"
 				>
-					<Icon
-						v-if="tool.icon"
-						:name="tool.icon"
-						class="h-6 w-6 text-primary"
+					<img
+						v-if="tool.logoUrl"
+						:src="tool.logoUrl"
+						alt="logo"
+						class="w-8 h-8 rounded-md"
+						@error="tool.logoUrl = ''"
 					/>
-					<div
+					<Icon
 						v-else
-						class="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded"
-					></div>
+						:name="getCategoryIcon(tool.category)"
+						class="w-8 h-8 text-primary"
+					/>
 				</div>
 
 				<div
@@ -24,6 +27,12 @@
 						class="px-2 py-1 capitalize glass rounded-lg text-primary border border-green-400/30"
 						>{{ tool.price }}</span
 					>
+				</div>
+
+				<div class="flex">
+					<span class="text-body-sm capitalize whitespace-nowrap text-muted">{{
+						new Date(tool.createdAt).toLocaleDateString()
+					}}</span>
 				</div>
 			</div>
 
@@ -77,4 +86,17 @@
 			required: true,
 		},
 	});
+
+	const getCategoryIcon = (category) => {
+		const icons = {
+			frontend: "heroicons:code-bracket",
+			backend: "heroicons:server",
+			"ai-helpers": "heroicons:cpu-chip",
+			documentation: "heroicons:document-text",
+			design: "heroicons:paint-brush",
+			devops: "heroicons:cog-6-tooth",
+			testing: "heroicons:beaker",
+		};
+		return icons[category] || "heroicons:squares-2x2";
+	};
 </script>

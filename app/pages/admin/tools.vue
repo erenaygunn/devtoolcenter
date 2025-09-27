@@ -9,11 +9,15 @@
 	// Dropdown state management
 	const priceExpanded = ref(false);
 	const categoryExpanded = ref(false);
+	const sortExpanded = ref(false);
 	const priceButton = ref(null);
 	const categoryButton = ref(null);
+	const sortButton = ref(null);
 	const priceDropdownStyle = ref({});
 	const categoryDropdownStyle = ref({});
+	const sortDropdownStyle = ref({});
 	const search = ref("");
+	const sortBy = ref("date"); // Default to date for admin
 
 	const priceOptions = [
 		{
@@ -90,6 +94,26 @@
 		return labels[category] || category;
 	};
 
+	const getSortLabel = (sort) => {
+		const labels = {
+			name: "Sort by Name",
+			category: "Sort by Category",
+			price: "Sort by Price",
+			date: "Sort by Date Added",
+		};
+		return labels[sort] || "Sort by Date Added";
+	};
+
+	const getSortIcon = (sort) => {
+		const icons = {
+			name: "heroicons:bars-3-bottom-left",
+			category: "heroicons:squares-2x2",
+			price: "heroicons:currency-dollar",
+			date: "heroicons:calendar-days",
+		};
+		return icons[sort] || "heroicons:calendar-days";
+	};
+
 	const updateDropdownPositions = () => {
 		if (priceButton.value && priceExpanded.value) {
 			const rect = priceButton.value.getBoundingClientRect();
@@ -108,9 +132,18 @@
 				width: `${rect.width}px`,
 			};
 		}
+
+		if (sortButton.value && sortExpanded.value) {
+			const rect = sortButton.value.getBoundingClientRect();
+			sortDropdownStyle.value = {
+				top: `${rect.bottom + 8}px`,
+				left: `${rect.left}px`,
+				width: `${rect.width}px`,
+			};
+		}
 	};
 
-	watch([priceExpanded, categoryExpanded], () => {
+	watch([priceExpanded, categoryExpanded, sortExpanded], () => {
 		nextTick(() => {
 			updateDropdownPositions();
 		});
@@ -135,6 +168,13 @@
 			) {
 				categoryExpanded.value = false;
 			}
+			if (
+				sortExpanded.value &&
+				!sortButton.value?.contains(event.target) &&
+				!event.target.closest(".fixed")
+			) {
+				sortExpanded.value = false;
+			}
 		};
 		document.addEventListener("click", handleClickOutside);
 
@@ -155,9 +195,18 @@
 		categoryExpanded.value = false;
 	};
 
+	const selectSort = (sort) => {
+		sortBy.value = sort;
+		sortExpanded.value = false;
+		loadTools();
+	};
+
 	const loadTools = async () => {
 		const res: any = await $fetch(`${apiBase}/tools`, {
-			params: { search: search.value },
+			params: {
+				search: search.value,
+				sort: sortBy.value,
+			},
 			headers: { Authorization: `Bearer ${adminToken}` },
 		});
 		tools.value = res.data;
@@ -321,21 +370,112 @@
 				</div>
 			</div>
 
-			<!-- Search Bar -->
+			<!-- Search Bar and Sort -->
 			<div class="card mb-6">
-				<div class="relative">
-					<input
-						v-model="search"
-						@input="loadTools"
-						type="text"
-						placeholder="Search tools by name, category, URL, or tags..."
-						class="form-input pl-10 w-full"
-					/>
+				<div class="flex flex-col lg:flex-row gap-4">
+					<div class="relative flex-1">
+						<input
+							v-model="search"
+							@input="loadTools"
+							type="text"
+							placeholder="Search tools by name, category, URL, or tags..."
+							class="form-input pl-10 w-full"
+						/>
 
-					<Icon
-						name="heroicons:magnifying-glass"
-						class="absolute text-primary right-3 top-1/2 transform -translate-y-1/2 h-5 w-5"
-					/>
+						<Icon
+							name="heroicons:magnifying-glass"
+							class="absolute text-primary right-3 top-1/2 transform -translate-y-1/2 h-5 w-5"
+						/>
+					</div>
+
+					<!-- Sort Options -->
+					<div class="relative">
+						<button
+							@click="sortExpanded = !sortExpanded"
+							class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
+							ref="sortButton"
+						>
+							<span class="flex items-center gap-2 text-sm font-medium">
+								<Icon
+									:name="getSortIcon(sortBy)"
+									class="h-4 w-4 text-muted"
+								/>
+								{{ getSortLabel(sortBy) }}
+							</span>
+							<Icon
+								:name="
+									sortExpanded
+										? 'heroicons:chevron-up'
+										: 'heroicons:chevron-down'
+								"
+								class="h-4 w-4"
+							/>
+						</button>
+					</div>
+
+					<!-- Teleported Sort Dropdown -->
+					<Teleport to="body">
+						<div
+							v-if="sortExpanded"
+							class="fixed glass rounded-lg shadow-xl z-[9999]"
+							:style="sortDropdownStyle"
+						>
+							<div class="p-2">
+								<button
+									@click="selectSort('date')"
+									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+									:class="{
+										'bg-primary/10 text-primary': sortBy === 'date',
+									}"
+								>
+									<Icon
+										name="heroicons:calendar-days"
+										class="h-4 w-4"
+									/>
+									Sort by Date Added
+								</button>
+								<button
+									@click="selectSort('name')"
+									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+									:class="{
+										'bg-primary/10 text-primary': sortBy === 'name',
+									}"
+								>
+									<Icon
+										name="heroicons:bars-3-bottom-left"
+										class="h-4 w-4"
+									/>
+									Sort by Name
+								</button>
+								<button
+									@click="selectSort('category')"
+									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+									:class="{
+										'bg-primary/10 text-primary': sortBy === 'category',
+									}"
+								>
+									<Icon
+										name="heroicons:squares-2x2"
+										class="h-4 w-4"
+									/>
+									Sort by Category
+								</button>
+								<button
+									@click="selectSort('price')"
+									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+									:class="{
+										'bg-primary/10 text-primary': sortBy === 'price',
+									}"
+								>
+									<Icon
+										name="heroicons:currency-dollar"
+										class="h-4 w-4"
+									/>
+									Sort by Price
+								</button>
+							</div>
+						</div>
+					</Teleport>
 				</div>
 			</div>
 
@@ -361,6 +501,11 @@
 									class="px-4 md:px-6 py-4 text-left text-sm font-semibold hidden lg:table-cell"
 								>
 									URL
+								</th>
+								<th
+									class="px-4 md:px-6 py-4 text-left text-sm font-semibold hidden lg:table-cell"
+								>
+									Date
 								</th>
 								<th class="px-4 md:px-6 py-4 text-left text-sm font-semibold">
 									Actions
@@ -425,6 +570,11 @@
 												: tool.url
 										}}
 									</a>
+								</td>
+								<td class="px-6 py-4">
+									<div class="text-muted text-sm">
+										{{ new Date(tool.createdAt).toLocaleDateString() }}
+									</div>
 								</td>
 								<td class="px-4 md:px-6 py-4">
 									<div class="flex flex-col sm:flex-row gap-1 sm:gap-2">

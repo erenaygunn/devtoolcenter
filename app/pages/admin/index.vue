@@ -429,6 +429,9 @@
 									Description
 								</th>
 								<th class="px-4 md:px-6 py-4 text-left text-sm font-semibold">
+									Date
+								</th>
+								<th class="px-4 md:px-6 py-4 text-left text-sm font-semibold">
 									Actions
 								</th>
 							</tr>
@@ -496,6 +499,11 @@
 									class="px-4 md:px-6 py-4 hidden xl:table-cell text-sm text-muted"
 								>
 									{{ sub.description.slice(0, 60) }}...
+								</td>
+								<td class="px-6 py-4">
+									<div class="text-muted text-sm">
+										{{ new Date(sub.createdAt).toLocaleDateString() }}
+									</div>
 								</td>
 								<td class="px-4 md:px-6 py-4">
 									<div class="flex flex-col sm:flex-row gap-1 sm:gap-2">

@@ -233,38 +233,6 @@
 					</Teleport>
 				</div>
 
-				<!-- Icon -->
-				<div>
-					<label class="block text-sm font-medium mb-2"
-						>Icon (Vue Iconify name)</label
-					>
-					<input
-						v-model="form.icon"
-						type="text"
-						class="form-input w-full"
-						placeholder="e.g., simple-icons:visualstudiocode"
-					/>
-					<p class="text-sm text-muted mt-1">
-						Find icons at
-						<a
-							href="https://icon-sets.iconify.design/"
-							target="_blank"
-							class="text-primary hover:underline"
-							>Iconify</a
-						>
-					</p>
-					<div
-						v-if="form.icon"
-						class="mt-2 flex items-center gap-2"
-					>
-						<span class="text-sm text-muted">Preview:</span>
-						<Icon
-							:name="form.icon"
-							class="h-6 w-6 text-primary"
-						/>
-					</div>
-				</div>
-
 				<!-- Tags -->
 				<div>
 					<label class="block text-sm font-medium mb-2">Tags *</label>
@@ -421,7 +389,6 @@
 		category: "",
 		tags: [] as string[],
 		price: "",
-		icon: "",
 	});
 
 	const errors = reactive<{ [k: string]: string }>({});

@@ -350,6 +350,19 @@
 										/>
 										Sort by Price
 									</button>
+									<button
+										@click="selectSort('date')"
+										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+										:class="{
+											'bg-primary/10 text-primary': sortBy === 'date',
+										}"
+									>
+										<Icon
+											name="heroicons:calendar-days"
+											class="h-4 w-4"
+										/>
+										Sort by Date Added
+									</button>
 								</div>
 							</div>
 						</Teleport>
@@ -757,6 +770,32 @@
 		sortExpanded.value = false;
 	};
 
+	const getCategoryIcon = (category: string) => {
+		const icons = {
+			frontend: "heroicons:code-bracket",
+			backend: "heroicons:server",
+			"ai-helpers": "heroicons:cpu-chip",
+			documentation: "heroicons:document-text",
+			design: "heroicons:paint-brush",
+			devops: "heroicons:cog-6-tooth",
+			testing: "heroicons:beaker",
+		};
+		return icons[category] || "heroicons:squares-2x2";
+	};
+
+	const getCategoryLabel = (category: string) => {
+		const labels = {
+			frontend: "Frontend",
+			backend: "Backend",
+			"ai-helpers": "AI Helpers",
+			documentation: "Documentation",
+			design: "Design",
+			devops: "DevOps",
+			testing: "Testing",
+		};
+		return labels[category] || category;
+	};
+
 	const getPriceLabel = (price) => {
 		const labels = {
 			"": "All Pricing",
@@ -772,6 +811,7 @@
 			name: "Sort by Name",
 			category: "Sort by Category",
 			price: "Sort by Price",
+			date: "Sort by Date Added",
 		};
 		return labels[sort] || "Sort by Name";
 	};
@@ -781,6 +821,7 @@
 			name: "heroicons:bars-3-bottom-left",
 			category: "heroicons:squares-2x2",
 			price: "heroicons:currency-dollar",
+			date: "heroicons:calendar-days",
 		};
 		return icons[sort] || "heroicons:star";
 	};
