@@ -74,6 +74,9 @@
 							@click="categoryExpanded = !categoryExpanded"
 							type="button"
 							class="flex items-center justify-between w-full p-3 form-select transition-colors"
+							:class="{
+								'border-red-300 dark:border-red-600': errors.category,
+							}"
 							ref="categoryButton"
 						>
 							<span class="flex items-center gap-2 text-sm font-medium">
@@ -102,6 +105,16 @@
 								class="h-4 w-4"
 							/>
 						</button>
+					</div>
+
+					<!-- Category validation error -->
+					<div
+						v-if="errors.category"
+						class="mt-2 p-3 bg-red-400/10 border border-red-400/30 rounded-lg"
+					>
+						<p class="text-red-600 text-sm">
+							{{ errors.category }}
+						</p>
 					</div>
 
 					<!-- Teleported Category Dropdown -->
@@ -142,6 +155,9 @@
 							@click="priceExpanded = !priceExpanded"
 							type="button"
 							class="flex items-center justify-between w-full p-3 form-select transition-colors"
+							:class="{
+								'border-red-300 dark:border-red-600': errors.price,
+							}"
 							ref="priceButton"
 						>
 							<span class="flex items-center gap-2 text-sm font-medium">
@@ -170,6 +186,16 @@
 								class="h-4 w-4"
 							/>
 						</button>
+					</div>
+
+					<!-- Price validation error -->
+					<div
+						v-if="errors.price"
+						class="mt-2 p-3 bg-red-400/10 border border-red-400/30 rounded-lg"
+					>
+						<p class="text-red-600 text-sm">
+							{{ errors.price }}
+						</p>
 					</div>
 
 					<!-- Teleported Price Dropdown -->
@@ -439,6 +465,11 @@
 	];
 
 	const validateForm = () => {
+		// Clear previous errors
+		Object.keys(errors).forEach((key) => {
+			errors[key] = "";
+		});
+
 		errors.name =
 			form.value.name.length < 2 ? "Name must be at least 2 characters" : "";
 		errors.description =
@@ -448,10 +479,11 @@
 		errors.url = !/^https?:\/\//.test(form.value.url)
 			? "URL must start with http:// or https://"
 			: "";
-		errors.price = !form.value.price ? "Price is required" : "";
-		errors.category = !form.value.category ? "Category required" : "";
+		errors.category = !form.value.category ? "Please select a category" : "";
+		errors.price = !form.value.price ? "Please select a pricing model" : "";
 		errors.tags =
 			form.value.tags.length === 0 ? "At least one tag required" : "";
+
 		return !Object.values(errors).some(Boolean);
 	};
 
@@ -467,7 +499,22 @@
 	};
 
 	const submitTool = async () => {
-		if (!validateForm()) return;
+		if (!validateForm()) {
+			// Show validation errors
+			if (errors.category || errors.price) {
+				const errorMessages = [];
+				if (errors.category) errorMessages.push("Category is required");
+				if (errors.price) errorMessages.push("Pricing model is required");
+				if (errorMessages.length > 0) {
+					alert(
+						"Please fix the following errors:\n" + errorMessages.join("\n")
+					);
+				}
+			}
+			return;
+		}
+
+		isSubmitting.value = true;
 		try {
 			await $fetch(`${apiBase}/submissions`, {
 				method: "POST",
@@ -492,6 +539,8 @@
 			} else {
 				alert("Submission failed. Please try again.");
 			}
+		} finally {
+			isSubmitting.value = false;
 		}
 	};
 
@@ -613,11 +662,13 @@
 	const selectCategory = (category) => {
 		form.value.category = category;
 		categoryExpanded.value = false;
+		errors.category = ""; // Clear error when category is selected
 	};
 
 	const selectPrice = (price) => {
 		form.value.price = price;
 		priceExpanded.value = false;
+		errors.price = ""; // Clear error when price is selected
 	};
 
 	const getCategoryIcon = (category) => {
