@@ -77,7 +77,7 @@
 										@click="selectCategory('')"
 										class="flex items-center form-select gap-3 w-full p-2 transition-colors"
 										:class="{
-											' text-primary': selectedCategory === '',
+											'bg-primary/10 text-primary': selectedCategory === '',
 										}"
 									>
 										<Icon
@@ -87,102 +87,20 @@
 										All Categories
 									</button>
 									<button
-										@click="selectCategory('frontend')"
+										v-for="category in categories"
+										:key="category.slug"
+										@click="selectCategory(category.slug)"
 										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
 										:class="{
 											'bg-primary/10 text-primary':
-												selectedCategory === 'frontend',
+												selectedCategory === category.slug,
 										}"
 									>
 										<Icon
-											name="heroicons:code-bracket"
+											:name="category.icon"
 											class="h-4 w-4"
 										/>
-										Frontend
-									</button>
-									<button
-										@click="selectCategory('backend')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												selectedCategory === 'backend',
-										}"
-									>
-										<Icon
-											name="heroicons:server"
-											class="h-4 w-4"
-										/>
-										Backend
-									</button>
-									<button
-										@click="selectCategory('ai-helpers')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												selectedCategory === 'ai-helpers',
-										}"
-									>
-										<Icon
-											name="heroicons:cpu-chip"
-											class="h-4 w-4"
-										/>
-										AI Helpers
-									</button>
-									<button
-										@click="selectCategory('documentation')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												selectedCategory === 'documentation',
-										}"
-									>
-										<Icon
-											name="heroicons:document-text"
-											class="h-4 w-4"
-										/>
-										Documentation
-									</button>
-									<button
-										@click="selectCategory('design')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												selectedCategory === 'design',
-										}"
-									>
-										<Icon
-											name="heroicons:paint-brush"
-											class="h-4 w-4"
-										/>
-										Design
-									</button>
-									<button
-										@click="selectCategory('devops')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												selectedCategory === 'devops',
-										}"
-									>
-										<Icon
-											name="heroicons:cog-6-tooth"
-											class="h-4 w-4"
-										/>
-										DevOps
-									</button>
-									<button
-										@click="selectCategory('testing')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												selectedCategory === 'testing',
-										}"
-									>
-										<Icon
-											name="heroicons:beaker"
-											class="h-4 w-4"
-										/>
-										Testing
+										{{ category.name }}
 									</button>
 								</div>
 							</div>
@@ -545,6 +463,16 @@
 		],
 	});
 
+	// Fetch categories from backend like in submit page
+	const { data: catData } = await useFetch(`${apiBase}/categories`);
+	const categories = computed(() =>
+		(catData.value?.data ?? []).map((c: any) => ({
+			slug: c.slug,
+			name: c.name,
+			icon: c.icon,
+		}))
+	);
+
 	const searchQuery = ref("");
 	const selectedCategory = ref("");
 	const selectedPrice = ref("");
@@ -771,29 +699,13 @@
 	};
 
 	const getCategoryIcon = (category: string) => {
-		const icons = {
-			frontend: "heroicons:code-bracket",
-			backend: "heroicons:server",
-			"ai-helpers": "heroicons:cpu-chip",
-			documentation: "heroicons:document-text",
-			design: "heroicons:paint-brush",
-			devops: "heroicons:cog-6-tooth",
-			testing: "heroicons:beaker",
-		};
-		return icons[category] || "heroicons:squares-2x2";
+		const found = categories.value.find((c) => c.slug === category);
+		return found ? found.icon : "heroicons:squares-2x2";
 	};
 
 	const getCategoryLabel = (category: string) => {
-		const labels = {
-			frontend: "Frontend",
-			backend: "Backend",
-			"ai-helpers": "AI Helpers",
-			documentation: "Documentation",
-			design: "Design",
-			devops: "DevOps",
-			testing: "Testing",
-		};
-		return labels[category] || category;
+		const found = categories.value.find((c) => c.slug === category);
+		return found ? found.name : category;
 	};
 
 	const getPriceLabel = (price) => {

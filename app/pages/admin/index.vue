@@ -1,6 +1,9 @@
 <script setup lang="ts">
 	const apiBase = "http://localhost:5050/api/v1";
-	const adminToken = useRuntimeConfig().public.adminToken;
+	const { logout, adminUser, getToken, initAuth } = useAdminAuth();
+
+	// Get token for API calls
+	const getAuthToken = () => getToken();
 
 	const tab = ref<"pending" | "approved" | "rejected">("pending");
 	const submissions = ref<any[]>([]);
@@ -55,7 +58,7 @@
 		try {
 			const res: any = await $fetch(`${apiBase}/submissions`, {
 				params: { status: tab.value },
-				headers: { Authorization: `Bearer ${adminToken}` },
+				headers: { Authorization: `Bearer ${getAuthToken()}` },
 			});
 			submissions.value = res.data;
 		} catch (err) {
@@ -75,7 +78,11 @@
 	};
 
 	const editSubmission = (sub: any) => {
-		editForm.value = { ...sub };
+		editForm.value = {
+			...sub,
+			// Convert tags array to comma-separated string for input field
+			tags: Array.isArray(sub.tags) ? sub.tags.join(", ") : sub.tags || "",
+		};
 		showEdit.value = true;
 	};
 
@@ -94,15 +101,15 @@
 			const [pending, approved, rejected] = await Promise.all([
 				$fetch(`${apiBase}/submissions`, {
 					params: { status: "pending" },
-					headers: { Authorization: `Bearer ${adminToken}` },
+					headers: { Authorization: `Bearer ${getAuthToken()}` },
 				}),
 				$fetch(`${apiBase}/submissions`, {
 					params: { status: "approved" },
-					headers: { Authorization: `Bearer ${adminToken}` },
+					headers: { Authorization: `Bearer ${getAuthToken()}` },
 				}),
 				$fetch(`${apiBase}/submissions`, {
 					params: { status: "rejected" },
-					headers: { Authorization: `Bearer ${adminToken}` },
+					headers: { Authorization: `Bearer ${getAuthToken()}` },
 				}),
 			]);
 
@@ -117,32 +124,121 @@
 	};
 
 	const saveEdit = async () => {
-		await $fetch(`${apiBase}/submissions/${editForm.value._id}/edit`, {
-			method: "PATCH",
-			headers: { Authorization: `Bearer ${adminToken}` },
-			body: editForm.value,
-		});
-		showEdit.value = false;
-		loadSubmissions();
-		loadAllSubmissions(); // Refresh stats
+		try {
+			const token = getAuthToken();
+			if (!token) {
+				console.error("No auth token available for editing submission");
+				alert("Authentication required. Please log in again.");
+				return;
+			}
+
+			// Prepare the data with tags converted back to array
+			const submissionData = {
+				...editForm.value,
+				// Convert comma-separated string back to array of trimmed tags
+				tags: editForm.value.tags
+					? editForm.value.tags
+							.split(",")
+							.map((tag: string) => tag.trim())
+							.filter((tag: string) => tag.length > 0)
+					: [],
+				// Also update keywords field to match tags (if your backend expects this)
+				keywords: editForm.value.tags
+					? editForm.value.tags
+							.split(",")
+							.map((tag: string) => tag.trim())
+							.filter((tag: string) => tag.length > 0)
+					: [],
+			};
+
+			await $fetch(`${apiBase}/submissions/${editForm.value._id}/edit`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: submissionData,
+			});
+
+			showEdit.value = false;
+			loadSubmissions();
+			loadAllSubmissions(); // Refresh stats
+		} catch (error: any) {
+			console.error("Failed to save submission:", error);
+
+			if (error.status === 401) {
+				alert("Authentication failed. Please log in again.");
+				logout();
+			} else {
+				alert(`Failed to save submission: ${error.message || "Unknown error"}`);
+			}
+		}
 	};
 
 	const approve = async (id: string) => {
-		await $fetch(`${apiBase}/submissions/${id}/approve`, {
-			method: "PATCH",
-			headers: { Authorization: `Bearer ${adminToken}` },
-		});
-		loadSubmissions();
-		loadAllSubmissions(); // Refresh stats
+		try {
+			const token = getAuthToken();
+			if (!token) {
+				console.error("No auth token available for approving submission");
+				alert("Authentication required. Please log in again.");
+				return;
+			}
+
+			await $fetch(`${apiBase}/submissions/${id}/approve`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			loadSubmissions();
+			loadAllSubmissions(); // Refresh stats
+		} catch (error: any) {
+			console.error("Failed to approve submission:", error);
+
+			if (error.status === 401) {
+				alert("Authentication failed. Please log in again.");
+				logout();
+			} else {
+				alert(
+					`Failed to approve submission: ${error.message || "Unknown error"}`
+				);
+			}
+		}
 	};
 
 	const reject = async (id: string) => {
-		await $fetch(`${apiBase}/submissions/${id}/reject`, {
-			method: "PATCH",
-			headers: { Authorization: `Bearer ${adminToken}` },
-		});
-		loadSubmissions();
-		loadAllSubmissions(); // Refresh stats
+		try {
+			const token = getAuthToken();
+			if (!token) {
+				console.error("No auth token available for rejecting submission");
+				alert("Authentication required. Please log in again.");
+				return;
+			}
+
+			await $fetch(`${apiBase}/submissions/${id}/reject`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			loadSubmissions();
+			loadAllSubmissions(); // Refresh stats
+		} catch (error: any) {
+			console.error("Failed to reject submission:", error);
+
+			if (error.status === 401) {
+				alert("Authentication failed. Please log in again.");
+				logout();
+			} else {
+				alert(
+					`Failed to reject submission: ${error.message || "Unknown error"}`
+				);
+			}
+		}
 	};
 
 	// Dropdown state management
@@ -225,7 +321,8 @@
 		categoryExpanded.value = false;
 	};
 
-	onMounted(() => {
+	onMounted(async () => {
+		await initAuth();
 		loadSubmissions();
 		loadAllSubmissions();
 
@@ -293,7 +390,21 @@
 						</p>
 					</div>
 
-					<div class="flex flex-wrap gap-3">
+					<div class="flex flex-wrap items-center gap-3">
+						<!-- Admin info -->
+						<div class="hidden md:flex items-center gap-2 text-sm">
+							<Icon
+								name="heroicons:user-circle"
+								class="h-5 w-5 text-muted"
+							/>
+							<span class="text-muted">{{ adminUser?.email }}</span>
+							<span
+								class="px-2 py-1 text-xs bg-primary/20 text-primary rounded-full"
+							>
+								{{ adminUser?.role }}
+							</span>
+						</div>
+
 						<NuxtLink
 							to="/admin/tools"
 							class="btn btn-secondary"
@@ -314,6 +425,17 @@
 							/>
 							Add Tool
 						</NuxtLink>
+
+						<button
+							@click="logout"
+							class="btn btn-outline !border-red-500/30 !text-red-400 hover:!bg-red-500/10"
+						>
+							<Icon
+								name="heroicons:arrow-right-start-on-rectangle"
+								class="h-4 w-4 mr-2"
+							/>
+							Logout
+						</button>
 					</div>
 				</div>
 
@@ -882,8 +1004,21 @@
 						v-model="editForm.tags"
 						type="text"
 						class="form-input w-full"
-						placeholder="Tags (comma separated)"
+						placeholder="Tags (comma separated, e.g.: ui, design, frontend)"
 					/>
+					<!-- Preview tags as they will appear -->
+					<div
+						v-if="editForm.tags && editForm.tags.trim()"
+						class="flex flex-wrap gap-2 mt-2"
+					>
+						<span
+							v-for="tag in editForm.tags.split(',').map((t: string) => t.trim()).filter((t: string) => t.length > 0)"
+							:key="tag"
+							class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
+						>
+							{{ tag }}
+						</span>
+					</div>
 				</div>
 
 				<div class="flex flex-col sm:flex-row gap-3 pt-4">

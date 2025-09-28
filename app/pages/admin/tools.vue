@@ -1,8 +1,12 @@
 <script setup lang="ts">
 	const apiBase = "http://localhost:5050/api/v1";
-	const adminToken = useRuntimeConfig().public.adminToken;
+	const { logout, adminUser, getToken, initAuth } = useAdminAuth();
+
+	// Get token for API calls
+	const getAuthToken = () => getToken();
 
 	const tools = ref<any[]>([]);
+	const loading = ref(false);
 	const showEdit = ref(false);
 	const editForm = ref<any>(null);
 
@@ -202,38 +206,183 @@
 	};
 
 	const loadTools = async () => {
-		const res: any = await $fetch(`${apiBase}/tools`, {
-			params: {
-				search: search.value,
-				sort: sortBy.value,
-			},
-			headers: { Authorization: `Bearer ${adminToken}` },
-		});
-		tools.value = res.data;
+		try {
+			loading.value = true;
+			console.log("🔄 Loading tools from:", `${apiBase}/tools`);
+
+			// First, let's test if backend is available
+			try {
+				const healthCheck = await $fetch(`http://localhost:5050/health`);
+				console.log("✅ Backend health check passed:", healthCheck);
+			} catch (healthError) {
+				console.error("❌ Backend health check failed:", healthError);
+				console.error(
+					"🚨 Make sure your backend server is running on localhost:5050"
+				);
+				throw new Error("Backend server not available");
+			}
+
+			// According to your backend API, /tools endpoint doesn't require auth
+			// but we'll include it anyway for admin functionality
+			const token = getAuthToken();
+			console.log("🔑 Auth token:", token ? "Present" : "Not present");
+
+			const requestOptions: any = {
+				params: {
+					search: search.value,
+					sort: sortBy.value,
+					order: "asc",
+					limit: 100, // Get more tools for admin view
+				},
+			};
+
+			// Only add headers if we have a token
+			if (token) {
+				requestOptions.headers = { Authorization: `Bearer ${token}` };
+			}
+
+			console.log("📋 Request params:", requestOptions.params);
+
+			const res: any = await $fetch(`${apiBase}/tools`, requestOptions);
+
+			console.log("📦 Tools API response:", res);
+			console.log("📦 Response type:", typeof res);
+			console.log("📦 Is array:", Array.isArray(res));
+			console.log("📦 Has data property:", res && "data" in res);
+
+			// According to your API docs, response should be { data: [...], meta: {...} }
+			if (res && res.data) {
+				tools.value = res.data;
+				console.log(
+					"✅ Tools loaded from .data property:",
+					res.data.length,
+					"items"
+				);
+			} else if (Array.isArray(res)) {
+				tools.value = res;
+				console.log("✅ Tools loaded as array:", res.length, "items");
+			} else {
+				console.warn("⚠️  Unexpected response format:", res);
+				tools.value = [];
+			}
+		} catch (error: any) {
+			console.error("❌ Failed to load tools:", error);
+			console.error("❌ Error details:", {
+				message: error.message,
+				status: error.status,
+				statusText: error.statusText,
+				data: error.data,
+			});
+			tools.value = [];
+		} finally {
+			loading.value = false;
+		}
 	};
-	onMounted(loadTools);
+	onMounted(async () => {
+		await initAuth();
+		loadTools();
+	});
 
 	const deleteTool = async (id: string) => {
-		await $fetch(`${apiBase}/tools/${id}`, {
-			method: "DELETE",
-			headers: { Authorization: `Bearer ${adminToken}` },
-		});
-		loadTools();
+		try {
+			const token = getAuthToken();
+			if (!token) {
+				console.error("No auth token available for deleting tool");
+				alert("Authentication required. Please log in again.");
+				return;
+			}
+
+			if (!confirm("Are you sure you want to delete this tool?")) {
+				return;
+			}
+
+			console.log("Deleting tool with token:", token ? "Present" : "Missing");
+
+			await $fetch(`${apiBase}/tools/${id}`, {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			console.log("✅ Tool deleted successfully");
+			loadTools();
+		} catch (error: any) {
+			console.error("❌ Failed to delete tool:", error);
+
+			if (error.status === 401) {
+				alert("Authentication failed. Please log in again.");
+				logout();
+			} else {
+				alert(`Failed to delete tool: ${error.message || "Unknown error"}`);
+			}
+		}
 	};
 
 	const editTool = (tool: any) => {
-		editForm.value = { ...tool };
+		editForm.value = {
+			...tool,
+			// Convert tags array to comma-separated string for input field
+			tags: Array.isArray(tool.tags) ? tool.tags.join(", ") : tool.tags || "",
+		};
 		showEdit.value = true;
 	};
 
 	const saveTool = async () => {
-		await $fetch(`${apiBase}/tools/${editForm.value._id}`, {
-			method: "PATCH",
-			headers: { Authorization: `Bearer ${adminToken}` },
-			body: editForm.value,
-		});
-		showEdit.value = false;
-		loadTools();
+		try {
+			const token = getAuthToken();
+			if (!token) {
+				console.error("No auth token available for editing tool");
+				alert("Authentication required. Please log in again.");
+				return;
+			}
+
+			console.log("Saving tool with token:", token ? "Present" : "Missing");
+
+			// Prepare the data with tags converted back to array
+			const toolData = {
+				...editForm.value,
+				// Convert comma-separated string back to array of trimmed tags
+				tags: editForm.value.tags
+					? editForm.value.tags
+							.split(",")
+							.map((tag) => tag.trim())
+							.filter((tag) => tag.length > 0)
+					: [],
+				// Also update keywords field to match tags (if your backend expects this)
+				keywords: editForm.value.tags
+					? editForm.value.tags
+							.split(",")
+							.map((tag) => tag.trim())
+							.filter((tag) => tag.length > 0)
+					: [],
+			};
+
+			console.log("Tool data:", toolData);
+
+			await $fetch(`${apiBase}/tools/${editForm.value._id}`, {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+				body: toolData,
+			});
+
+			console.log("✅ Tool saved successfully");
+			showEdit.value = false;
+			loadTools();
+		} catch (error: any) {
+			console.error("❌ Failed to save tool:", error);
+
+			if (error.status === 401) {
+				alert("Authentication failed. Please log in again.");
+				logout();
+			} else {
+				alert(`Failed to save tool: ${error.message || "Unknown error"}`);
+			}
+		}
 	};
 </script>
 
@@ -276,7 +425,21 @@
 						</p>
 					</div>
 
-					<div class="flex flex-wrap gap-3">
+					<div class="flex flex-wrap items-center gap-3">
+						<!-- Admin info -->
+						<div class="hidden md:flex items-center gap-2 text-sm">
+							<Icon
+								name="heroicons:user-circle"
+								class="h-5 w-5 text-muted"
+							/>
+							<span class="text-muted">{{ adminUser?.email }}</span>
+							<span
+								class="px-2 py-1 text-xs bg-primary/20 text-primary rounded-full"
+							>
+								{{ adminUser?.role }}
+							</span>
+						</div>
+
 						<NuxtLink
 							to="/admin"
 							class="btn btn-secondary"
@@ -297,6 +460,17 @@
 							/>
 							Add Tool
 						</NuxtLink>
+
+						<button
+							@click="logout"
+							class="btn btn-outline !border-red-500/30 !text-red-400 hover:!bg-red-500/10"
+						>
+							<Icon
+								name="heroicons:arrow-right-start-on-rectangle"
+								class="h-4 w-4 mr-2"
+							/>
+							Logout
+						</button>
 					</div>
 				</div>
 
@@ -604,9 +778,24 @@
 						</tbody>
 					</table>
 
+					<!-- Loading State -->
+					<div
+						v-if="loading"
+						class="text-center py-12"
+					>
+						<Icon
+							name="heroicons:arrow-path"
+							class="h-16 w-16 text-primary mx-auto mb-4 animate-spin"
+						/>
+						<h3 class="text-h4 text-muted mb-2">Loading tools...</h3>
+						<p class="text-subtle">
+							Please wait while we fetch the tools from the database.
+						</p>
+					</div>
+
 					<!-- Empty State -->
 					<div
-						v-if="!tools.length"
+						v-else-if="!tools.length"
 						class="text-center py-12"
 					>
 						<Icon
@@ -614,9 +803,22 @@
 							class="h-16 w-16 text-subtle mx-auto mb-4"
 						/>
 						<h3 class="text-h4 text-muted mb-2">No tools found</h3>
-						<p class="text-subtle">
+						<p class="text-subtle mb-4">
 							Tools will appear here once they are approved from submissions.
 						</p>
+						<p class="text-xs text-red-400">
+							💡 Check browser console for debugging information
+						</p>
+						<button
+							@click="loadTools"
+							class="btn btn-sm btn-secondary mt-4"
+						>
+							<Icon
+								name="heroicons:arrow-path"
+								class="h-4 w-4 mr-2"
+							/>
+							Retry Loading
+						</button>
 					</div>
 				</div>
 			</div>
@@ -828,8 +1030,24 @@
 						v-model="editForm.tags"
 						type="text"
 						class="form-input w-full"
-						placeholder="Tags (comma separated)"
+						placeholder="Tags (comma separated, e.g.: ui, design, frontend)"
 					/>
+					<!-- Preview tags as they will appear -->
+					<div
+						v-if="editForm.tags && editForm.tags.trim()"
+						class="flex flex-wrap gap-2 mt-2"
+					>
+						<span
+							v-for="tag in editForm.tags
+								.split(',')
+								.map((t) => t.trim())
+								.filter((t) => t.length > 0)"
+							:key="tag"
+							class="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
+						>
+							{{ tag }}
+						</span>
+					</div>
 				</div>
 
 				<div class="flex flex-col sm:flex-row gap-3 pt-4">

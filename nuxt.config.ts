@@ -17,7 +17,8 @@ export default defineNuxtConfig({
 
 		// public vars (exposed to client, safe)
 		public: {
-			adminToken: process.env.NUXT_PUBLIC_ADMIN_TOKEN,
+			apiBase:
+				process.env.NUXT_PUBLIC_API_BASE || "http://localhost:5050/api/v1",
 		},
 	},
 });
