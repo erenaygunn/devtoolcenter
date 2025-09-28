@@ -74,13 +74,10 @@ export const useAdminAuth = () => {
 		try {
 			loading.value = true;
 
-			const response: LoginResponse = await $fetch(
-				"http://localhost:5050/api/v1/admin/login",
-				{
-					method: "POST",
-					body: { email, password },
-				}
-			);
+			const response: LoginResponse = await $api("/admin/login", {
+				method: "POST",
+				body: { email, password },
+			});
 
 			if (response.token) {
 				setToken(response.token);
@@ -106,14 +103,9 @@ export const useAdminAuth = () => {
 			const token = getToken();
 			if (!token) return false;
 
-			const profile = await $fetch<AdminUser>(
-				"http://localhost:5050/api/v1/admin/me",
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			);
+			const profile = await $api<AdminUser>("/admin/me", {
+				method: "GET",
+			});
 
 			adminUser.value = profile;
 			return true;
@@ -134,12 +126,8 @@ export const useAdminAuth = () => {
 		}
 
 		try {
-			const { $api } = useNuxtApp();
 			const response: any = await $api("/auth/validate", {
 				method: "GET",
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
 			});
 
 			if (!response?.valid) {
@@ -215,21 +203,46 @@ export const useAdminAuth = () => {
 		try {
 			loading.value = true;
 
-			await $fetch("http://localhost:5050/api/v1/admin/register", {
+			console.log("Attempting registration for:", email, "with role:", role);
+
+			const response = await $api("/admin/register", {
 				method: "POST",
 				body: { email, password, role },
 			});
 
+			console.log("Registration successful:", response);
+
 			// Auto-login after successful registration
 			return await login(email, password);
 		} catch (error: any) {
-			console.error("Registration error:", error);
+			console.error("Registration error details:", {
+				status: error?.status || error?.statusCode,
+				statusText: error?.statusText,
+				data: error?.data,
+				message: error?.message,
+				response: error?.response,
+				full: error,
+			});
+
+			// Extract more detailed error information
+			let errorMessage = "Registration failed";
+
+			if (error?.status === 403 || error?.statusCode === 403) {
+				errorMessage =
+					"Registration forbidden. This might be due to: admin already exists, CORS issues, or backend restrictions.";
+			} else if (error?.status === 500 || error?.statusCode === 500) {
+				errorMessage = "Server error occurred during registration.";
+			} else if (error?.data?.error?.message) {
+				errorMessage = error.data.error.message;
+			} else if (error?.data?.message) {
+				errorMessage = error.data.message;
+			} else if (error?.message) {
+				errorMessage = error.message;
+			}
+
 			return {
 				success: false,
-				error:
-					error?.data?.error?.message ||
-					error?.message ||
-					"Registration failed",
+				error: errorMessage,
 			};
 		} finally {
 			loading.value = false;
