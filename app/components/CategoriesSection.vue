@@ -32,6 +32,18 @@
 
 <script setup>
 	const apiBase = "http://localhost:5050/api/v1";
-	const { data } = await useFetch(`${apiBase}/categories`);
-	const categories = computed(() => data.value?.data ?? []);
+
+	// Use cached fetch for categories
+	const { cachedFetch } = useApiCache();
+
+	const { data } = await useAsyncData(
+		"categories-section",
+		() => cachedFetch(`${apiBase}/categories`),
+		{
+			server: true,
+			transform: (data) => data?.data ?? [],
+		}
+	);
+
+	const categories = computed(() => data.value ?? []);
 </script>

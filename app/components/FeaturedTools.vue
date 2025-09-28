@@ -56,15 +56,26 @@
 	const apiBase = "http://localhost:5050/api/v1";
 	const swiperContainer = ref(null);
 
-	// Fetch latest 3 tools
-	const { data: apiData } = await useFetch(`${apiBase}/tools`, {
-		params: {
-			sort: "date",
-			limit: 3,
-		},
-	});
+	// Use cached fetch for featured tools
+	const { cachedFetch } = useApiCache();
 
-	const latestTools = computed(() => apiData.value?.data ?? []);
+	// Fetch latest 3 tools with caching
+	const { data: apiData } = await useAsyncData(
+		"featured-tools",
+		() =>
+			cachedFetch(`${apiBase}/tools`, {
+				params: {
+					sort: "date",
+					limit: 3,
+				},
+			}),
+		{
+			server: true,
+			transform: (data) => data?.data ?? [],
+		}
+	);
+
+	const latestTools = computed(() => apiData.value ?? []);
 
 	onMounted(() => {
 		if (swiperContainer.value) {

@@ -19,6 +19,25 @@ export default defineNuxtConfig({
 		public: {
 			apiBase:
 				process.env.NUXT_PUBLIC_API_BASE || "http://localhost:5050/api/v1",
+			maxSubmissionsPerDay: 5,
+			enableRateLimit: true,
 		},
 	},
+
+	// Security configuration
+	nitro: {
+		routeRules: {
+			"/api/**": {
+				headers: {
+					"X-Content-Type-Options": "nosniff",
+					"X-Frame-Options": "DENY",
+					"X-XSS-Protection": "1; mode=block",
+					"Referrer-Policy": "strict-origin-when-cross-origin",
+				},
+			},
+		},
+	},
+
+	// Add security middleware
+	ssr: true,
 });

@@ -14,25 +14,55 @@ export const useAdminAuth = () => {
 	const isAuthenticated = computed(() => !!adminUser.value);
 	const loading = ref(false);
 
-	// Get token from localStorage
+	const tokenValidationInterval = ref<NodeJS.Timeout | null>(null);
+
+	// Get token from secure storage (cookie first, then localStorage)
 	const getToken = (): string | null => {
 		if (process.client) {
-			return localStorage.getItem("adminToken");
+			// Try to get from httpOnly cookie first, fallback to localStorage
+			const cookieToken = useCookie("adminToken", {
+				httpOnly: true,
+				secure: true,
+				sameSite: "strict",
+				maxAge: 60 * 60 * 24, // 24 hours
+			});
+			return cookieToken.value || localStorage.getItem("adminToken");
 		}
 		return null;
 	};
 
-	// Set token to localStorage
+	// Set token to secure storage
 	const setToken = (token: string) => {
 		if (process.client) {
+			// Set both cookie and localStorage for compatibility
+			const cookieToken = useCookie("adminToken", {
+				httpOnly: true,
+				secure: true,
+				sameSite: "strict",
+				maxAge: 60 * 60 * 24,
+			});
+			cookieToken.value = token;
 			localStorage.setItem("adminToken", token);
+
+			// Start token validation interval
+			startTokenValidation();
 		}
 	};
 
-	// Remove token from localStorage
+	// Remove token from all storage
 	const removeToken = () => {
 		if (process.client) {
+			// Clear both cookie and localStorage
+			const cookieToken = useCookie("adminToken");
+			cookieToken.value = null;
 			localStorage.removeItem("adminToken");
+			sessionStorage.removeItem("csrf_token");
+
+			// Clear validation interval
+			if (tokenValidationInterval.value) {
+				clearInterval(tokenValidationInterval.value);
+				tokenValidationInterval.value = null;
+			}
 		}
 	};
 
@@ -95,6 +125,44 @@ export const useAdminAuth = () => {
 		}
 	};
 
+	// Validate token with server
+	const validateToken = async (): Promise<boolean> => {
+		const token = getToken();
+		if (!token) {
+			logout();
+			return false;
+		}
+
+		try {
+			const { $api } = useNuxtApp();
+			const response: any = await $api("/auth/validate", {
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			if (!response?.valid) {
+				logout();
+				return false;
+			}
+
+			return true;
+		} catch (error) {
+			logout();
+			return false;
+		}
+	};
+
+	// Start periodic token validation
+	const startTokenValidation = () => {
+		if (tokenValidationInterval.value) {
+			clearInterval(tokenValidationInterval.value);
+		}
+		// Validate token every 10 minutes
+		tokenValidationInterval.value = setInterval(validateToken, 10 * 60 * 1000);
+	};
+
 	// Check authentication status
 	const checkAuth = async (): Promise<boolean> => {
 		if (!process.client) return false;
@@ -115,7 +183,10 @@ export const useAdminAuth = () => {
 	// Initialize auth on client
 	const initAuth = async () => {
 		if (process.client) {
-			await checkAuth();
+			const isAuthenticated = await checkAuth();
+			if (isAuthenticated) {
+				startTokenValidation();
+			}
 		}
 	};
 
@@ -179,5 +250,6 @@ export const useAdminAuth = () => {
 		fetchProfile,
 		initAuth,
 		getToken,
+		validateToken,
 	};
 };
