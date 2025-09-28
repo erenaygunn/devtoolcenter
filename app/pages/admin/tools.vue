@@ -1,390 +1,235 @@
+
 <script setup lang="ts">
-	const apiBase = "http://localhost:5050/api/v1";
-	const { logout, adminUser, getToken, initAuth } = useAdminAuth();
+        import { nextTick, onMounted, ref, watch } from "vue";
+        import {
+                getPricingIcon,
+                getPricingLabel,
+                pricingModels,
+                sortOptions,
+                getSortIcon,
+                getSortLabel,
+        } from "~/utils/toolOptions";
 
-	// Get token for API calls
-	const getAuthToken = () => getToken();
+        const { apiRoot, buildUrl } = useApiEndpoints();
+        const { categories, getCategoryLabel, getCategoryIcon } = useCategories();
+        const { logout, adminUser, getToken, initAuth } = useAdminAuth();
 
-	const tools = ref<any[]>([]);
-	const loading = ref(false);
-	const showEdit = ref(false);
-	const editForm = ref<any>(null);
+        const tools = ref<any[]>([]);
+        const loading = ref(false);
+        const showEdit = ref(false);
+        const editForm = ref<any>(null);
+        const search = ref("");
+        const sortBy = ref("date");
 
-	// Dropdown state management
-	const priceExpanded = ref(false);
-	const categoryExpanded = ref(false);
-	const sortExpanded = ref(false);
-	const priceButton = ref(null);
-	const categoryButton = ref(null);
-	const sortButton = ref(null);
-	const priceDropdownStyle = ref({});
-	const categoryDropdownStyle = ref({});
-	const sortDropdownStyle = ref({});
-	const search = ref("");
-	const sortBy = ref("date"); // Default to date for admin
+        const {
+                isOpen: isPriceOpen,
+                triggerRef: priceTriggerRef,
+                contentRef: priceContentRef,
+                style: priceStyle,
+                toggle: togglePriceDropdown,
+                close: closePriceDropdown,
+                updatePosition: updatePricePosition,
+        } = useFloatingDropdown();
 
-	const priceOptions = [
-		{
-			value: "free",
-			label: "Free",
-			description: "Completely free to use",
-			icon: "heroicons:gift",
-		},
-		{
-			value: "free-plan",
-			label: "Free Plan Available",
-			description: "Has free tier with paid upgrades",
-			icon: "heroicons:star",
-		},
-		{
-			value: "paid",
-			label: "Paid",
-			description: "Requires payment to use",
-			icon: "heroicons:currency-dollar",
-		},
-	];
+        const {
+                isOpen: isCategoryOpen,
+                triggerRef: categoryTriggerRef,
+                contentRef: categoryContentRef,
+                style: categoryStyle,
+                toggle: toggleCategoryDropdown,
+                close: closeCategoryDropdown,
+                updatePosition: updateCategoryPosition,
+        } = useFloatingDropdown();
 
-	const getPriceIcon = (price) => {
-		const icons = {
-			free: "heroicons:gift",
-			"free-plan": "heroicons:star",
-			paid: "heroicons:currency-dollar",
-		};
-		return icons[price] || "heroicons:currency-dollar";
-	};
+        const {
+                isOpen: isSortOpen,
+                triggerRef: sortTriggerRef,
+                contentRef: sortContentRef,
+                style: sortStyle,
+                toggle: toggleSortDropdown,
+                close: closeSortDropdown,
+                updatePosition: updateSortPosition,
+        } = useFloatingDropdown();
 
-	const getPriceLabel = (price) => {
-		const labels = {
-			free: "Free",
-			"free-plan": "Free Plan Available",
-			paid: "Paid",
-		};
-		return labels[price] || price;
-	};
+        const getAuthToken = () => getToken();
 
-	// Categories data
-	const { data: catData } = await useFetch(`${apiBase}/categories`);
-	const categories = computed(() =>
-		(catData.value?.data ?? []).map((c: any) => ({
-			slug: c.slug,
-			name: c.name,
-			icon: c.icon,
-		}))
-	);
+        const selectPrice = (price: string) => {
+                if (editForm.value) {
+                        editForm.value.price = price;
+                }
+                closePriceDropdown();
+        };
 
-	const getCategoryIcon = (category) => {
-		const icons = {
-			frontend: "heroicons:code-bracket",
-			backend: "heroicons:server",
-			"ai-helpers": "heroicons:cpu-chip",
-			documentation: "heroicons:document-text",
-			design: "heroicons:paint-brush",
-			devops: "heroicons:cog-6-tooth",
-			testing: "heroicons:beaker",
-		};
-		return icons[category] || "heroicons:squares-2x2";
-	};
+        const selectCategory = (category: string) => {
+                if (editForm.value) {
+                        editForm.value.category = category;
+                }
+                closeCategoryDropdown();
+        };
 
-	const getCategoryLabel = (category) => {
-		const labels = {
-			frontend: "Frontend",
-			backend: "Backend",
-			"ai-helpers": "AI Helpers",
-			documentation: "Documentation",
-			design: "Design",
-			devops: "DevOps",
-			testing: "Testing",
-		};
-		return labels[category] || category;
-	};
+        const selectSort = (sort: string) => {
+                sortBy.value = sort;
+                closeSortDropdown();
+                loadTools();
+        };
 
-	const getSortLabel = (sort) => {
-		const labels = {
-			name: "Sort by Name",
-			category: "Sort by Category",
-			price: "Sort by Price",
-			date: "Sort by Date Added",
-		};
-		return labels[sort] || "Sort by Date Added";
-	};
+        watch(() => isPriceOpen.value, (open) => {
+                if (open) {
+                        nextTick(updatePricePosition);
+                }
+        });
 
-	const getSortIcon = (sort) => {
-		const icons = {
-			name: "heroicons:bars-3-bottom-left",
-			category: "heroicons:squares-2x2",
-			price: "heroicons:currency-dollar",
-			date: "heroicons:calendar-days",
-		};
-		return icons[sort] || "heroicons:calendar-days";
-	};
+        watch(() => isCategoryOpen.value, (open) => {
+                if (open) {
+                        nextTick(updateCategoryPosition);
+                }
+        });
 
-	const updateDropdownPositions = () => {
-		if (priceButton.value && priceExpanded.value) {
-			const rect = priceButton.value.getBoundingClientRect();
-			priceDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
+        watch(categories, () => {
+                if (isCategoryOpen.value) {
+                        nextTick(updateCategoryPosition);
+                }
+        });
 
-		if (categoryButton.value && categoryExpanded.value) {
-			const rect = categoryButton.value.getBoundingClientRect();
-			categoryDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
+        watch(() => isSortOpen.value, (open) => {
+                if (open) {
+                        nextTick(updateSortPosition);
+                }
+        });
 
-		if (sortButton.value && sortExpanded.value) {
-			const rect = sortButton.value.getBoundingClientRect();
-			sortDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
-	};
+        const loadTools = async () => {
+                try {
+                        loading.value = true;
 
-	watch([priceExpanded, categoryExpanded, sortExpanded], () => {
-		nextTick(() => {
-			updateDropdownPositions();
-		});
-	});
+                        try {
+                                await $fetch(`${apiRoot.value}/health`);
+                        } catch (healthError) {
+                                console.error("❌ Backend health check failed:", healthError);
+                                throw new Error("Backend server not available");
+                        }
 
-	onMounted(() => {
-		window.addEventListener("resize", updateDropdownPositions);
-		window.addEventListener("scroll", updateDropdownPositions);
+                        const token = getAuthToken();
+                        const requestOptions: any = {
+                                params: {
+                                        search: search.value,
+                                        sort: sortBy.value,
+                                        order: "asc",
+                                        limit: 100,
+                                },
+                        };
 
-		const handleClickOutside = (event) => {
-			if (
-				priceExpanded.value &&
-				!priceButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				priceExpanded.value = false;
-			}
-			if (
-				categoryExpanded.value &&
-				!categoryButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				categoryExpanded.value = false;
-			}
-			if (
-				sortExpanded.value &&
-				!sortButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				sortExpanded.value = false;
-			}
-		};
-		document.addEventListener("click", handleClickOutside);
+                        if (token) {
+                                requestOptions.headers = { Authorization: `Bearer ${token}` };
+                        }
 
-		onUnmounted(() => {
-			window.removeEventListener("resize", updateDropdownPositions);
-			window.removeEventListener("scroll", updateDropdownPositions);
-			document.removeEventListener("click", handleClickOutside);
-		});
-	});
+                        const response: any = await $fetch(buildUrl("/tools"), requestOptions);
 
-	const selectPrice = (price) => {
-		editForm.value.price = price;
-		priceExpanded.value = false;
-	};
+                        if (response && response.data) {
+                                tools.value = response.data;
+                        } else if (Array.isArray(response)) {
+                                tools.value = response;
+                        } else {
+                                tools.value = [];
+                        }
+                } catch (error: any) {
+                        console.error("❌ Failed to load tools:", error);
+                        tools.value = [];
+                } finally {
+                        loading.value = false;
+                }
+        };
 
-	const selectCategory = (category) => {
-		editForm.value.category = category;
-		categoryExpanded.value = false;
-	};
+        onMounted(async () => {
+                await initAuth();
+                loadTools();
+        });
 
-	const selectSort = (sort) => {
-		sortBy.value = sort;
-		sortExpanded.value = false;
-		loadTools();
-	};
+        const deleteTool = async (id: string) => {
+                        try {
+                                const token = getAuthToken();
+                                if (!token) {
+                                        alert("Authentication required. Please log in again.");
+                                        return;
+                                }
 
-	const loadTools = async () => {
-		try {
-			loading.value = true;
-			console.log("🔄 Loading tools from:", `${apiBase}/tools`);
+                                if (!confirm("Are you sure you want to delete this tool?")) {
+                                        return;
+                                }
 
-			// First, let's test if backend is available
-			try {
-				const healthCheck = await $fetch(`http://localhost:5050/health`);
-				console.log("✅ Backend health check passed:", healthCheck);
-			} catch (healthError) {
-				console.error("❌ Backend health check failed:", healthError);
-				console.error(
-					"🚨 Make sure your backend server is running on localhost:5050"
-				);
-				throw new Error("Backend server not available");
-			}
+                                await $fetch(buildUrl(`/tools/${id}`), {
+                                        method: "DELETE",
+                                        headers: {
+                                                "Content-Type": "application/json",
+                                                Authorization: `Bearer ${token}`,
+                                        },
+                                });
 
-			// According to your backend API, /tools endpoint doesn't require auth
-			// but we'll include it anyway for admin functionality
-			const token = getAuthToken();
-			console.log("🔑 Auth token:", token ? "Present" : "Not present");
+                                loadTools();
+                        } catch (error: any) {
+                                console.error("❌ Failed to delete tool:", error);
 
-			const requestOptions: any = {
-				params: {
-					search: search.value,
-					sort: sortBy.value,
-					order: "asc",
-					limit: 100, // Get more tools for admin view
-				},
-			};
+                                if (error.status === 401) {
+                                        alert("Authentication failed. Please log in again.");
+                                        logout();
+                                } else {
+                                        alert(`Failed to delete tool: ${error.message || "Unknown error"}`);
+                                }
+                        }
+        };
 
-			// Only add headers if we have a token
-			if (token) {
-				requestOptions.headers = { Authorization: `Bearer ${token}` };
-			}
+        const editTool = (tool: any) => {
+                editForm.value = {
+                        ...tool,
+                        tags: Array.isArray(tool.tags) ? tool.tags.join(", ") : tool.tags || "",
+                };
+                showEdit.value = true;
+        };
 
-			console.log("📋 Request params:", requestOptions.params);
+        const saveTool = async () => {
+                try {
+                        const token = getAuthToken();
+                        if (!token) {
+                                alert("Authentication required. Please log in again.");
+                                return;
+                        }
 
-			const res: any = await $fetch(`${apiBase}/tools`, requestOptions);
+                        const tagsArray = editForm.value.tags
+                                ? editForm.value.tags
+                                                .split(",")
+                                                .map((tag: string) => tag.trim())
+                                                .filter((tag: string) => tag.length > 0)
+                                : [];
 
-			console.log("📦 Tools API response:", res);
-			console.log("📦 Response type:", typeof res);
-			console.log("📦 Is array:", Array.isArray(res));
-			console.log("📦 Has data property:", res && "data" in res);
+                        const toolData = {
+                                ...editForm.value,
+                                tags: tagsArray,
+                                keywords: tagsArray,
+                        };
 
-			// According to your API docs, response should be { data: [...], meta: {...} }
-			if (res && res.data) {
-				tools.value = res.data;
-				console.log(
-					"✅ Tools loaded from .data property:",
-					res.data.length,
-					"items"
-				);
-			} else if (Array.isArray(res)) {
-				tools.value = res;
-				console.log("✅ Tools loaded as array:", res.length, "items");
-			} else {
-				console.warn("⚠️  Unexpected response format:", res);
-				tools.value = [];
-			}
-		} catch (error: any) {
-			console.error("❌ Failed to load tools:", error);
-			console.error("❌ Error details:", {
-				message: error.message,
-				status: error.status,
-				statusText: error.statusText,
-				data: error.data,
-			});
-			tools.value = [];
-		} finally {
-			loading.value = false;
-		}
-	};
-	onMounted(async () => {
-		await initAuth();
-		loadTools();
-	});
+                        await $fetch(buildUrl(`/tools/${editForm.value._id}`), {
+                                method: "PATCH",
+                                headers: {
+                                        "Content-Type": "application/json",
+                                        Authorization: `Bearer ${token}`,
+                                },
+                                body: toolData,
+                        });
 
-	const deleteTool = async (id: string) => {
-		try {
-			const token = getAuthToken();
-			if (!token) {
-				console.error("No auth token available for deleting tool");
-				alert("Authentication required. Please log in again.");
-				return;
-			}
+                        showEdit.value = false;
+                        loadTools();
+                } catch (error: any) {
+                        console.error("❌ Failed to save tool:", error);
 
-			if (!confirm("Are you sure you want to delete this tool?")) {
-				return;
-			}
-
-			console.log("Deleting tool with token:", token ? "Present" : "Missing");
-
-			await $fetch(`${apiBase}/tools/${id}`, {
-				method: "DELETE",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			console.log("✅ Tool deleted successfully");
-			loadTools();
-		} catch (error: any) {
-			console.error("❌ Failed to delete tool:", error);
-
-			if (error.status === 401) {
-				alert("Authentication failed. Please log in again.");
-				logout();
-			} else {
-				alert(`Failed to delete tool: ${error.message || "Unknown error"}`);
-			}
-		}
-	};
-
-	const editTool = (tool: any) => {
-		editForm.value = {
-			...tool,
-			// Convert tags array to comma-separated string for input field
-			tags: Array.isArray(tool.tags) ? tool.tags.join(", ") : tool.tags || "",
-		};
-		showEdit.value = true;
-	};
-
-	const saveTool = async () => {
-		try {
-			const token = getAuthToken();
-			if (!token) {
-				console.error("No auth token available for editing tool");
-				alert("Authentication required. Please log in again.");
-				return;
-			}
-
-			console.log("Saving tool with token:", token ? "Present" : "Missing");
-
-			// Prepare the data with tags converted back to array
-			const toolData = {
-				...editForm.value,
-				// Convert comma-separated string back to array of trimmed tags
-				tags: editForm.value.tags
-					? editForm.value.tags
-							.split(",")
-							.map((tag) => tag.trim())
-							.filter((tag) => tag.length > 0)
-					: [],
-				// Also update keywords field to match tags (if your backend expects this)
-				keywords: editForm.value.tags
-					? editForm.value.tags
-							.split(",")
-							.map((tag) => tag.trim())
-							.filter((tag) => tag.length > 0)
-					: [],
-			};
-
-			console.log("Tool data:", toolData);
-
-			await $fetch(`${apiBase}/tools/${editForm.value._id}`, {
-				method: "PATCH",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-				body: toolData,
-			});
-
-			console.log("✅ Tool saved successfully");
-			showEdit.value = false;
-			loadTools();
-		} catch (error: any) {
-			console.error("❌ Failed to save tool:", error);
-
-			if (error.status === 401) {
-				alert("Authentication failed. Please log in again.");
-				logout();
-			} else {
-				alert(`Failed to save tool: ${error.message || "Unknown error"}`);
-			}
-		}
-	};
+                        if (error.status === 401) {
+                                alert("Authentication failed. Please log in again.");
+                                logout();
+                        } else {
+                                alert(`Failed to save tool: ${error.message || "Unknown error"}`);
+                        }
+                }
+        };
 </script>
+
 
 <template>
 	<div class="!pt-40 section">
@@ -563,93 +408,57 @@
 					</div>
 
 					<!-- Sort Options -->
-					<div class="relative">
-						<button
-							@click="sortExpanded = !sortExpanded"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
-							ref="sortButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									:name="getSortIcon(sortBy)"
-									class="h-4 w-4 text-muted"
-								/>
-								{{ getSortLabel(sortBy) }}
-							</span>
-							<Icon
-								:name="
-									sortExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
-								class="h-4 w-4"
-							/>
-						</button>
-					</div>
+                                        <div class="relative">
+                                                <button
+                                                        @click="toggleSortDropdown()"
+                                                        class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
+                                                        ref="sortTriggerRef"
+                                                >
+                                                        <span class="flex items-center gap-2 text-sm font-medium">
+                                                                <Icon
+                                                                        :name="getSortIcon(sortBy)"
+                                                                        class="h-4 w-4 text-muted"
+                                                                />
+                                                                {{ getSortLabel(sortBy) }}
+                                                        </span>
+                                                        <Icon
+                                                                :name="
+                                                                        isSortOpen
+                                                                                ? 'heroicons:chevron-up'
+                                                                                : 'heroicons:chevron-down'
+                                                                "
+                                                                class="h-4 w-4"
+                                                        />
+                                                </button>
+                                        </div>
 
 					<!-- Teleported Sort Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="sortExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="sortDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									@click="selectSort('date')"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary': sortBy === 'date',
-									}"
-								>
-									<Icon
-										name="heroicons:calendar-days"
-										class="h-4 w-4"
-									/>
-									Sort by Date Added
-								</button>
-								<button
-									@click="selectSort('name')"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary': sortBy === 'name',
-									}"
-								>
-									<Icon
-										name="heroicons:bars-3-bottom-left"
-										class="h-4 w-4"
-									/>
-									Sort by Name
-								</button>
-								<button
-									@click="selectSort('category')"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary': sortBy === 'category',
-									}"
-								>
-									<Icon
-										name="heroicons:squares-2x2"
-										class="h-4 w-4"
-									/>
-									Sort by Category
-								</button>
-								<button
-									@click="selectSort('price')"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary': sortBy === 'price',
-									}"
-								>
-									<Icon
-										name="heroicons:currency-dollar"
-										class="h-4 w-4"
-									/>
-									Sort by Price
-								</button>
-							</div>
-						</div>
-					</Teleport>
+                                        <Teleport to="body">
+                                                <div
+                                                        v-if="isSortOpen"
+                                                        class="fixed glass rounded-lg shadow-xl z-[9999]"
+                                                        :style="sortStyle"
+                                                        ref="sortContentRef"
+                                                >
+                                                        <div class="p-2">
+                                                                <button
+                                                                        v-for="option in sortOptions"
+                                                                        :key="option.value"
+                                                                        @click="selectSort(option.value)"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary': sortBy === option.value,
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                :name="option.icon"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        {{ option.label }}
+                                                                </button>
+                                                        </div>
+                                                </div>
+                                        </Teleport>
 				</div>
 			</div>
 
@@ -885,18 +694,18 @@
 					/>
 				</div>
 
-				<div>
-					<label class="block text-sm font-medium mb-2">Category *</label>
-					<div class="relative">
-						<button
-							@click="categoryExpanded = !categoryExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							ref="categoryButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									v-if="editForm.category"
+                                        <div>
+                                                <label class="block text-sm font-medium mb-2">Category *</label>
+                                                <div class="relative">
+                                                        <button
+                                                                @click="toggleCategoryDropdown()"
+                                                                type="button"
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                                ref="categoryTriggerRef"
+                                                        >
+                                                                <span class="flex items-center gap-2 text-sm font-medium">
+                                                                        <Icon
+                                                                                v-if="editForm.category"
 									:name="getCategoryIcon(editForm.category)"
 									class="h-4 w-4"
 								/>
@@ -910,27 +719,28 @@
 										? getCategoryLabel(editForm.category)
 										: "Select a category"
 								}}
-							</span>
-							<Icon
-								:name="
-									categoryExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                isCategoryOpen
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
 								class="h-4 w-4"
 							/>
 						</button>
 					</div>
 
-					<!-- Teleported Category Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="categoryExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="categoryDropdownStyle"
-						>
-							<div class="p-2">
-								<button
+                                                <!-- Teleported Category Dropdown -->
+                                                <Teleport to="body">
+                                                        <div
+                                                                v-if="isCategoryOpen"
+                                                                class="fixed glass rounded-lg shadow-xl z-[9999]"
+                                                                :style="categoryStyle"
+                                                                ref="categoryContentRef"
+                                                        >
+                                                                <div class="p-2">
+                                                                        <button
 									v-for="category in categories"
 									:key="category.slug"
 									@click="selectCategory(category.slug)"
@@ -954,54 +764,55 @@
 
 				<div>
 					<label class="block text-sm font-medium mb-2">Price *</label>
-					<div class="relative">
-						<button
-							@click="priceExpanded = !priceExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							ref="priceButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									v-if="editForm.price"
-									:name="getPriceIcon(editForm.price)"
-									class="h-4 w-4"
-								/>
-								<Icon
-									v-else
-									name="heroicons:currency-dollar"
-									class="h-4 w-4 text-muted"
-								/>
-								{{
-									editForm.price
-										? getPriceLabel(editForm.price)
-										: "Select pricing model"
-								}}
-							</span>
-							<Icon
-								:name="
-									priceExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
+                                                <div class="relative">
+                                                        <button
+                                                                @click="togglePriceDropdown()"
+                                                                type="button"
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                                ref="priceTriggerRef"
+                                                        >
+                                                                <span class="flex items-center gap-2 text-sm font-medium">
+                                                                        <Icon
+                                                                                v-if="editForm.price"
+                                                                                :name="getPricingIcon(editForm.price)"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        <Icon
+                                                                                v-else
+                                                                                name="heroicons:currency-dollar"
+                                                                                class="h-4 w-4 text-muted"
+                                                                        />
+                                                                        {{
+                                                                                editForm.price
+                                                                                        ? getPricingLabel(editForm.price)
+                                                                                        : "Select pricing model"
+                                                                        }}
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                isPriceOpen
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
 								class="h-4 w-4"
 							/>
 						</button>
 					</div>
 
-					<!-- Teleported Price Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="priceExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="priceDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									v-for="priceOption in priceOptions"
-									:key="priceOption.value"
-									@click="selectPrice(priceOption.value)"
-									type="button"
+                                                <!-- Teleported Price Dropdown -->
+                                                <Teleport to="body">
+                                                        <div
+                                                                v-if="isPriceOpen"
+                                                                class="fixed glass rounded-lg shadow-xl z-[9999]"
+                                                                :style="priceStyle"
+                                                                ref="priceContentRef"
+                                                        >
+                                                                <div class="p-2">
+                                                                        <button
+                                                                                v-for="priceOption in pricingModels"
+                                                                                :key="priceOption.value"
+                                                                                @click="selectPrice(priceOption.value)"
+                                                                                type="button"
 									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
 									:class="{
 										'bg-primary/10 text-primary':

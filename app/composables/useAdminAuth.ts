@@ -8,9 +8,11 @@ interface LoginResponse {
 	token: string;
 }
 
+import { useApiEndpoints } from "~/composables/useApiEndpoints";
+
 export const useAdminAuth = () => {
-	const { $api } = useNuxtApp();
-	const adminUser = ref<AdminUser | null>(null);
+        const { buildUrl } = useApiEndpoints();
+        const adminUser = ref<AdminUser | null>(null);
 	const isAuthenticated = computed(() => !!adminUser.value);
 	const loading = ref(false);
 
@@ -44,13 +46,10 @@ export const useAdminAuth = () => {
 		try {
 			loading.value = true;
 
-			const response: LoginResponse = await $fetch(
-				"http://localhost:5050/api/v1/admin/login",
-				{
-					method: "POST",
-					body: { email, password },
-				}
-			);
+                        const response: LoginResponse = await $fetch(buildUrl("/admin/login"), {
+                                method: "POST",
+                                body: { email, password },
+                        });
 
 			if (response.token) {
 				setToken(response.token);
@@ -76,14 +75,11 @@ export const useAdminAuth = () => {
 			const token = getToken();
 			if (!token) return false;
 
-			const profile = await $fetch<AdminUser>(
-				"http://localhost:5050/api/v1/admin/me",
-				{
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			);
+                        const profile = await $fetch<AdminUser>(buildUrl("/admin/me"), {
+                                headers: {
+                                        Authorization: `Bearer ${token}`,
+                                },
+                        });
 
 			adminUser.value = profile;
 			return true;
@@ -144,10 +140,10 @@ export const useAdminAuth = () => {
 		try {
 			loading.value = true;
 
-			await $fetch("http://localhost:5050/api/v1/admin/register", {
-				method: "POST",
-				body: { email, password, role },
-			});
+                        await $fetch(buildUrl("/admin/register"), {
+                                method: "POST",
+                                body: { email, password, role },
+                        });
 
 			// Auto-login after successful registration
 			return await login(email, password);

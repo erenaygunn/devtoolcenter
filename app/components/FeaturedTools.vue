@@ -49,22 +49,22 @@
 </template>
 
 <script setup>
-	import { Swiper } from "swiper";
-	import "swiper/css";
-	import "swiper/css/pagination";
+        import { Swiper } from "swiper";
+        import "swiper/css";
+        import "swiper/css/pagination";
 
-	const apiBase = "http://localhost:5050/api/v1";
-	const swiperContainer = ref(null);
+        const { buildUrl } = useApiEndpoints();
+        const swiperContainer = ref(null);
 
-	// Fetch latest 3 tools
-	const { data: apiData } = await useFetch(`${apiBase}/tools`, {
-		params: {
-			sort: "date",
-			limit: 3,
-		},
-	});
+        // Fetch latest 3 tools
+        const { data: apiData } = await useFetch(buildUrl("/tools"), {
+                params: {
+                        sort: "date",
+                        limit: 3,
+                },
+        });
 
-	const latestTools = computed(() => apiData.value?.data ?? []);
+        const latestTools = computed(() => apiData.value?.data ?? []);
 
 	onMounted(() => {
 		if (swiperContainer.value) {

@@ -127,14 +127,14 @@
 		message: "",
 	});
 
-	const apiBase = "http://localhost:5050/api/v1";
+        const { buildUrl } = useApiEndpoints();
 
-	const submitForm = async () => {
-		try {
-			await $fetch(`${apiBase}/contact`, {
-				method: "POST",
-				body: form.value,
-			});
+        const submitForm = async () => {
+                try {
+                        await $fetch(buildUrl("/contact"), {
+                                method: "POST",
+                                body: form.value,
+                        });
 			form.value = { name: "", email: "", message: "" };
 			alert("Thank you for your message! We will get back to you soon.");
 		} catch (e) {

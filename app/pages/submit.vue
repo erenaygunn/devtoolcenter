@@ -121,22 +121,22 @@
 				</div>
 
 				<!-- Category -->
-				<div>
-					<label class="block text-sm font-medium mb-2">Category *</label>
-					<div class="relative">
-						<button
-							@click="categoryExpanded = !categoryExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							:class="{
-								'border-red-300 dark:border-red-600': errors.category,
-							}"
-							ref="categoryButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									v-if="form.category"
-									:name="getCategoryIcon(form.category)"
+                                <div>
+                                        <label class="block text-sm font-medium mb-2">Category *</label>
+                                        <div class="relative">
+                                                <button
+                                                        @click="toggleCategoryDropdown()"
+                                                        type="button"
+                                                        class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                        :class="{
+                                                                'border-red-300 dark:border-red-600': errors.category,
+                                                        }"
+                                                        ref="categoryTriggerRef"
+                                                >
+                                                        <span class="flex items-center gap-2 text-sm font-medium">
+                                                                <Icon
+                                                                        v-if="form.category"
+                                                                        :name="getCategoryIcon(form.category)"
 									class="h-4 w-4"
 								/>
 								<Icon
@@ -149,14 +149,14 @@
 										? getCategoryLabel(form.category)
 										: "Select a category"
 								}}
-							</span>
-							<Icon
-								:name="
-									categoryExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
-								class="h-4 w-4"
+                                                        </span>
+                                                        <Icon
+                                                                :name="
+                                                                        isCategoryOpen
+                                                                                ? 'heroicons:chevron-up'
+                                                                                : 'heroicons:chevron-down'
+                                                                "
+                                                                class="h-4 w-4"
 							/>
 						</button>
 					</div>
@@ -171,16 +171,17 @@
 						</p>
 					</div>
 
-					<!-- Teleported Category Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="categoryExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="categoryDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									v-for="category in categories"
+                                        <!-- Teleported Category Dropdown -->
+                                        <Teleport to="body">
+                                                <div
+                                                        v-if="isCategoryOpen"
+                                                        class="fixed glass rounded-lg shadow-xl z-[9999]"
+                                                        :style="categoryStyle"
+                                                        ref="categoryContentRef"
+                                                >
+                                                        <div class="p-2">
+                                                                <button
+                                                                        v-for="category in categories"
 									:key="category.slug"
 									@click="selectCategory(category.slug)"
 									type="button"
@@ -204,39 +205,39 @@
 				<!-- Price -->
 				<div>
 					<label class="block text-sm font-medium mb-2">Pricing *</label>
-					<div class="relative">
-						<button
-							@click="priceExpanded = !priceExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							:class="{
-								'border-red-300 dark:border-red-600': errors.price,
-							}"
-							ref="priceButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									v-if="form.price"
-									:name="getPriceIcon(form.price)"
-									class="h-4 w-4"
-								/>
-								<Icon
-									v-else
-									name="heroicons:currency-dollar"
-									class="h-4 w-4 text-muted"
-								/>
-								{{
-									form.price
-										? getPriceLabel(form.price)
-										: "Select pricing model"
-								}}
-							</span>
-							<Icon
-								:name="
-									priceExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
+                                        <div class="relative">
+                                                <button
+                                                        @click="togglePriceDropdown()"
+                                                        type="button"
+                                                        class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                        :class="{
+                                                                'border-red-300 dark:border-red-600': errors.price,
+                                                        }"
+                                                        ref="priceTriggerRef"
+                                                >
+                                                        <span class="flex items-center gap-2 text-sm font-medium">
+                                                                <Icon
+                                                                        v-if="form.price"
+                                                                        :name="getPricingIcon(form.price)"
+                                                                        class="h-4 w-4"
+                                                                />
+                                                                <Icon
+                                                                        v-else
+                                                                        name="heroicons:currency-dollar"
+                                                                        class="h-4 w-4 text-muted"
+                                                                />
+                                                                {{
+                                                                        form.price
+                                                                                ? getPricingLabel(form.price)
+                                                                                : "Select pricing model"
+                                                                }}
+                                                        </span>
+                                                        <Icon
+                                                                :name="
+                                                                        isPriceOpen
+                                                                                ? 'heroicons:chevron-up'
+                                                                                : 'heroicons:chevron-down'
+                                                                "
 								class="h-4 w-4"
 							/>
 						</button>
@@ -252,29 +253,30 @@
 						</p>
 					</div>
 
-					<!-- Teleported Price Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="priceExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="priceDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									v-for="priceOption in priceOptions"
-									:key="priceOption.value"
-									@click="selectPrice(priceOption.value)"
-									type="button"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary':
-											form.price === priceOption.value,
-									}"
-								>
-									<Icon
-										:name="priceOption.icon"
-										class="h-4 w-4"
-									/>
+                                        <!-- Teleported Price Dropdown -->
+                                        <Teleport to="body">
+                                                <div
+                                                        v-if="isPriceOpen"
+                                                        class="fixed glass rounded-lg shadow-xl z-[9999]"
+                                                        :style="priceStyle"
+                                                        ref="priceContentRef"
+                                                >
+                                                        <div class="p-2">
+                                                                <button
+                                                                        v-for="priceOption in pricingModels"
+                                                                        :key="priceOption.value"
+                                                                        @click="selectPrice(priceOption.value)"
+                                                                        type="button"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary':
+                                                                                        form.price === priceOption.value,
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                :name="priceOption.icon"
+                                                                                class="h-4 w-4"
+                                                                        />
 									<div class="text-left">
 										<div class="font-medium">{{ priceOption.label }}</div>
 										<div class="text-xs text-muted">
@@ -290,15 +292,15 @@
 				<!-- Tags -->
 				<div>
 					<label class="block text-sm font-medium mb-2">Tags *</label>
-					<div class="relative">
-						<button
-							@click="tagsExpanded = !tagsExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							ref="tagsButton"
-						>
-							<span class="text-sm font-medium">
-								Select tags
+                                        <div class="relative">
+                                                <button
+                                                        @click="toggleTagsDropdown()"
+                                                        type="button"
+                                                        class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                        ref="tagsTriggerRef"
+                                                >
+                                                        <span class="text-sm font-medium">
+                                                                Select tags
 								<span
 									v-if="form.tags.length > 0"
 									class="text-primary ml-1"
@@ -306,26 +308,27 @@
 									({{ form.tags.length }} selected)
 								</span>
 							</span>
-							<Icon
-								:name="
-									tagsExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
+                                                        <Icon
+                                                                :name="
+                                                                        isTagsOpen
+                                                                                ? 'heroicons:chevron-up'
+                                                                                : 'heroicons:chevron-down'
+                                                                "
 								class="h-4 w-4"
 							/>
 						</button>
 					</div>
 
-					<!-- Teleported Tags Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="tagsExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="tagsDropdownStyle"
-						>
-							<div class="p-4">
-								<div class="flex flex-wrap gap-2">
+                                        <!-- Teleported Tags Dropdown -->
+                                        <Teleport to="body">
+                                                <div
+                                                        v-if="isTagsOpen"
+                                                        class="fixed glass rounded-lg shadow-xl z-[9999]"
+                                                        :style="tagsDropdownStyle"
+                                                        ref="tagsContentRef"
+                                                >
+                                                        <div class="p-4">
+                                                                <div class="flex flex-wrap gap-2">
 									<button
 										v-for="tag in existingTags"
 										:key="tag"
@@ -475,406 +478,259 @@
 	</div>
 </template>
 
+
 <script lang="ts" setup>
-	useHead({
-		title: "Submit a Tool - DevShelf",
-		meta: [
-			{
-				name: "description",
-				content: "Submit a great developer tool to share with the community.",
-			},
-		],
-	});
+        import { computed, nextTick, reactive, ref, watch } from "vue";
+        import {
+                getPricingIcon,
+                getPricingLabel,
+                pricingModels,
+        } from "~/utils/toolOptions";
 
-	const apiBase = "http://localhost:5050/api/v1";
-	const { data: catData } = await useFetch(`${apiBase}/categories`);
-	const categories = computed(() =>
-		(catData.value?.data ?? []).map((c: any) => ({
-			slug: c.slug,
-			name: c.name,
-			icon: c.icon,
-		}))
-	);
+        const { buildUrl } = useApiEndpoints();
+        const { categories, getCategoryLabel, getCategoryIcon } = useCategories();
 
-	const form = ref({
-		name: "",
-		description: "",
-		url: "",
-		category: "",
-		tags: [] as string[],
-		price: "",
-	});
+        useHead({
+                title: "Submit a Tool - DevShelf",
+                meta: [
+                        {
+                                name: "description",
+                                content: "Submit a great developer tool to share with the community.",
+                        },
+                ],
+        });
 
-	const errors = reactive<{ [k: string]: string }>({});
+        const form = ref({
+                name: "",
+                description: "",
+                url: "",
+                category: "",
+                tags: [] as string[],
+                price: "",
+        });
 
-	const tagInput = ref("");
-	const newTagInput = ref("");
-	const showNewTagInput = ref(false);
-	const tagsExpanded = ref(false);
-	const categoryExpanded = ref(false);
-	const priceExpanded = ref(false);
-	const categoryButton = ref(null);
-	const tagsButton = ref(null);
-	const priceButton = ref(null);
-	const isSubmitting = ref(false);
-	const showSuccessModal = ref(false);
+        const errors = reactive<Record<string, string>>({});
 
-	const categoryDropdownStyle = ref({});
-	const tagsDropdownStyle = ref({});
-	const priceDropdownStyle = ref({});
+        const newTagInput = ref("");
+        const showNewTagInput = ref(false);
+        const isSubmitting = ref(false);
+        const showSuccessModal = ref(false);
+        const duplicateWarning = ref(false);
 
-	const duplicateWarning = ref(false);
+        const existingTags = ref([
+                "code",
+                "editor",
+                "microsoft",
+                "programming",
+                "development",
+                "design",
+                "ui",
+                "ux",
+                "prototype",
+                "collaboration",
+                "notes",
+                "productivity",
+                "workspace",
+                "organization",
+                "free",
+                "extensions",
+                "database",
+        ]);
 
-	const priceOptions = [
-		{
-			value: "free",
-			label: "Free",
-			description: "Completely free to use",
-			icon: "heroicons:gift",
-		},
-		{
-			value: "free-plan",
-			label: "Free Plan Available",
-			description: "Has free tier with paid upgrades",
-			icon: "heroicons:star",
-		},
-		{
-			value: "paid",
-			label: "Paid",
-			description: "Requires payment to use",
-			icon: "heroicons:currency-dollar",
-		},
-	];
+        const {
+                isOpen: isCategoryOpen,
+                triggerRef: categoryTriggerRef,
+                contentRef: categoryContentRef,
+                style: categoryStyle,
+                toggle: toggleCategoryDropdown,
+                close: closeCategoryDropdown,
+                updatePosition: updateCategoryPosition,
+        } = useFloatingDropdown();
 
-	const validateForm = () => {
-		// Clear previous errors
-		Object.keys(errors).forEach((key) => {
-			errors[key] = "";
-		});
+        const {
+                isOpen: isPriceOpen,
+                triggerRef: priceTriggerRef,
+                contentRef: priceContentRef,
+                style: priceStyle,
+                toggle: togglePriceDropdown,
+                close: closePriceDropdown,
+                updatePosition: updatePricePosition,
+        } = useFloatingDropdown();
 
-		errors.name =
-			form.value.name.length < 2 ? "Name must be at least 2 characters" : "";
-		errors.description =
-			form.value.description.length < 10
-				? "Description must be at least 10 characters"
-				: "";
-		errors.url = !/^https?:\/\//.test(form.value.url)
-			? "URL must start with http:// or https://"
-			: "";
-		errors.category = !form.value.category ? "Please select a category" : "";
-		errors.price = !form.value.price ? "Please select a pricing model" : "";
-		errors.tags =
-			form.value.tags.length === 0 ? "At least one tag required" : "";
+        const {
+                isOpen: isTagsOpen,
+                triggerRef: tagsTriggerRef,
+                contentRef: tagsContentRef,
+                style: tagsStyle,
+                toggle: toggleTagsDropdown,
+                close: closeTagsDropdown,
+                updatePosition: updateTagsPosition,
+        } = useFloatingDropdown();
 
-		return !Object.values(errors).some(Boolean);
-	};
+        const tagsDropdownStyle = computed(() => ({
+                ...tagsStyle.value,
+                minWidth: `${Math.max(parseInt(tagsStyle.value?.width || "0"), 320)}px`,
+        }));
 
-	const checkForDuplicate = async () => {
-		if (!form.value.name && !form.value.url) return;
-		const r: any = await $fetch(`${apiBase}/tools/exists`, {
-			params: {
-				name: form.value.name || undefined,
-				url: form.value.url || undefined,
-			},
-		});
-		duplicateWarning.value = r?.exists === true;
-	};
+        const validateForm = () => {
+                Object.keys(errors).forEach((key) => {
+                        errors[key] = "";
+                });
 
-	const submitTool = async () => {
-		if (!validateForm()) {
-			// Show validation errors
-			if (errors.category || errors.price) {
-				const errorMessages = [];
-				if (errors.category) errorMessages.push("Category is required");
-				if (errors.price) errorMessages.push("Pricing model is required");
-				if (errorMessages.length > 0) {
-					alert(
-						"Please fix the following errors:\n" + errorMessages.join("\n")
-					);
-				}
-			}
-			return;
-		}
+                errors.name = form.value.name.length < 2 ? "Name must be at least 2 characters" : "";
+                errors.description =
+                        form.value.description.length < 10
+                                ? "Description must be at least 10 characters"
+                                : "";
+                errors.url = !/^https?:\/\//.test(form.value.url)
+                        ? "URL must start with http:// or https://"
+                        : "";
+                errors.category = !form.value.category ? "Please select a category" : "";
+                errors.price = !form.value.price ? "Please select a pricing model" : "";
+                errors.tags = form.value.tags.length === 0 ? "At least one tag required" : "";
 
-		isSubmitting.value = true;
-		try {
-			const response = await $fetch(`${apiBase}/submissions`, {
-				method: "POST",
-				body: {
-					name: form.value.name,
-					description: form.value.description,
-					url: form.value.url,
-					category: form.value.category,
-					tags: form.value.tags,
-					price: form.value.price,
-					keywords: form.value.tags,
-				},
-			});
+                return !Object.values(errors).some(Boolean);
+        };
 
-			// Show success modal if we get here without throwing
-			showSuccessModal.value = true;
-		} catch (e: any) {
-			console.error("Submission error:", e);
+        const checkForDuplicate = async () => {
+                if (!form.value.name && !form.value.url) return;
+                const response: any = await $fetch(buildUrl("/tools/exists"), {
+                        params: {
+                                name: form.value.name || undefined,
+                                url: form.value.url || undefined,
+                        },
+                });
+                duplicateWarning.value = response?.exists === true;
+        };
 
-			// Check if it's actually a success but different status code
-			if (e?.data?.message && e.data.message.includes("success")) {
-				showSuccessModal.value = true;
-				return;
-			}
+        const submitTool = async () => {
+                if (!validateForm()) {
+                        if (errors.category || errors.price) {
+                                const errorMessages = [] as string[];
+                                if (errors.category) errorMessages.push("Category is required");
+                                if (errors.price) errorMessages.push("Pricing model is required");
+                                if (errorMessages.length > 0) {
+                                        alert("Please fix the following errors:\n" + errorMessages.join("\n"));
+                                }
+                        }
+                        return;
+                }
 
-			if (e?.data?.error?.code === "VALIDATION_ERROR") {
-				alert(
-					e.data.error.issues
-						.map((issue: any) => `${issue.path.join(".")}: ${issue.message}`)
-						.join("\n")
-				);
-			} else if (e?.statusCode === 201 || e?.statusCode === 200) {
-				// Sometimes 201/200 status codes are thrown as "errors"
-				showSuccessModal.value = true;
-			} else {
-				const errorMessage =
-					e?.data?.message || e?.message || "Unknown error occurred";
-				alert(`Submission failed: ${errorMessage}. Please try again.`);
-			}
-		} finally {
-			isSubmitting.value = false;
-		}
-	};
+                isSubmitting.value = true;
+                try {
+                        await $fetch(buildUrl("/submissions"), {
+                                method: "POST",
+                                body: form.value,
+                        });
+                        showSuccessModal.value = true;
+                } catch (error) {
+                        console.error(error);
+                        alert("Submission failed. Please try again later.");
+                } finally {
+                        isSubmitting.value = false;
+                }
+        };
 
-	const closeSuccessModal = () => {
-		showSuccessModal.value = false;
-		navigateTo("/tools");
-	};
+        const closeSuccessModal = () => {
+                showSuccessModal.value = false;
+                navigateTo("/tools");
+        };
 
-	const submitAnother = () => {
-		showSuccessModal.value = false;
-		// Reset form
-		form.value = {
-			name: "",
-			description: "",
-			url: "",
-			category: "",
-			tags: [],
-			price: "",
-		};
-		// Clear any existing errors
-		Object.keys(errors).forEach((key) => {
-			errors[key] = "";
-		});
-		duplicateWarning.value = false;
-	};
+        const submitAnother = () => {
+                showSuccessModal.value = false;
+                form.value = {
+                        name: "",
+                        description: "",
+                        url: "",
+                        category: "",
+                        tags: [],
+                        price: "",
+                };
+                Object.keys(errors).forEach((key) => {
+                        errors[key] = "";
+                });
+                duplicateWarning.value = false;
+        };
 
-	// Mock existing tools for duplicate detection
-	const existingTools = ref([
-		{ name: "VS Code", url: "https://code.visualstudio.com" },
-		{ name: "Figma", url: "https://figma.com" },
-		{ name: "Notion", url: "https://notion.so" },
-	]);
+        const removeTag = (index: number) => {
+                form.value.tags.splice(index, 1);
+        };
 
-	// Existing tags (from tools page)
-	const existingTags = ref([
-		"code",
-		"editor",
-		"microsoft",
-		"programming",
-		"development",
-		"design",
-		"ui",
-		"ux",
-		"prototype",
-		"collaboration",
-		"notes",
-		"productivity",
-		"workspace",
-		"organization",
-		"free",
-		"extensions",
-		"database",
-	]);
+        const toggleTag = (tag: string) => {
+                const index = form.value.tags.indexOf(tag);
+                if (index > -1) {
+                        form.value.tags.splice(index, 1);
+                } else {
+                        form.value.tags.push(tag);
+                }
+        };
 
-	const addTag = () => {
-		// Keep this for backward compatibility but it's now replaced by the dropdown
-		if (tagInput.value.trim()) {
-			const tags = tagInput.value
-				.split(",")
-				.map((tag) => tag.trim())
-				.filter((tag) => tag);
-			form.value.tags.push(...tags);
-			tagInput.value = "";
-		}
-	};
+        const clearSelectedTags = () => {
+                form.value.tags = [];
+        };
 
-	const removeTag = (index) => {
-		form.value.tags.splice(index, 1);
-	};
+        const addNewTag = () => {
+                const trimmed = newTagInput.value.trim();
+                if (!trimmed) {
+                        return;
+                }
 
-	const updateDropdownPositions = () => {
-		if (categoryButton.value && categoryExpanded.value) {
-			const rect = categoryButton.value.getBoundingClientRect();
-			categoryDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
+                if (!existingTags.value.includes(trimmed)) {
+                        existingTags.value.push(trimmed);
+                        existingTags.value.sort();
+                }
 
-		if (priceButton.value && priceExpanded.value) {
-			const rect = priceButton.value.getBoundingClientRect();
-			priceDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
+                if (!form.value.tags.includes(trimmed)) {
+                        form.value.tags.push(trimmed);
+                }
 
-		if (tagsButton.value && tagsExpanded.value) {
-			const rect = tagsButton.value.getBoundingClientRect();
-			tagsDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				right: `${window.innerWidth - rect.right}px`,
-			};
-		}
-	};
+                newTagInput.value = "";
+                showNewTagInput.value = false;
+        };
 
-	watch([categoryExpanded, priceExpanded, tagsExpanded], () => {
-		nextTick(() => {
-			updateDropdownPositions();
-		});
-	});
+        const cancelNewTag = () => {
+                if (!newTagInput.value.trim()) {
+                        showNewTagInput.value = false;
+                }
+        };
 
-	onMounted(() => {
-		window.addEventListener("resize", updateDropdownPositions);
-		window.addEventListener("scroll", updateDropdownPositions);
+        const selectCategory = (category: string) => {
+                form.value.category = category;
+                errors.category = "";
+                closeCategoryDropdown();
+        };
 
-		const handleClickOutside = (event) => {
-			if (
-				categoryExpanded.value &&
-				!categoryButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				categoryExpanded.value = false;
-			}
-			if (
-				priceExpanded.value &&
-				!priceButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				priceExpanded.value = false;
-			}
-			if (
-				tagsExpanded.value &&
-				!tagsButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				tagsExpanded.value = false;
-			}
-		};
-		document.addEventListener("click", handleClickOutside);
+        const selectPrice = (price: string) => {
+                form.value.price = price;
+                errors.price = "";
+                closePriceDropdown();
+        };
 
-		onUnmounted(() => {
-			window.removeEventListener("resize", updateDropdownPositions);
-			window.removeEventListener("scroll", updateDropdownPositions);
-			document.removeEventListener("click", handleClickOutside);
-		});
-	});
+        watch(() => isCategoryOpen.value, (open) => {
+                if (open) {
+                        nextTick(updateCategoryPosition);
+                }
+        });
 
-	const selectCategory = (category) => {
-		form.value.category = category;
-		categoryExpanded.value = false;
-		errors.category = ""; // Clear error when category is selected
-	};
+        watch(categories, () => {
+                if (isCategoryOpen.value) {
+                        nextTick(updateCategoryPosition);
+                }
+        });
 
-	const selectPrice = (price) => {
-		form.value.price = price;
-		priceExpanded.value = false;
-		errors.price = ""; // Clear error when price is selected
-	};
+        watch(() => isPriceOpen.value, (open) => {
+                if (open) {
+                        nextTick(updatePricePosition);
+                }
+        });
 
-	const getCategoryIcon = (category) => {
-		const icons = {
-			frontend: "heroicons:code-bracket",
-			backend: "heroicons:server",
-			"ai-helpers": "heroicons:cpu-chip",
-			documentation: "heroicons:document-text",
-			design: "heroicons:paint-brush",
-			devops: "heroicons:cog-6-tooth",
-			testing: "heroicons:beaker",
-		};
-		return icons[category] || "heroicons:squares-2x2";
-	};
-
-	const getCategoryLabel = (category) => {
-		const labels = {
-			frontend: "Frontend",
-			backend: "Backend",
-			"ai-helpers": "AI Helpers",
-			documentation: "Documentation",
-			design: "Design",
-			devops: "DevOps",
-			testing: "Testing",
-		};
-		return labels[category] || category;
-	};
-
-	const getPriceIcon = (price) => {
-		const icons = {
-			free: "heroicons:gift",
-			"free-plan": "heroicons:star",
-			paid: "heroicons:currency-dollar",
-		};
-		return icons[price] || "heroicons:currency-dollar";
-	};
-
-	const getPriceLabel = (price) => {
-		const labels = {
-			free: "Free",
-			"free-plan": "Free Plan Available",
-			paid: "Paid",
-		};
-		return labels[price] || price;
-	};
-
-	const toggleTag = (tag) => {
-		const index = form.value.tags.indexOf(tag);
-		if (index > -1) {
-			form.value.tags.splice(index, 1);
-		} else {
-			form.value.tags.push(tag);
-		}
-	};
-
-	const clearSelectedTags = () => {
-		form.value.tags = [];
-	};
-
-	const addNewTag = () => {
-		if (
-			newTagInput.value.trim() &&
-			!form.value.tags.includes(newTagInput.value.trim()) &&
-			!existingTags.value.includes(newTagInput.value.trim())
-		) {
-			form.value.tags.push(newTagInput.value.trim());
-			// Add to existing tags for future use
-			existingTags.value.push(newTagInput.value.trim());
-			existingTags.value.sort();
-			newTagInput.value = "";
-			showNewTagInput.value = false;
-		} else if (
-			newTagInput.value.trim() &&
-			existingTags.value.includes(newTagInput.value.trim()) &&
-			!form.value.tags.includes(newTagInput.value.trim())
-		) {
-			// If tag exists but not selected, just select it
-			form.value.tags.push(newTagInput.value.trim());
-			newTagInput.value = "";
-			showNewTagInput.value = false;
-		}
-	};
-
-	const cancelNewTag = () => {
-		if (!newTagInput.value.trim()) {
-			showNewTagInput.value = false;
-		}
-	};
+        watch(
+                [() => isTagsOpen.value, () => form.value.tags.length, existingTags],
+                ([open]) => {
+                        if (open) {
+                                nextTick(updateTagsPosition);
+                        }
+                }
+        );
 </script>
+

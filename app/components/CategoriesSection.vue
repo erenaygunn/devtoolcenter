@@ -31,7 +31,5 @@
 </template>
 
 <script setup>
-	const apiBase = "http://localhost:5050/api/v1";
-	const { data } = await useFetch(`${apiBase}/categories`);
-	const categories = computed(() => data.value?.data ?? []);
+        const { categories } = useCategories();
 </script>

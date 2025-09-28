@@ -1,364 +1,239 @@
+
 <script setup lang="ts">
-	const apiBase = "http://localhost:5050/api/v1";
-	const { logout, adminUser, getToken, initAuth } = useAdminAuth();
+        import { computed, nextTick, onMounted, ref, watch } from "vue";
+        import {
+                getPricingIcon,
+                getPricingLabel,
+                pricingModels,
+        } from "~/utils/toolOptions";
 
-	// Get token for API calls
-	const getAuthToken = () => getToken();
+        const { buildUrl } = useApiEndpoints();
+        const { categories, getCategoryLabel, getCategoryIcon } = useCategories();
+        const { logout, adminUser, getToken, initAuth } = useAdminAuth();
 
-	const tab = ref<"pending" | "approved" | "rejected">("pending");
-	const submissions = ref<any[]>([]);
-	const loading = ref(false);
+        const getAuthToken = () => getToken();
 
-	const showDetails = ref(false);
-	const showEdit = ref(false);
-	const selectedSub = ref<any>(null);
-	const editForm = ref<any>(null);
+        const tab = ref<"pending" | "approved" | "rejected">("pending");
+        const submissions = ref<any[]>([]);
+        const loading = ref(false);
 
-	const priceOptions = [
-		{
-			value: "free",
-			label: "Free",
-			description: "Completely free to use",
-			icon: "heroicons:gift",
-		},
-		{
-			value: "free-plan",
-			label: "Free Plan Available",
-			description: "Has free tier with paid upgrades",
-			icon: "heroicons:star",
-		},
-		{
-			value: "paid",
-			label: "Paid",
-			description: "Requires payment to use",
-			icon: "heroicons:currency-dollar",
-		},
-	];
+        const showDetails = ref(false);
+        const showEdit = ref(false);
+        const selectedSub = ref<any>(null);
+        const editForm = ref<any>(null);
 
-	const getPriceIcon = (price) => {
-		const icons = {
-			free: "heroicons:gift",
-			"free-plan": "heroicons:star",
-			paid: "heroicons:currency-dollar",
-		};
-		return icons[price] || "heroicons:currency-dollar";
-	};
+        const allSubmissions = ref<any[]>([]);
+        const submissionCounts = computed(() => ({
+                pending: allSubmissions.value.filter((s) => s.status === "pending").length,
+                approved: allSubmissions.value.filter((s) => s.status === "approved").length,
+                rejected: allSubmissions.value.filter((s) => s.status === "rejected").length,
+        }));
 
-	const getPriceLabel = (price) => {
-		const labels = {
-			free: "Free",
-			"free-plan": "Free Plan Available",
-			paid: "Paid",
-		};
-		return labels[price] || price;
-	};
+        const {
+                isOpen: isPriceOpen,
+                triggerRef: priceTriggerRef,
+                contentRef: priceContentRef,
+                style: priceStyle,
+                toggle: togglePriceDropdown,
+                close: closePriceDropdown,
+                updatePosition: updatePricePosition,
+        } = useFloatingDropdown();
 
-	const loadSubmissions = async () => {
-		loading.value = true;
-		try {
-			const res: any = await $fetch(`${apiBase}/submissions`, {
-				params: { status: tab.value },
-				headers: { Authorization: `Bearer ${getAuthToken()}` },
-			});
-			submissions.value = res.data;
-		} catch (err) {
-			console.error("Failed to load submissions:", err);
-			submissions.value = [];
-		} finally {
-			loading.value = false;
-		}
-	};
+        const {
+                isOpen: isCategoryOpen,
+                triggerRef: categoryTriggerRef,
+                contentRef: categoryContentRef,
+                style: categoryStyle,
+                toggle: toggleCategoryDropdown,
+                close: closeCategoryDropdown,
+                updatePosition: updateCategoryPosition,
+        } = useFloatingDropdown();
 
-	onMounted(loadSubmissions);
-	watch(tab, loadSubmissions);
+        const loadSubmissions = async () => {
+                loading.value = true;
+                try {
+                        const response: any = await $fetch(buildUrl("/submissions"), {
+                                params: { status: tab.value },
+                                headers: { Authorization: `Bearer ${getAuthToken()}` },
+                        });
+                        submissions.value = response.data ?? [];
+                } catch (error) {
+                        console.error("Failed to load submissions:", error);
+                        submissions.value = [];
+                } finally {
+                        loading.value = false;
+                }
+        };
 
-	const viewDetails = (sub: any) => {
-		selectedSub.value = sub;
-		showDetails.value = true;
-	};
+        const loadAllSubmissions = async () => {
+                try {
+                        const token = getAuthToken();
+                        const request = (status: string) =>
+                                $fetch(buildUrl("/submissions"), {
+                                        params: { status },
+                                        headers: { Authorization: `Bearer ${token}` },
+                                });
 
-	const editSubmission = (sub: any) => {
-		editForm.value = {
-			...sub,
-			// Convert tags array to comma-separated string for input field
-			tags: Array.isArray(sub.tags) ? sub.tags.join(", ") : sub.tags || "",
-		};
-		showEdit.value = true;
-	};
+                        const [pending, approved, rejected] = await Promise.all([
+                                request("pending"),
+                                request("approved"),
+                                request("rejected"),
+                        ]);
 
-	// Add computed property for better stats
-	const allSubmissions = ref<any[]>([]);
-	const submissionCounts = computed(() => ({
-		pending: allSubmissions.value.filter((s) => s.status === "pending").length,
-		approved: allSubmissions.value.filter((s) => s.status === "approved")
-			.length,
-		rejected: allSubmissions.value.filter((s) => s.status === "rejected")
-			.length,
-	}));
+                        allSubmissions.value = [
+                                ...(pending.data || []).map((s: any) => ({ ...s, status: "pending" })),
+                                ...(approved.data || []).map((s: any) => ({ ...s, status: "approved" })),
+                                ...(rejected.data || []).map((s: any) => ({ ...s, status: "rejected" })),
+                        ];
+                } catch (error) {
+                        console.error("Failed to load submission stats:", error);
+                        allSubmissions.value = [];
+                }
+        };
 
-	const loadAllSubmissions = async () => {
-		try {
-			const [pending, approved, rejected] = await Promise.all([
-				$fetch(`${apiBase}/submissions`, {
-					params: { status: "pending" },
-					headers: { Authorization: `Bearer ${getAuthToken()}` },
-				}),
-				$fetch(`${apiBase}/submissions`, {
-					params: { status: "approved" },
-					headers: { Authorization: `Bearer ${getAuthToken()}` },
-				}),
-				$fetch(`${apiBase}/submissions`, {
-					params: { status: "rejected" },
-					headers: { Authorization: `Bearer ${getAuthToken()}` },
-				}),
-			]);
+        const viewDetails = (sub: any) => {
+                selectedSub.value = sub;
+                showDetails.value = true;
+        };
 
-			allSubmissions.value = [
-				...(pending.data || []).map((s) => ({ ...s, status: "pending" })),
-				...(approved.data || []).map((s) => ({ ...s, status: "approved" })),
-				...(rejected.data || []).map((s) => ({ ...s, status: "rejected" })),
-			];
-		} catch (err) {
-			console.error("Failed to load all submissions:", err);
-		}
-	};
+        const editSubmission = (sub: any) => {
+                editForm.value = {
+                        ...sub,
+                        tags: Array.isArray(sub.tags) ? sub.tags.join(", ") : sub.tags || "",
+                };
+                showEdit.value = true;
+        };
 
-	const saveEdit = async () => {
-		try {
-			const token = getAuthToken();
-			if (!token) {
-				console.error("No auth token available for editing submission");
-				alert("Authentication required. Please log in again.");
-				return;
-			}
+        const updateSubmissionStatus = async (id: string, status: "approved" | "rejected") => {
+                try {
+                        const token = getAuthToken();
+                        if (!token) {
+                                alert("Authentication required. Please log in again.");
+                                return;
+                        }
 
-			// Prepare the data with tags converted back to array
-			const submissionData = {
-				...editForm.value,
-				// Convert comma-separated string back to array of trimmed tags
-				tags: editForm.value.tags
-					? editForm.value.tags
-							.split(",")
-							.map((tag: string) => tag.trim())
-							.filter((tag: string) => tag.length > 0)
-					: [],
-				// Also update keywords field to match tags (if your backend expects this)
-				keywords: editForm.value.tags
-					? editForm.value.tags
-							.split(",")
-							.map((tag: string) => tag.trim())
-							.filter((tag: string) => tag.length > 0)
-					: [],
-			};
+                        await $fetch(buildUrl(`/submissions/${id}/${status}`), {
+                                method: "POST",
+                                headers: {
+                                        "Content-Type": "application/json",
+                                        Authorization: `Bearer ${token}`,
+                                },
+                        });
 
-			await $fetch(`${apiBase}/submissions/${editForm.value._id}/edit`, {
-				method: "PATCH",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-				body: submissionData,
-			});
+                        loadSubmissions();
+                        loadAllSubmissions();
+                } catch (error: any) {
+                        console.error(`Failed to ${status} submission:`, error);
+                        alert(`Failed to ${status} submission: ${error.message || "Unknown error"}`);
+                }
+        };
 
-			showEdit.value = false;
-			loadSubmissions();
-			loadAllSubmissions(); // Refresh stats
-		} catch (error: any) {
-			console.error("Failed to save submission:", error);
+        const deleteSubmission = async (id: string) => {
+                try {
+                        const token = getAuthToken();
+                        if (!token) {
+                                alert("Authentication required. Please log in again.");
+                                return;
+                        }
 
-			if (error.status === 401) {
-				alert("Authentication failed. Please log in again.");
-				logout();
-			} else {
-				alert(`Failed to save submission: ${error.message || "Unknown error"}`);
-			}
-		}
-	};
+                        if (!confirm("Are you sure you want to delete this submission?")) {
+                                return;
+                        }
 
-	const approve = async (id: string) => {
-		try {
-			const token = getAuthToken();
-			if (!token) {
-				console.error("No auth token available for approving submission");
-				alert("Authentication required. Please log in again.");
-				return;
-			}
+                        await $fetch(buildUrl(`/submissions/${id}`), {
+                                method: "DELETE",
+                                headers: {
+                                        Authorization: `Bearer ${token}`,
+                                },
+                        });
 
-			await $fetch(`${apiBase}/submissions/${id}/approve`, {
-				method: "PATCH",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			});
+                        loadSubmissions();
+                        loadAllSubmissions();
+                } catch (error: any) {
+                        console.error("Failed to delete submission:", error);
+                        alert(`Failed to delete submission: ${error.message || "Unknown error"}`);
+                }
+        };
 
-			loadSubmissions();
-			loadAllSubmissions(); // Refresh stats
-		} catch (error: any) {
-			console.error("Failed to approve submission:", error);
+        const saveSubmission = async () => {
+                try {
+                        const token = getAuthToken();
+                        if (!token) {
+                                alert("Authentication required. Please log in again.");
+                                return;
+                        }
 
-			if (error.status === 401) {
-				alert("Authentication failed. Please log in again.");
-				logout();
-			} else {
-				alert(
-					`Failed to approve submission: ${error.message || "Unknown error"}`
-				);
-			}
-		}
-	};
+                        const tagsArray = editForm.value.tags
+                                ? editForm.value.tags
+                                                .split(",")
+                                                .map((tag: string) => tag.trim())
+                                                .filter((tag: string) => tag.length > 0)
+                                : [];
 
-	const reject = async (id: string) => {
-		try {
-			const token = getAuthToken();
-			if (!token) {
-				console.error("No auth token available for rejecting submission");
-				alert("Authentication required. Please log in again.");
-				return;
-			}
+                        const payload = {
+                                ...editForm.value,
+                                tags: tagsArray,
+                                keywords: tagsArray,
+                        };
 
-			await $fetch(`${apiBase}/submissions/${id}/reject`, {
-				method: "PATCH",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			});
+                        await $fetch(buildUrl(`/submissions/${editForm.value._id}`), {
+                                method: "PATCH",
+                                headers: {
+                                        "Content-Type": "application/json",
+                                        Authorization: `Bearer ${token}`,
+                                },
+                                body: payload,
+                        });
 
-			loadSubmissions();
-			loadAllSubmissions(); // Refresh stats
-		} catch (error: any) {
-			console.error("Failed to reject submission:", error);
+                        showEdit.value = false;
+                        loadSubmissions();
+                        loadAllSubmissions();
+                } catch (error: any) {
+                        console.error("Failed to save submission:", error);
+                        alert(`Failed to save submission: ${error.message || "Unknown error"}`);
+                }
+        };
 
-			if (error.status === 401) {
-				alert("Authentication failed. Please log in again.");
-				logout();
-			} else {
-				alert(
-					`Failed to reject submission: ${error.message || "Unknown error"}`
-				);
-			}
-		}
-	};
+        const selectPrice = (price: string) => {
+                if (editForm.value) {
+                        editForm.value.price = price;
+                }
+                closePriceDropdown();
+        };
 
-	// Dropdown state management
-	const priceExpanded = ref(false);
-	const categoryExpanded = ref(false);
-	const priceButton = ref(null);
-	const categoryButton = ref(null);
-	const priceDropdownStyle = ref({});
-	const categoryDropdownStyle = ref({});
+        const selectCategory = (category: string) => {
+                if (editForm.value) {
+                        editForm.value.category = category;
+                }
+                closeCategoryDropdown();
+        };
 
-	// Categories data
-	const { data: catData } = await useFetch(`${apiBase}/categories`);
-	const categories = computed(() =>
-		(catData.value?.data ?? []).map((c: any) => ({
-			slug: c.slug,
-			name: c.name,
-			icon: c.icon,
-		}))
-	);
+        watch(() => isPriceOpen.value, (open) => {
+                if (open) {
+                        nextTick(updatePricePosition);
+                }
+        });
 
-	const getCategoryIcon = (category) => {
-		const icons = {
-			frontend: "heroicons:code-bracket",
-			backend: "heroicons:server",
-			"ai-helpers": "heroicons:cpu-chip",
-			documentation: "heroicons:document-text",
-			design: "heroicons:paint-brush",
-			devops: "heroicons:cog-6-tooth",
-			testing: "heroicons:beaker",
-		};
-		return icons[category] || "heroicons:squares-2x2";
-	};
+        watch(() => isCategoryOpen.value, (open) => {
+                if (open) {
+                        nextTick(updateCategoryPosition);
+                }
+        });
 
-	const getCategoryLabel = (category) => {
-		const labels = {
-			frontend: "Frontend",
-			backend: "Backend",
-			"ai-helpers": "AI Helpers",
-			documentation: "Documentation",
-			design: "Design",
-			devops: "DevOps",
-			testing: "Testing",
-		};
-		return labels[category] || category;
-	};
+        watch(categories, () => {
+                if (isCategoryOpen.value) {
+                        nextTick(updateCategoryPosition);
+                }
+        });
 
-	const updateDropdownPositions = () => {
-		if (priceButton.value && priceExpanded.value) {
-			const rect = priceButton.value.getBoundingClientRect();
-			priceDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
+        watch(tab, loadSubmissions);
 
-		if (categoryButton.value && categoryExpanded.value) {
-			const rect = categoryButton.value.getBoundingClientRect();
-			categoryDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
-	};
-
-	watch([priceExpanded, categoryExpanded], () => {
-		nextTick(() => {
-			updateDropdownPositions();
-		});
-	});
-
-	const selectPrice = (price) => {
-		editForm.value.price = price;
-		priceExpanded.value = false;
-	};
-
-	const selectCategory = (category) => {
-		editForm.value.category = category;
-		categoryExpanded.value = false;
-	};
-
-	onMounted(async () => {
-		await initAuth();
-		loadSubmissions();
-		loadAllSubmissions();
-
-		window.addEventListener("resize", updateDropdownPositions);
-		window.addEventListener("scroll", updateDropdownPositions);
-
-		const handleClickOutside = (event) => {
-			if (
-				priceExpanded.value &&
-				!priceButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				priceExpanded.value = false;
-			}
-			if (
-				categoryExpanded.value &&
-				!categoryButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				categoryExpanded.value = false;
-			}
-		};
-		document.addEventListener("click", handleClickOutside);
-
-		onUnmounted(() => {
-			window.removeEventListener("resize", updateDropdownPositions);
-			window.removeEventListener("scroll", updateDropdownPositions);
-			document.removeEventListener("click", handleClickOutside);
-		});
-	});
-
-	watch(tab, () => {
-		loadSubmissions();
-		// Don't reload allSubmissions on tab change, only on data changes
-	});
+        onMounted(async () => {
+                await initAuth();
+                await Promise.all([loadSubmissions(), loadAllSubmissions()]);
+        });
 </script>
+
 
 <template>
 	<div class="!pt-40 section">
@@ -861,15 +736,15 @@
 
 				<div>
 					<label class="block text-sm font-medium mb-2">Category *</label>
-					<div class="relative">
-						<button
-							@click="categoryExpanded = !categoryExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							ref="categoryButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
+                                                <div class="relative">
+                                                        <button
+                                                                @click="toggleCategoryDropdown()"
+                                                                type="button"
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                                ref="categoryTriggerRef"
+                                                        >
+                                                                <span class="flex items-center gap-2 text-sm font-medium">
+                                                                        <Icon
 									v-if="editForm.category"
 									:name="getCategoryIcon(editForm.category)"
 									class="h-4 w-4"
@@ -884,27 +759,28 @@
 										? getCategoryLabel(editForm.category)
 										: "Select a category"
 								}}
-							</span>
-							<Icon
-								:name="
-									categoryExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                isCategoryOpen
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
 								class="h-4 w-4"
 							/>
 						</button>
 					</div>
 
-					<!-- Teleported Category Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="categoryExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="categoryDropdownStyle"
-						>
-							<div class="p-2">
-								<button
+                                                <!-- Teleported Category Dropdown -->
+                                                <Teleport to="body">
+                                                        <div
+                                                                v-if="isCategoryOpen"
+                                                                class="fixed glass rounded-lg shadow-xl z-[9999]"
+                                                                :style="categoryStyle"
+                                                                ref="categoryContentRef"
+                                                        >
+                                                                <div class="p-2">
+                                                                        <button
 									v-for="category in categories"
 									:key="category.slug"
 									@click="selectCategory(category.slug)"
@@ -928,54 +804,55 @@
 
 				<div>
 					<label class="block text-sm font-medium mb-2">Price *</label>
-					<div class="relative">
-						<button
-							@click="priceExpanded = !priceExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							ref="priceButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									v-if="editForm.price"
-									:name="getPriceIcon(editForm.price)"
-									class="h-4 w-4"
-								/>
-								<Icon
+                                                <div class="relative">
+                                                        <button
+                                                                @click="togglePriceDropdown()"
+                                                                type="button"
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                                ref="priceTriggerRef"
+                                                        >
+                                                                <span class="flex items-center gap-2 text-sm font-medium">
+                                                                        <Icon
+                                                                                v-if="editForm.price"
+                                                                                :name="getPricingIcon(editForm.price)"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        <Icon
 									v-else
 									name="heroicons:currency-dollar"
 									class="h-4 w-4 text-muted"
 								/>
-								{{
-									editForm.price
-										? getPriceLabel(editForm.price)
-										: "Select pricing model"
-								}}
-							</span>
-							<Icon
-								:name="
-									priceExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
+                                                                        {{
+                                                                                editForm.price
+                                                                                        ? getPricingLabel(editForm.price)
+                                                                                        : "Select pricing model"
+                                                                        }}
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                isPriceOpen
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
 								class="h-4 w-4"
 							/>
 						</button>
 					</div>
 
-					<!-- Teleported Price Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="priceExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="priceDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									v-for="priceOption in priceOptions"
-									:key="priceOption.value"
-									@click="selectPrice(priceOption.value)"
-									type="button"
+                                                <!-- Teleported Price Dropdown -->
+                                                <Teleport to="body">
+                                                        <div
+                                                                v-if="isPriceOpen"
+                                                                class="fixed glass rounded-lg shadow-xl z-[9999]"
+                                                                :style="priceStyle"
+                                                                ref="priceContentRef"
+                                                        >
+                                                                <div class="p-2">
+                                                                        <button
+                                                                                v-for="priceOption in pricingModels"
+                                                                                :key="priceOption.value"
+                                                                                @click="selectPrice(priceOption.value)"
+                                                                                type="button"
 									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
 									:class="{
 										'bg-primary/10 text-primary':
