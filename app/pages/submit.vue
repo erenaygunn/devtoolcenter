@@ -121,262 +121,264 @@
 				</div>
 
 				<!-- Category -->
-				<div>
-					<label class="block text-sm font-medium mb-2">Category *</label>
-					<div class="relative">
-						<button
-							@click="categoryExpanded = !categoryExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							:class="{
-								'border-red-300 dark:border-red-600': errors.category,
-							}"
-							ref="categoryButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									v-if="form.category"
-									:name="getCategoryIcon(form.category)"
-									class="h-4 w-4"
-								/>
-								<Icon
-									v-else
-									name="heroicons:squares-2x2"
-									class="h-4 w-4 text-muted"
-								/>
-								{{
-									form.category
-										? getCategoryLabel(form.category)
-										: "Select a category"
-								}}
-							</span>
-							<Icon
-								:name="
-									categoryExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
-								class="h-4 w-4"
-							/>
-						</button>
-					</div>
+                                <div>
+                                        <label class="block text-sm font-medium mb-2">Category *</label>
+                                        <DropdownMenu
+                                                v-model="categoryExpanded"
+                                                content-class="glass rounded-lg shadow-xl"
+                                        >
+                                                <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                        <button
+                                                                type="button"
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                                :class="{
+                                                                        'border-red-300 dark:border-red-600': errors.category,
+                                                                }"
+                                                                :ref="setTriggerRef"
+                                                                v-bind="triggerAttrs"
+                                                                @click="toggle"
+                                                        >
+                                                                <span class="flex items-center gap-2 text-sm font-medium">
+                                                                        <Icon
+                                                                                v-if="form.category"
+                                                                                :name="getCategoryIcon(form.category)"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        <Icon
+                                                                                v-else
+                                                                                name="heroicons:squares-2x2"
+                                                                                class="h-4 w-4 text-muted"
+                                                                        />
+                                                                        {{
+                                                                                form.category
+                                                                                        ? getCategoryLabel(form.category)
+                                                                                        : "Select a category"
+                                                                        }}
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                categoryExpanded
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
+                                                                        class="h-4 w-4"
+                                                                />
+                                                        </button>
+                                                </template>
+                                                <template #content="{ close }">
+                                                        <div class="p-2">
+                                                                <button
+                                                                        v-for="category in categories"
+                                                                        :key="category.slug"
+                                                                        type="button"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary':
+                                                                                        form.category === category.slug,
+                                                                        }"
+                                                                        @click="() => {
+                                                                                selectCategory(category.slug);
+                                                                                close();
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                :name="category.icon"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        {{ category.name }}
+                                                                </button>
+                                                        </div>
+                                                </template>
+                                        </DropdownMenu>
 
-					<!-- Category validation error -->
-					<div
-						v-if="errors.category"
-						class="mt-2 p-3 bg-red-400/10 border border-red-400/30 rounded-lg"
-					>
-						<p class="text-red-600 text-sm">
-							{{ errors.category }}
-						</p>
-					</div>
-
-					<!-- Teleported Category Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="categoryExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="categoryDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									v-for="category in categories"
-									:key="category.slug"
-									@click="selectCategory(category.slug)"
-									type="button"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary':
-											form.category === category.slug,
-									}"
-								>
-									<Icon
-										:name="category.icon"
-										class="h-4 w-4"
-									/>
-									{{ category.name }}
-								</button>
-							</div>
-						</div>
-					</Teleport>
-				</div>
+                                        <!-- Category validation error -->
+                                        <div
+                                                v-if="errors.category"
+                                                class="mt-2 p-3 bg-red-400/10 border border-red-400/30 rounded-lg"
+                                        >
+                                                <p class="text-red-600 text-sm">
+                                                        {{ errors.category }}
+                                                </p>
+                                        </div>
+                                </div>
 
 				<!-- Price -->
-				<div>
-					<label class="block text-sm font-medium mb-2">Pricing *</label>
-					<div class="relative">
-						<button
-							@click="priceExpanded = !priceExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							:class="{
-								'border-red-300 dark:border-red-600': errors.price,
-							}"
-							ref="priceButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									v-if="form.price"
-									:name="getPriceIcon(form.price)"
-									class="h-4 w-4"
-								/>
-								<Icon
-									v-else
-									name="heroicons:currency-dollar"
-									class="h-4 w-4 text-muted"
-								/>
-								{{
-									form.price
-										? getPriceLabel(form.price)
-										: "Select pricing model"
-								}}
-							</span>
-							<Icon
-								:name="
-									priceExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
-								class="h-4 w-4"
-							/>
-						</button>
-					</div>
+                                <div>
+                                        <label class="block text-sm font-medium mb-2">Pricing *</label>
+                                        <DropdownMenu
+                                                v-model="priceExpanded"
+                                                content-class="glass rounded-lg shadow-xl"
+                                        >
+                                                <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                        <button
+                                                                type="button"
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                                :class="{
+                                                                        'border-red-300 dark:border-red-600': errors.price,
+                                                                }"
+                                                                :ref="setTriggerRef"
+                                                                v-bind="triggerAttrs"
+                                                                @click="toggle"
+                                                        >
+                                                                <span class="flex items-center gap-2 text-sm font-medium">
+                                                                        <Icon
+                                                                                v-if="form.price"
+                                                                                :name="getPriceIcon(form.price)"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        <Icon
+                                                                                v-else
+                                                                                name="heroicons:currency-dollar"
+                                                                                class="h-4 w-4 text-muted"
+                                                                        />
+                                                                        {{
+                                                                                form.price
+                                                                                        ? getPriceLabel(form.price)
+                                                                                        : "Select pricing model"
+                                                                        }}
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                priceExpanded
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
+                                                                        class="h-4 w-4"
+                                                                />
+                                                        </button>
+                                                </template>
+                                                <template #content="{ close }">
+                                                        <div class="p-2">
+                                                                <button
+                                                                        v-for="priceOption in priceOptions"
+                                                                        :key="priceOption.value"
+                                                                        type="button"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary':
+                                                                                        form.price === priceOption.value,
+                                                                        }"
+                                                                        @click="() => {
+                                                                                selectPrice(priceOption.value);
+                                                                                close();
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                :name="priceOption.icon"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        <div class="text-left">
+                                                                                <div class="font-medium">{{ priceOption.label }}</div>
+                                                                                <div class="text-xs text-muted">
+                                                                                        {{ priceOption.description }}
+                                                                                </div>
+                                                                        </div>
+                                                                </button>
+                                                        </div>
+                                                </template>
+                                        </DropdownMenu>
 
-					<!-- Price validation error -->
-					<div
-						v-if="errors.price"
-						class="mt-2 p-3 bg-red-400/10 border border-red-400/30 rounded-lg"
-					>
-						<p class="text-red-600 text-sm">
-							{{ errors.price }}
-						</p>
-					</div>
-
-					<!-- Teleported Price Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="priceExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="priceDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									v-for="priceOption in priceOptions"
-									:key="priceOption.value"
-									@click="selectPrice(priceOption.value)"
-									type="button"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary':
-											form.price === priceOption.value,
-									}"
-								>
-									<Icon
-										:name="priceOption.icon"
-										class="h-4 w-4"
-									/>
-									<div class="text-left">
-										<div class="font-medium">{{ priceOption.label }}</div>
-										<div class="text-xs text-muted">
-											{{ priceOption.description }}
-										</div>
-									</div>
-								</button>
-							</div>
-						</div>
-					</Teleport>
-				</div>
+                                        <!-- Price validation error -->
+                                        <div
+                                                v-if="errors.price"
+                                                class="mt-2 p-3 bg-red-400/10 border border-red-400/30 rounded-lg"
+                                        >
+                                                <p class="text-red-600 text-sm">
+                                                        {{ errors.price }}
+                                                </p>
+                                        </div>
+                                </div>
 
 				<!-- Tags -->
-				<div>
-					<label class="block text-sm font-medium mb-2">Tags *</label>
-					<div class="relative">
-						<button
-							@click="tagsExpanded = !tagsExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							ref="tagsButton"
-						>
-							<span class="text-sm font-medium">
-								Select tags
-								<span
-									v-if="form.tags.length > 0"
-									class="text-primary ml-1"
-								>
-									({{ form.tags.length }} selected)
-								</span>
-							</span>
-							<Icon
-								:name="
-									tagsExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
-								class="h-4 w-4"
-							/>
-						</button>
-					</div>
+                                <div>
+                                        <label class="block text-sm font-medium mb-2">Tags *</label>
+                                        <DropdownMenu
+                                                v-model="tagsExpanded"
+                                                content-class="glass rounded-lg shadow-xl"
+                                                align="stretch"
+                                                :match-width="false"
+                                        >
+                                                <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                        <button
+                                                                type="button"
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                                :ref="setTriggerRef"
+                                                                v-bind="triggerAttrs"
+                                                                @click="toggle"
+                                                        >
+                                                                <span class="text-sm font-medium">
+                                                                        Select tags
+                                                                        <span
+                                                                                v-if="form.tags.length > 0"
+                                                                                class="text-primary ml-1"
+                                                                        >
+                                                                                ({{ form.tags.length }} selected)
+                                                                        </span>
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                tagsExpanded
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
+                                                                        class="h-4 w-4"
+                                                                />
+                                                        </button>
+                                                </template>
+                                                <template #content>
+                                                        <div class="p-4">
+                                                                <div class="flex flex-wrap gap-2">
+                                                                        <button
+                                                                                v-for="tag in existingTags"
+                                                                                :key="tag"
+                                                                                type="button"
+                                                                                :class="[
+                                                                                        'px-2 py-1 text-xs rounded-full transition-colors',
+                                                                                        form.tags.includes(tag)
+                                                                                                ? 'bg-primary text-white'
+                                                                                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
+                                                                                ]"
+                                                                                @click="toggleTag(tag)"
+                                                                        >
+                                                                                {{ tag }}
+                                                                        </button>
+                                                                        <button
+                                                                                @click="showNewTagInput = true"
+                                                                                type="button"
+                                                                                class="px-2 py-1 text-xs rounded-full transition-colors bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                                                        >
+                                                                                + Add new tag
+                                                                        </button>
+                                                                </div>
 
-					<!-- Teleported Tags Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="tagsExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="tagsDropdownStyle"
-						>
-							<div class="p-4">
-								<div class="flex flex-wrap gap-2">
-									<button
-										v-for="tag in existingTags"
-										:key="tag"
-										@click="toggleTag(tag)"
-										type="button"
-										:class="[
-											'px-2 py-1 text-xs rounded-full transition-colors',
-											form.tags.includes(tag)
-												? 'bg-primary text-white'
-												: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
-										]"
-									>
-										{{ tag }}
-									</button>
-									<button
-										@click="showNewTagInput = true"
-										type="button"
-										class="px-2 py-1 text-xs rounded-full transition-colors bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
-									>
-										+ Add new tag
-									</button>
-								</div>
+                                                                <input
+                                                                        v-if="showNewTagInput"
+                                                                        v-model="newTagInput"
+                                                                        type="text"
+                                                                        class="form-input w-full mt-3"
+                                                                        placeholder="Enter new tag"
+                                                                        @keyup.enter="addNewTag"
+                                                                        @blur="cancelNewTag"
+                                                                />
 
-								<input
-									v-if="showNewTagInput"
-									v-model="newTagInput"
-									type="text"
-									class="form-input w-full mt-3"
-									placeholder="Enter new tag"
-									@keyup.enter="addNewTag"
-									@blur="cancelNewTag"
-								/>
+                                                                <div
+                                                                        v-if="form.tags.length > 0"
+                                                                        class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
+                                                                >
+                                                                        <button
+                                                                                @click="clearSelectedTags"
+                                                                                type="button"
+                                                                                class="text-xs text-red-500 hover:text-red-600 transition-colors"
+                                                                        >
+                                                                                Clear all tags
+                                                                        </button>
+                                                                </div>
+                                                        </div>
+                                                </template>
+                                        </DropdownMenu>
 
-								<div
-									v-if="form.tags.length > 0"
-									class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
-								>
-									<button
-										@click="clearSelectedTags"
-										type="button"
-										class="text-xs text-red-500 hover:text-red-600 transition-colors"
-									>
-										Clear all tags
-									</button>
-								</div>
-							</div>
-						</div>
-					</Teleport>
-
-					<div
-						v-if="form.tags.length > 0"
+                                        <div
+                                                v-if="form.tags.length > 0"
 						class="flex flex-wrap gap-2 mt-2"
 					>
 						<span
@@ -510,20 +512,13 @@
 	const tagInput = ref("");
 	const newTagInput = ref("");
 	const showNewTagInput = ref(false);
-	const tagsExpanded = ref(false);
-	const categoryExpanded = ref(false);
-	const priceExpanded = ref(false);
-	const categoryButton = ref(null);
-	const tagsButton = ref(null);
-	const priceButton = ref(null);
+        const tagsExpanded = ref(false);
+        const categoryExpanded = ref(false);
+        const priceExpanded = ref(false);
 	const isSubmitting = ref(false);
 	const showSuccessModal = ref(false);
 
-	const categoryDropdownStyle = ref({});
-	const tagsDropdownStyle = ref({});
-	const priceDropdownStyle = ref({});
-
-	const duplicateWarning = ref(false);
+        const duplicateWarning = ref(false);
 
 	const priceOptions = [
 		{
@@ -708,88 +703,15 @@
 		form.value.tags.splice(index, 1);
 	};
 
-	const updateDropdownPositions = () => {
-		if (categoryButton.value && categoryExpanded.value) {
-			const rect = categoryButton.value.getBoundingClientRect();
-			categoryDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
+        const selectCategory = (category) => {
+                form.value.category = category;
+                errors.category = ""; // Clear error when category is selected
+        };
 
-		if (priceButton.value && priceExpanded.value) {
-			const rect = priceButton.value.getBoundingClientRect();
-			priceDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
-
-		if (tagsButton.value && tagsExpanded.value) {
-			const rect = tagsButton.value.getBoundingClientRect();
-			tagsDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				right: `${window.innerWidth - rect.right}px`,
-			};
-		}
-	};
-
-	watch([categoryExpanded, priceExpanded, tagsExpanded], () => {
-		nextTick(() => {
-			updateDropdownPositions();
-		});
-	});
-
-	onMounted(() => {
-		window.addEventListener("resize", updateDropdownPositions);
-		window.addEventListener("scroll", updateDropdownPositions);
-
-		const handleClickOutside = (event) => {
-			if (
-				categoryExpanded.value &&
-				!categoryButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				categoryExpanded.value = false;
-			}
-			if (
-				priceExpanded.value &&
-				!priceButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				priceExpanded.value = false;
-			}
-			if (
-				tagsExpanded.value &&
-				!tagsButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				tagsExpanded.value = false;
-			}
-		};
-		document.addEventListener("click", handleClickOutside);
-
-		onUnmounted(() => {
-			window.removeEventListener("resize", updateDropdownPositions);
-			window.removeEventListener("scroll", updateDropdownPositions);
-			document.removeEventListener("click", handleClickOutside);
-		});
-	});
-
-	const selectCategory = (category) => {
-		form.value.category = category;
-		categoryExpanded.value = false;
-		errors.category = ""; // Clear error when category is selected
-	};
-
-	const selectPrice = (price) => {
-		form.value.price = price;
-		priceExpanded.value = false;
-		errors.price = ""; // Clear error when price is selected
-	};
+        const selectPrice = (price) => {
+                form.value.price = price;
+                errors.price = ""; // Clear error when price is selected
+        };
 
 	const getCategoryIcon = (category) => {
 		const icons = {

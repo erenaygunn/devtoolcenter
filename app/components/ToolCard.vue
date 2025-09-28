@@ -63,11 +63,12 @@
 					</div>
 				</div>
 
-				<a
-					:href="tool.url"
-					target="_blank"
-					class="btn btn-primary mt-3 btn-sm"
-				>
+                                <a
+                                        :href="tool.url"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="btn btn-primary mt-3 btn-sm"
+                                >
 					Visit
 					<Icon
 						name="heroicons:arrow-top-right-on-square"

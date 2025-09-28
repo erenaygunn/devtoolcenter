@@ -11,15 +11,9 @@
 	const editForm = ref<any>(null);
 
 	// Dropdown state management
-	const priceExpanded = ref(false);
-	const categoryExpanded = ref(false);
-	const sortExpanded = ref(false);
-	const priceButton = ref(null);
-	const categoryButton = ref(null);
-	const sortButton = ref(null);
-	const priceDropdownStyle = ref({});
-	const categoryDropdownStyle = ref({});
-	const sortDropdownStyle = ref({});
+        const priceExpanded = ref(false);
+        const categoryExpanded = ref(false);
+        const sortExpanded = ref(false);
 	const search = ref("");
 	const sortBy = ref("date"); // Default to date for admin
 
@@ -118,92 +112,18 @@
 		return icons[sort] || "heroicons:calendar-days";
 	};
 
-	const updateDropdownPositions = () => {
-		if (priceButton.value && priceExpanded.value) {
-			const rect = priceButton.value.getBoundingClientRect();
-			priceDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
+        const selectPrice = (price) => {
+                editForm.value.price = price;
+        };
 
-		if (categoryButton.value && categoryExpanded.value) {
-			const rect = categoryButton.value.getBoundingClientRect();
-			categoryDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
+        const selectCategory = (category) => {
+                editForm.value.category = category;
+        };
 
-		if (sortButton.value && sortExpanded.value) {
-			const rect = sortButton.value.getBoundingClientRect();
-			sortDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
-	};
-
-	watch([priceExpanded, categoryExpanded, sortExpanded], () => {
-		nextTick(() => {
-			updateDropdownPositions();
-		});
-	});
-
-	onMounted(() => {
-		window.addEventListener("resize", updateDropdownPositions);
-		window.addEventListener("scroll", updateDropdownPositions);
-
-		const handleClickOutside = (event) => {
-			if (
-				priceExpanded.value &&
-				!priceButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				priceExpanded.value = false;
-			}
-			if (
-				categoryExpanded.value &&
-				!categoryButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				categoryExpanded.value = false;
-			}
-			if (
-				sortExpanded.value &&
-				!sortButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				sortExpanded.value = false;
-			}
-		};
-		document.addEventListener("click", handleClickOutside);
-
-		onUnmounted(() => {
-			window.removeEventListener("resize", updateDropdownPositions);
-			window.removeEventListener("scroll", updateDropdownPositions);
-			document.removeEventListener("click", handleClickOutside);
-		});
-	});
-
-	const selectPrice = (price) => {
-		editForm.value.price = price;
-		priceExpanded.value = false;
-	};
-
-	const selectCategory = (category) => {
-		editForm.value.category = category;
-		categoryExpanded.value = false;
-	};
-
-	const selectSort = (sort) => {
-		sortBy.value = sort;
-		sortExpanded.value = false;
-		loadTools();
-	};
+        const selectSort = (sort) => {
+                sortBy.value = sort;
+                loadTools();
+        };
 
 	const loadTools = async () => {
 		try {
@@ -563,93 +483,103 @@
 					</div>
 
 					<!-- Sort Options -->
-					<div class="relative">
-						<button
-							@click="sortExpanded = !sortExpanded"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
-							ref="sortButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									:name="getSortIcon(sortBy)"
-									class="h-4 w-4 text-muted"
-								/>
-								{{ getSortLabel(sortBy) }}
-							</span>
-							<Icon
-								:name="
-									sortExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
-								class="h-4 w-4"
-							/>
-						</button>
-					</div>
-
-					<!-- Teleported Sort Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="sortExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="sortDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									@click="selectSort('date')"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary': sortBy === 'date',
-									}"
-								>
-									<Icon
-										name="heroicons:calendar-days"
-										class="h-4 w-4"
-									/>
-									Sort by Date Added
-								</button>
-								<button
-									@click="selectSort('name')"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary': sortBy === 'name',
-									}"
-								>
-									<Icon
-										name="heroicons:bars-3-bottom-left"
-										class="h-4 w-4"
-									/>
-									Sort by Name
-								</button>
-								<button
-									@click="selectSort('category')"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary': sortBy === 'category',
-									}"
-								>
-									<Icon
-										name="heroicons:squares-2x2"
-										class="h-4 w-4"
-									/>
-									Sort by Category
-								</button>
-								<button
-									@click="selectSort('price')"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary': sortBy === 'price',
-									}"
-								>
-									<Icon
-										name="heroicons:currency-dollar"
-										class="h-4 w-4"
-									/>
-									Sort by Price
-								</button>
-							</div>
-						</div>
-					</Teleport>
+                                        <DropdownMenu
+                                                v-model="sortExpanded"
+                                                content-class="glass rounded-lg shadow-xl"
+                                        >
+                                                <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                        <button
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
+                                                                :ref="setTriggerRef"
+                                                                v-bind="triggerAttrs"
+                                                                @click="toggle"
+                                                        >
+                                                                <span class="flex items-center gap-2 text-sm font-medium">
+                                                                        <Icon
+                                                                                :name="getSortIcon(sortBy)"
+                                                                                class="h-4 w-4 text-muted"
+                                                                        />
+                                                                        {{ getSortLabel(sortBy) }}
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                sortExpanded
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
+                                                                        class="h-4 w-4"
+                                                                />
+                                                        </button>
+                                                </template>
+                                                <template #content="{ close }">
+                                                        <div class="p-2">
+                                                                <button
+                                                                        @click="() => {
+                                                                                selectSort('date');
+                                                                                close();
+                                                                        }"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary': sortBy === 'date',
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                name="heroicons:calendar-days"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        Sort by Date Added
+                                                                </button>
+                                                                <button
+                                                                        @click="() => {
+                                                                                selectSort('name');
+                                                                                close();
+                                                                        }"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary': sortBy === 'name',
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                name="heroicons:bars-3-bottom-left"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        Sort by Name
+                                                                </button>
+                                                                <button
+                                                                        @click="() => {
+                                                                                selectSort('category');
+                                                                                close();
+                                                                        }"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary': sortBy === 'category',
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                name="heroicons:squares-2x2"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        Sort by Category
+                                                                </button>
+                                                                <button
+                                                                        @click="() => {
+                                                                                selectSort('price');
+                                                                                close();
+                                                                        }"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary': sortBy === 'price',
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                name="heroicons:currency-dollar"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        Sort by Price
+                                                                </button>
+                                                        </div>
+                                                </template>
+                                        </DropdownMenu>
 				</div>
 			</div>
 
@@ -733,11 +663,12 @@
 									>
 								</td>
 								<td class="px-4 md:px-6 py-4 hidden lg:table-cell">
-									<a
-										:href="tool.url"
-										target="_blank"
-										class="text-primary hover:underline text-sm break-all"
-									>
+                                                                <a
+                                                                        :href="tool.url"
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        class="text-primary hover:underline text-sm break-all"
+                                                                >
 										{{
 											tool.url.length > 40
 												? tool.url.slice(0, 40) + "..."
@@ -885,144 +816,146 @@
 					/>
 				</div>
 
-				<div>
-					<label class="block text-sm font-medium mb-2">Category *</label>
-					<div class="relative">
-						<button
-							@click="categoryExpanded = !categoryExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							ref="categoryButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									v-if="editForm.category"
-									:name="getCategoryIcon(editForm.category)"
-									class="h-4 w-4"
-								/>
-								<Icon
-									v-else
-									name="heroicons:squares-2x2"
-									class="h-4 w-4 text-muted"
-								/>
-								{{
-									editForm.category
-										? getCategoryLabel(editForm.category)
-										: "Select a category"
-								}}
-							</span>
-							<Icon
-								:name="
-									categoryExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
-								class="h-4 w-4"
-							/>
-						</button>
-					</div>
+                                <div>
+                                        <label class="block text-sm font-medium mb-2">Category *</label>
+                                        <DropdownMenu
+                                                v-model="categoryExpanded"
+                                                content-class="glass rounded-lg shadow-xl"
+                                        >
+                                                <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                        <button
+                                                                type="button"
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                                :ref="setTriggerRef"
+                                                                v-bind="triggerAttrs"
+                                                                @click="toggle"
+                                                        >
+                                                                <span class="flex items-center gap-2 text-sm font-medium">
+                                                                        <Icon
+                                                                                v-if="editForm.category"
+                                                                                :name="getCategoryIcon(editForm.category)"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        <Icon
+                                                                                v-else
+                                                                                name="heroicons:squares-2x2"
+                                                                                class="h-4 w-4 text-muted"
+                                                                        />
+                                                                        {{
+                                                                                editForm.category
+                                                                                        ? getCategoryLabel(editForm.category)
+                                                                                        : "Select a category"
+                                                                        }}
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                categoryExpanded
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
+                                                                        class="h-4 w-4"
+                                                                />
+                                                        </button>
+                                                </template>
+                                                <template #content="{ close }">
+                                                        <div class="p-2">
+                                                                <button
+                                                                        v-for="category in categories"
+                                                                        :key="category.slug"
+                                                                        type="button"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary':
+                                                                                        editForm.category === category.slug,
+                                                                        }"
+                                                                        @click="() => {
+                                                                                selectCategory(category.slug);
+                                                                                close();
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                :name="category.icon"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        {{ category.name }}
+                                                                </button>
+                                                        </div>
+                                                </template>
+                                        </DropdownMenu>
+                                </div>
 
-					<!-- Teleported Category Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="categoryExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="categoryDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									v-for="category in categories"
-									:key="category.slug"
-									@click="selectCategory(category.slug)"
-									type="button"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary':
-											editForm.category === category.slug,
-									}"
-								>
-									<Icon
-										:name="category.icon"
-										class="h-4 w-4"
-									/>
-									{{ category.name }}
-								</button>
-							</div>
-						</div>
-					</Teleport>
-				</div>
-
-				<div>
-					<label class="block text-sm font-medium mb-2">Price *</label>
-					<div class="relative">
-						<button
-							@click="priceExpanded = !priceExpanded"
-							type="button"
-							class="flex items-center justify-between w-full p-3 form-select transition-colors"
-							ref="priceButton"
-						>
-							<span class="flex items-center gap-2 text-sm font-medium">
-								<Icon
-									v-if="editForm.price"
-									:name="getPriceIcon(editForm.price)"
-									class="h-4 w-4"
-								/>
-								<Icon
-									v-else
-									name="heroicons:currency-dollar"
-									class="h-4 w-4 text-muted"
-								/>
-								{{
-									editForm.price
-										? getPriceLabel(editForm.price)
-										: "Select pricing model"
-								}}
-							</span>
-							<Icon
-								:name="
-									priceExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
-								class="h-4 w-4"
-							/>
-						</button>
-					</div>
-
-					<!-- Teleported Price Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="priceExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="priceDropdownStyle"
-						>
-							<div class="p-2">
-								<button
-									v-for="priceOption in priceOptions"
-									:key="priceOption.value"
-									@click="selectPrice(priceOption.value)"
-									type="button"
-									class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-									:class="{
-										'bg-primary/10 text-primary':
-											editForm.price === priceOption.value,
-									}"
-								>
-									<Icon
-										:name="priceOption.icon"
-										class="h-4 w-4"
-									/>
-									<div class="text-left">
-										<div class="font-medium">{{ priceOption.label }}</div>
-										<div class="text-xs text-muted">
-											{{ priceOption.description }}
-										</div>
-									</div>
-								</button>
-							</div>
-						</div>
-					</Teleport>
-				</div>
+                                <div>
+                                        <label class="block text-sm font-medium mb-2">Price *</label>
+                                        <DropdownMenu
+                                                v-model="priceExpanded"
+                                                content-class="glass rounded-lg shadow-xl"
+                                        >
+                                                <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                        <button
+                                                                type="button"
+                                                                class="flex items-center justify-between w-full p-3 form-select transition-colors"
+                                                                :ref="setTriggerRef"
+                                                                v-bind="triggerAttrs"
+                                                                @click="toggle"
+                                                        >
+                                                                <span class="flex items-center gap-2 text-sm font-medium">
+                                                                        <Icon
+                                                                                v-if="editForm.price"
+                                                                                :name="getPriceIcon(editForm.price)"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        <Icon
+                                                                                v-else
+                                                                                name="heroicons:currency-dollar"
+                                                                                class="h-4 w-4 text-muted"
+                                                                        />
+                                                                        {{
+                                                                                editForm.price
+                                                                                        ? getPriceLabel(editForm.price)
+                                                                                        : "Select pricing model"
+                                                                        }}
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                priceExpanded
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
+                                                                        class="h-4 w-4"
+                                                                />
+                                                        </button>
+                                                </template>
+                                                <template #content="{ close }">
+                                                        <div class="p-2">
+                                                                <button
+                                                                        v-for="priceOption in priceOptions"
+                                                                        :key="priceOption.value"
+                                                                        type="button"
+                                                                        class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                        :class="{
+                                                                                'bg-primary/10 text-primary':
+                                                                                        editForm.price === priceOption.value,
+                                                                        }"
+                                                                        @click="() => {
+                                                                                selectPrice(priceOption.value);
+                                                                                close();
+                                                                        }"
+                                                                >
+                                                                        <Icon
+                                                                                :name="priceOption.icon"
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                        <div class="text-left">
+                                                                                <div class="font-medium">{{ priceOption.label }}</div>
+                                                                                <div class="text-xs text-muted">
+                                                                                        {{ priceOption.description }}
+                                                                                </div>
+                                                                        </div>
+                                                                </button>
+                                                        </div>
+                                                </template>
+                                        </DropdownMenu>
+                                </div>
 
 				<div>
 					<label class="block text-sm font-medium mb-2">Tags</label>

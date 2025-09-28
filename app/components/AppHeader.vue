@@ -44,11 +44,12 @@
 							class="h-5 w-5 ml-2"
 						/>
 					</NuxtLink>
-					<a
-						href="#"
-						class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
-						target="_blank"
-					>
+                                        <a
+                                                href="#"
+                                                class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                        >
 						<Icon
 							name="simple-icons:github"
 							class="h-5 w-5"
@@ -113,11 +114,12 @@
 					class="h-5 w-5 ml-2"
 				/>
 			</NuxtLink>
-			<a
-				href="#"
-				class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
-				target="_blank"
-			>
+                        <a
+                                href="#"
+                                class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                        >
 				<Icon
 					name="simple-icons:github"
 					class="h-5 w-5"
