@@ -31,326 +31,350 @@
 					<!-- Filters Row -->
 					<div class="flex flex-col lg:flex-row gap-4">
 						<!-- Category Filter -->
-						<div class="relative">
-							<button
-								@click="categoryExpanded = !categoryExpanded"
-								class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
-								ref="categoryButton"
-							>
-								<span class="flex items-center gap-2 text-sm font-medium">
-									<Icon
-										v-if="selectedCategory"
-										:name="getCategoryIcon(selectedCategory)"
-										class="h-4 w-4"
-									/>
-									<Icon
-										v-else
-										name="heroicons:squares-2x2"
-										class="h-4 w-4 text-muted"
-									/>
-									{{
-										selectedCategory
-											? getCategoryLabel(selectedCategory)
-											: "All Categories"
-									}}
-								</span>
-								<Icon
-									:name="
-										categoryExpanded
-											? 'heroicons:chevron-up'
-											: 'heroicons:chevron-down'
-									"
-									class="h-4 w-4"
-								/>
-							</button>
-						</div>
-
-						<!-- Teleported Category Dropdown -->
-						<Teleport to="body">
-							<div
-								v-if="categoryExpanded"
-								class="fixed glass rounded-lg shadow-xl z-[9999]"
-								:style="categoryDropdownStyle"
-							>
-								<div class="p-2">
-									<button
-										@click="selectCategory('')"
-										class="flex items-center form-select gap-3 w-full p-2 transition-colors"
-										:class="{
-											'bg-primary/10 text-primary': selectedCategory === '',
-										}"
-									>
-										<Icon
-											name="heroicons:squares-2x2"
-											class="h-4 w-4"
-										/>
-										All Categories
-									</button>
-									<button
-										v-for="category in categories"
-										:key="category.slug"
-										@click="selectCategory(category.slug)"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												selectedCategory === category.slug,
-										}"
-									>
-										<Icon
-											:name="category.icon"
-											class="h-4 w-4"
-										/>
-										{{ category.name }}
-									</button>
-								</div>
-							</div>
-						</Teleport>
+                                                <DropdownMenu
+                                                        v-model="categoryExpanded"
+                                                        content-class="glass rounded-lg shadow-xl"
+                                                >
+                                                        <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                                <button
+                                                                        class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
+                                                                        :ref="setTriggerRef"
+                                                                        v-bind="triggerAttrs"
+                                                                        @click="toggle"
+                                                                >
+                                                                        <span class="flex items-center gap-2 text-sm font-medium">
+                                                                                <Icon
+                                                                                        v-if="selectedCategory"
+                                                                                        :name="getCategoryIcon(selectedCategory)"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                <Icon
+                                                                                        v-else
+                                                                                        name="heroicons:squares-2x2"
+                                                                                        class="h-4 w-4 text-muted"
+                                                                                />
+                                                                                {{
+                                                                                        selectedCategory
+                                                                                                ? getCategoryLabel(selectedCategory)
+                                                                                                : "All Categories"
+                                                                                }}
+                                                                        </span>
+                                                                        <Icon
+                                                                                :name="
+                                                                                        categoryExpanded
+                                                                                                ? 'heroicons:chevron-up'
+                                                                                                : 'heroicons:chevron-down'
+                                                                                "
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                </button>
+                                                        </template>
+                                                        <template #content="{ close }">
+                                                                <div class="p-2">
+                                                                        <button
+                                                                                @click="() => {
+                                                                                        selectCategory('');
+                                                                                        close();
+                                                                                }"
+                                                                                class="flex items-center form-select gap-3 w-full p-2 transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary': selectedCategory === '',
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        name="heroicons:squares-2x2"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                All Categories
+                                                                        </button>
+                                                                        <button
+                                                                                v-for="category in categories"
+                                                                                :key="category.slug"
+                                                                                class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary':
+                                                                                                selectedCategory === category.slug,
+                                                                                }"
+                                                                                @click="() => {
+                                                                                        selectCategory(category.slug);
+                                                                                        close();
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        :name="category.icon"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                {{ category.name }}
+                                                                        </button>
+                                                                </div>
+                                                        </template>
+                                                </DropdownMenu>
 
 						<!-- Price Filter -->
-						<div class="relative">
-							<button
-								@click="priceExpanded = !priceExpanded"
-								class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
-								ref="priceButton"
-							>
-								<span class="flex items-center gap-2 text-sm font-medium">
-									<Icon
-										name="heroicons:currency-dollar"
-										class="h-4 w-4 text-muted"
-									/>
-									{{ getPriceLabel(selectedPrice) }}
-								</span>
-								<Icon
-									:name="
-										priceExpanded
-											? 'heroicons:chevron-up'
-											: 'heroicons:chevron-down'
-									"
-									class="h-4 w-4"
-								/>
-							</button>
-						</div>
-
-						<!-- Teleported Price Dropdown -->
-						<Teleport to="body">
-							<div
-								v-if="priceExpanded"
-								class="fixed glass rounded-lg shadow-xl z-[9999]"
-								:style="priceDropdownStyle"
-							>
-								<div class="p-2">
-									<button
-										@click="selectPrice('')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary': selectedPrice === '',
-										}"
-									>
-										<Icon
-											name="heroicons:currency-dollar"
-											class="h-4 w-4"
-										/>
-										All Pricing
-									</button>
-									<button
-										@click="selectPrice('free')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary': selectedPrice === 'free',
-										}"
-									>
-										<Icon
-											name="heroicons:gift"
-											class="h-4 w-4"
-										/>
-										Free
-									</button>
-									<button
-										@click="selectPrice('free-plan')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												selectedPrice === 'free-plan',
-										}"
-									>
-										<Icon
-											name="heroicons:sparkles"
-											class="h-4 w-4"
-										/>
-										Free Plan Available
-									</button>
-									<button
-										@click="selectPrice('paid')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary': selectedPrice === 'paid',
-										}"
-									>
-										<Icon
-											name="heroicons:credit-card"
-											class="h-4 w-4"
-										/>
-										Paid
-									</button>
-								</div>
-							</div>
-						</Teleport>
+                                                <DropdownMenu
+                                                        v-model="priceExpanded"
+                                                        content-class="glass rounded-lg shadow-xl"
+                                                >
+                                                        <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                                <button
+                                                                        class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
+                                                                        :ref="setTriggerRef"
+                                                                        v-bind="triggerAttrs"
+                                                                        @click="toggle"
+                                                                >
+                                                                        <span class="flex items-center gap-2 text-sm font-medium">
+                                                                                <Icon
+                                                                                        name="heroicons:currency-dollar"
+                                                                                        class="h-4 w-4 text-muted"
+                                                                                />
+                                                                                {{ getPriceLabel(selectedPrice) }}
+                                                                        </span>
+                                                                        <Icon
+                                                                                :name="
+                                                                                        priceExpanded
+                                                                                                ? 'heroicons:chevron-up'
+                                                                                                : 'heroicons:chevron-down'
+                                                                                "
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                </button>
+                                                        </template>
+                                                        <template #content="{ close }">
+                                                                <div class="p-2">
+                                                                        <button
+                                                                                @click="() => {
+                                                                                        selectPrice('');
+                                                                                        close();
+                                                                                }"
+                                                                                class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary': selectedPrice === '',
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        name="heroicons:currency-dollar"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                All Pricing
+                                                                        </button>
+                                                                        <button
+                                                                                @click="() => {
+                                                                                        selectPrice('free');
+                                                                                        close();
+                                                                                }"
+                                                                                class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary': selectedPrice === 'free',
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        name="heroicons:gift"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                Free
+                                                                        </button>
+                                                                        <button
+                                                                                @click="() => {
+                                                                                        selectPrice('free-plan');
+                                                                                        close();
+                                                                                }"
+                                                                                class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary':
+                                                                                                selectedPrice === 'free-plan',
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        name="heroicons:sparkles"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                Free Plan Available
+                                                                        </button>
+                                                                        <button
+                                                                                @click="() => {
+                                                                                        selectPrice('paid');
+                                                                                        close();
+                                                                                }"
+                                                                                class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary': selectedPrice === 'paid',
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        name="heroicons:credit-card"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                Paid
+                                                                        </button>
+                                                                </div>
+                                                        </template>
+                                                </DropdownMenu>
 
 						<!-- Sort Options -->
-						<div class="relative">
-							<button
-								@click="sortExpanded = !sortExpanded"
-								class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
-								ref="sortButton"
-							>
-								<span class="flex items-center gap-2 text-sm font-medium">
-									<Icon
-										:name="getSortIcon(sortBy)"
-										class="h-4 w-4 text-muted"
-									/>
-									{{ getSortLabel(sortBy) }}
-								</span>
-								<Icon
-									:name="
-										sortExpanded
-											? 'heroicons:chevron-up'
-											: 'heroicons:chevron-down'
-									"
-									class="h-4 w-4"
-								/>
-							</button>
-						</div>
-
-						<!-- Teleported Sort Dropdown -->
-						<Teleport to="body">
-							<div
-								v-if="sortExpanded"
-								class="fixed glass rounded-lg shadow-xl z-[9999]"
-								:style="sortDropdownStyle"
-							>
-								<div class="p-2">
-									<button
-										@click="selectSort('name')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary': sortBy === 'name',
-										}"
-									>
-										<Icon
-											name="heroicons:bars-3-bottom-left"
-											class="h-4 w-4"
-										/>
-										Sort by Name
-									</button>
-									<button
-										@click="selectSort('category')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary': sortBy === 'category',
-										}"
-									>
-										<Icon
-											name="heroicons:squares-2x2"
-											class="h-4 w-4"
-										/>
-										Sort by Category
-									</button>
-									<button
-										@click="selectSort('price')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary': sortBy === 'price',
-										}"
-									>
-										<Icon
-											name="heroicons:currency-dollar"
-											class="h-4 w-4"
-										/>
-										Sort by Price
-									</button>
-									<button
-										@click="selectSort('date')"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary': sortBy === 'date',
-										}"
-									>
-										<Icon
-											name="heroicons:calendar-days"
-											class="h-4 w-4"
-										/>
-										Sort by Date Added
-									</button>
-								</div>
-							</div>
-						</Teleport>
+                                                <DropdownMenu
+                                                        v-model="sortExpanded"
+                                                        content-class="glass rounded-lg shadow-xl"
+                                                >
+                                                        <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                                <button
+                                                                        class="flex items-center justify-between w-full p-3 form-select transition-colors min-w-[200px]"
+                                                                        :ref="setTriggerRef"
+                                                                        v-bind="triggerAttrs"
+                                                                        @click="toggle"
+                                                                >
+                                                                        <span class="flex items-center gap-2 text-sm font-medium">
+                                                                                <Icon
+                                                                                        :name="getSortIcon(sortBy)"
+                                                                                        class="h-4 w-4 text-muted"
+                                                                                />
+                                                                                {{ getSortLabel(sortBy) }}
+                                                                        </span>
+                                                                        <Icon
+                                                                                :name="
+                                                                                        sortExpanded
+                                                                                                ? 'heroicons:chevron-up'
+                                                                                                : 'heroicons:chevron-down'
+                                                                                "
+                                                                                class="h-4 w-4"
+                                                                        />
+                                                                </button>
+                                                        </template>
+                                                        <template #content="{ close }">
+                                                                <div class="p-2">
+                                                                        <button
+                                                                                @click="() => {
+                                                                                        selectSort('name');
+                                                                                        close();
+                                                                                }"
+                                                                                class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary': sortBy === 'name',
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        name="heroicons:bars-3-bottom-left"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                Sort by Name
+                                                                        </button>
+                                                                        <button
+                                                                                @click="() => {
+                                                                                        selectSort('category');
+                                                                                        close();
+                                                                                }"
+                                                                                class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary': sortBy === 'category',
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        name="heroicons:squares-2x2"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                Sort by Category
+                                                                        </button>
+                                                                        <button
+                                                                                @click="() => {
+                                                                                        selectSort('price');
+                                                                                        close();
+                                                                                }"
+                                                                                class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary': sortBy === 'price',
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        name="heroicons:currency-dollar"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                Sort by Price
+                                                                        </button>
+                                                                        <button
+                                                                                @click="() => {
+                                                                                        selectSort('date');
+                                                                                        close();
+                                                                                }"
+                                                                                class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                                                                                :class="{
+                                                                                        'bg-primary/10 text-primary': sortBy === 'date',
+                                                                                }"
+                                                                        >
+                                                                                <Icon
+                                                                                        name="heroicons:calendar-days"
+                                                                                        class="h-4 w-4"
+                                                                                />
+                                                                                Sort by Date Added
+                                                                        </button>
+                                                                </div>
+                                                        </template>
+                                                </DropdownMenu>
 					</div>
 
 					<!-- Keywords Filter -->
-					<div class="relative">
-						<button
-							@click="keywordsExpanded = !keywordsExpanded"
-							class="flex items-center justify-between w-full p-3 border rounded-lg form-select transition-colors"
-							ref="keywordsButton"
-						>
-							<span class="text-sm font-medium">
-								Filter by Keywords
-								<span
-									v-if="selectedKeywords.length > 0"
-									class="text-primary ml-1"
-								>
-									({{ selectedKeywords.length }} selected)
-								</span>
-							</span>
-							<Icon
-								:name="
-									keywordsExpanded
-										? 'heroicons:chevron-up'
-										: 'heroicons:chevron-down'
-								"
-								class="h-4 w-4"
-							/>
-						</button>
-					</div>
+                                        <DropdownMenu
+                                                v-model="keywordsExpanded"
+                                                content-class="glass rounded-lg shadow-xl"
+                                                align="stretch"
+                                                :match-width="false"
+                                        >
+                                                <template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
+                                                        <button
+                                                                class="flex items-center justify-between w-full p-3 border rounded-lg form-select transition-colors"
+                                                                :ref="setTriggerRef"
+                                                                v-bind="triggerAttrs"
+                                                                @click="toggle"
+                                                        >
+                                                                <span class="text-sm font-medium">
+                                                                        Filter by Keywords
+                                                                        <span
+                                                                                v-if="selectedKeywords.length > 0"
+                                                                                class="text-primary ml-1"
+                                                                        >
+                                                                                ({{ selectedKeywords.length }} selected)
+                                                                        </span>
+                                                                </span>
+                                                                <Icon
+                                                                        :name="
+                                                                                keywordsExpanded
+                                                                                        ? 'heroicons:chevron-up'
+                                                                                        : 'heroicons:chevron-down'
+                                                                        "
+                                                                        class="h-4 w-4"
+                                                                />
+                                                        </button>
+                                                </template>
+                                                <template #content>
+                                                        <div class="p-4">
+                                                                <div class="flex flex-wrap gap-2">
+                                                                        <button
+                                                                                v-for="keyword in availableKeywords"
+                                                                                :key="keyword"
+                                                                                :class="[
+                                                                                        'px-2 py-1 btn-secondary text-xs rounded-full transition-colors',
+                                                                                        selectedKeywords.includes(keyword)
+                                                                                                ? 'bg-primary text-white'
+                                                                                                : 'bg-gray-100 ',
+                                                                                ]"
+                                                                                @click="toggleKeyword(keyword)"
+                                                                        >
+                                                                                {{ keyword }}
+                                                                        </button>
+                                                                </div>
 
-					<!-- Teleported Keywords Dropdown -->
-					<Teleport to="body">
-						<div
-							v-if="keywordsExpanded"
-							class="fixed glass rounded-lg shadow-xl z-[9999]"
-							:style="keywordsDropdownStyle"
-						>
-							<div class="p-4">
-								<div class="flex flex-wrap gap-2">
-									<button
-										v-for="keyword in availableKeywords"
-										:key="keyword"
-										@click="toggleKeyword(keyword)"
-										:class="[
-											'px-2 py-1 btn-secondary text-xs rounded-full transition-colors',
-											selectedKeywords.includes(keyword)
-												? 'bg-primary text-white'
-												: 'bg-gray-100 ',
-										]"
-									>
-										{{ keyword }}
-									</button>
-								</div>
-
-								<div
-									v-if="selectedKeywords.length > 0"
-									class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
-								>
-									<button
-										@click="clearSelectedKeywords"
-										class="text-xs flex items-center text-red-500 hover:text-red-600"
-									>
-										Clear all keywords
-									</button>
-								</div>
-							</div>
-						</div>
-					</Teleport>
+                                                                <div
+                                                                        v-if="selectedKeywords.length > 0"
+                                                                        class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
+                                                                >
+                                                                        <button
+                                                                                @click="clearSelectedKeywords"
+                                                                                class="text-xs flex items-center text-red-500 hover:text-red-600"
+                                                                        >
+                                                                                Clear all keywords
+                                                                        </button>
+                                                                </div>
+                                                        </div>
+                                                </template>
+                                        </DropdownMenu>
 
 					<!-- Active Filters Display -->
 					<div
@@ -478,61 +502,14 @@
 	const selectedPrice = ref("");
 	const selectedKeywords = ref([]);
 	const sortBy = ref("name");
-	const keywordsExpanded = ref(false);
-	const categoryExpanded = ref(false);
-	const priceExpanded = ref(false);
-	const sortExpanded = ref(false);
-	const categoryButton = ref(null);
-	const keywordsButton = ref(null);
-	const priceButton = ref(null);
-	const sortButton = ref(null);
-
-	const categoryDropdownStyle = ref({});
-	const keywordsDropdownStyle = ref({});
-	const priceDropdownStyle = ref({});
-	const sortDropdownStyle = ref({});
+        const keywordsExpanded = ref(false);
+        const categoryExpanded = ref(false);
+        const priceExpanded = ref(false);
+        const sortExpanded = ref(false);
 
 	const keywordsKey = computed(
 		() => selectedKeywords.value.slice().sort().join("|") // a stable string
 	);
-
-	const updateDropdownPositions = () => {
-		if (categoryButton.value && categoryExpanded.value) {
-			const rect = categoryButton.value.getBoundingClientRect();
-			categoryDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
-
-		if (priceButton.value && priceExpanded.value) {
-			const rect = priceButton.value.getBoundingClientRect();
-			priceDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
-
-		if (sortButton.value && sortExpanded.value) {
-			const rect = sortButton.value.getBoundingClientRect();
-			sortDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				width: `${rect.width}px`,
-			};
-		}
-
-		if (keywordsButton.value && keywordsExpanded.value) {
-			const rect = keywordsButton.value.getBoundingClientRect();
-			keywordsDropdownStyle.value = {
-				top: `${rect.bottom + 8}px`,
-				left: `${rect.left}px`,
-				right: `${window.innerWidth - rect.right}px`,
-			};
-		}
-	};
 
 	const buildParams = () => ({
 		search: searchQuery.value || undefined,
@@ -564,60 +541,8 @@
 		}
 	);
 
-	watch(
-		[categoryExpanded, keywordsExpanded, priceExpanded, sortExpanded],
-		() => {
-			nextTick(() => {
-				updateDropdownPositions();
-			});
-		}
-	);
-
-	onMounted(() => {
-		window.addEventListener("resize", updateDropdownPositions);
-		window.addEventListener("scroll", updateDropdownPositions);
-
-		const handleClickOutside = (event) => {
-			if (
-				categoryExpanded.value &&
-				!categoryButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				categoryExpanded.value = false;
-			}
-			if (
-				priceExpanded.value &&
-				!priceButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				priceExpanded.value = false;
-			}
-			if (
-				sortExpanded.value &&
-				!sortButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				sortExpanded.value = false;
-			}
-			if (
-				keywordsExpanded.value &&
-				!keywordsButton.value?.contains(event.target) &&
-				!event.target.closest(".fixed")
-			) {
-				keywordsExpanded.value = false;
-			}
-		};
-		document.addEventListener("click", handleClickOutside);
-
-		onUnmounted(() => {
-			window.removeEventListener("resize", updateDropdownPositions);
-			window.removeEventListener("scroll", updateDropdownPositions);
-			document.removeEventListener("click", handleClickOutside);
-		});
-	});
-
-	// Initialize from URL query params
-	onMounted(() => {
+        // Initialize from URL query params
+        onMounted(() => {
 		const route = useRoute();
 		if (route.query.search) {
 			searchQuery.value = route.query.search;
@@ -683,20 +608,17 @@
 		sortExpanded.value = false;
 	};
 
-	const selectCategory = (category) => {
-		selectedCategory.value = category;
-		categoryExpanded.value = false;
-	};
+        const selectCategory = (category) => {
+                selectedCategory.value = category;
+        };
 
-	const selectPrice = (price) => {
-		selectedPrice.value = price;
-		priceExpanded.value = false;
-	};
+        const selectPrice = (price) => {
+                selectedPrice.value = price;
+        };
 
-	const selectSort = (sort) => {
-		sortBy.value = sort;
-		sortExpanded.value = false;
-	};
+        const selectSort = (sort) => {
+                sortBy.value = sort;
+        };
 
 	const getCategoryIcon = (category: string) => {
 		const found = categories.value.find((c) => c.slug === category);
