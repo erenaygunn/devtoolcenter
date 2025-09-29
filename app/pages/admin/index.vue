@@ -180,7 +180,7 @@
 		}
 	};
 
-	const saveEdit = async () => {
+	const saveSubmission = async () => {
 		try {
 			const token = getAuthToken();
 			if (!token) {
@@ -232,7 +232,7 @@
 		}
 	};
 
-	const approve = async (id: string) => {
+	const approveSubmission = async (id: string) => {
 		try {
 			const token = getAuthToken();
 			if (!token) {
@@ -269,7 +269,7 @@
 		}
 	};
 
-	const reject = async (id: string) => {
+	const rejectSubmission = async (id: string) => {
 		try {
 			const token = getAuthToken();
 			if (!token) {
@@ -371,55 +371,17 @@
 			<div class="container">
 				<!-- Admin Navigation -->
 				<div class="mb-8">
-					<nav class="flex items-center gap-2 text-sm text-muted mb-4">
-						<NuxtLink
-							to="/"
-							class="hover:text-primary transition-colors"
-							>Home</NuxtLink
-						>
+					<BreadcrumbNav
+						:items="[{ label: 'Home', to: '/' }, { label: 'Admin Panel' }]"
+					/>
 
-						<Icon
-							name="heroicons:chevron-right"
-							class="h-4 w-4"
-						/>
-						<span class="text-primary">Admin Panel</span>
-					</nav>
-
-					<div
-						class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
+					<AdminHeader
+						title="Admin Panel"
+						description="Manage tool submissions and moderate content"
+						:admin-user="adminUser"
+						:show-status="true"
 					>
-						<div>
-							<h1 class="text-h1 mb-2">
-								<span class="gradient-text">Admin Panel</span>
-							</h1>
-							<p class="text-muted">
-								Manage tool submissions and moderate content
-							</p>
-						</div>
-
-						<div class="flex flex-wrap items-center gap-3">
-							<!-- Admin info -->
-							<div class="hidden md:flex items-center gap-2 text-sm">
-								<div class="flex items-center gap-2">
-									<div
-										class="w-2 h-2 bg-green-400 rounded-full animate-pulse"
-									></div>
-									<span class="text-muted">Authenticated</span>
-								</div>
-								<Icon
-									name="heroicons:user-circle"
-									class="h-5 w-5 text-muted"
-								/>
-								<span class="text-muted">{{
-									adminUser?.email || "Admin"
-								}}</span>
-								<span
-									class="px-2 py-1 text-xs bg-primary/20 text-primary rounded-full"
-								>
-									{{ adminUser?.role || "admin" }}
-								</span>
-							</div>
-
+						<template #actions>
 							<NuxtLink
 								to="/admin/tools"
 								class="btn btn-secondary"
@@ -440,7 +402,6 @@
 								/>
 								Add Tool
 							</NuxtLink>
-
 							<button
 								@click="logout"
 								class="btn btn-outline !border-red-500/30 !text-red-400 hover:!bg-red-500/10"
@@ -451,61 +412,29 @@
 								/>
 								Logout
 							</button>
-						</div>
-					</div>
+						</template>
+					</AdminHeader>
 
 					<!-- Stats Cards -->
 					<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-						<div class="card">
-							<div class="flex items-center gap-3">
-								<div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-									<Icon
-										name="heroicons:clock"
-										class="h-5 w-5 text-yellow-600"
-									/>
-								</div>
-								<div>
-									<p class="text-sm text-muted">Pending</p>
-									<p class="text-lg font-semibold">
-										{{ submissionCounts.pending }}
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="card">
-							<div class="flex items-center gap-3">
-								<div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-									<Icon
-										name="heroicons:check-circle"
-										class="h-5 w-5 text-green-600"
-									/>
-								</div>
-								<div>
-									<p class="text-sm text-muted">Approved</p>
-									<p class="text-lg font-semibold">
-										{{ submissionCounts.approved }}
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="card">
-							<div class="flex items-center gap-3">
-								<div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-									<Icon
-										name="heroicons:x-circle"
-										class="h-5 w-5 text-red-600"
-									/>
-								</div>
-								<div>
-									<p class="text-sm text-muted">Rejected</p>
-									<p class="text-lg font-semibold">
-										{{ submissionCounts.rejected }}
-									</p>
-								</div>
-							</div>
-						</div>
+						<StatsCard
+							icon="heroicons:clock"
+							label="Pending"
+							:value="submissionCounts.pending"
+							color="yellow"
+						/>
+						<StatsCard
+							icon="heroicons:check-circle"
+							label="Approved"
+							:value="submissionCounts.approved"
+							color="green"
+						/>
+						<StatsCard
+							icon="heroicons:x-circle"
+							label="Rejected"
+							:value="submissionCounts.rejected"
+							color="red"
+						/>
 					</div>
 				</div>
 
@@ -537,314 +466,150 @@
 				</div>
 
 				<!-- Table -->
-				<div class="card overflow-hidden">
-					<div class="overflow-x-auto">
-						<table class="w-full">
-							<thead>
-								<tr class="border-b border-gray-200 dark:border-gray-700">
-									<th class="px-4 md:px-6 py-4 text-left text-sm font-semibold">
-										Tool
-									</th>
-									<th
-										class="px-4 md:px-6 py-4 text-left text-sm font-semibold hidden md:table-cell"
-									>
-										Category
-									</th>
-									<th
-										class="px-4 md:px-6 py-4 text-left text-sm font-semibold hidden sm:table-cell"
-									>
-										Price
-									</th>
-									<th
-										class="px-4 md:px-6 py-4 text-left text-sm font-semibold hidden lg:table-cell"
-									>
-										URL
-									</th>
-									<th
-										class="px-4 md:px-6 py-4 text-left text-sm font-semibold hidden xl:table-cell"
-									>
-										Description
-									</th>
-									<th class="px-4 md:px-6 py-4 text-left text-sm font-semibold">
-										Date
-									</th>
-									<th class="px-4 md:px-6 py-4 text-left text-sm font-semibold">
-										Actions
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr
-									v-for="sub in submissions"
-									:key="sub._id"
-									class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-								>
-									<td class="px-4 md:px-6 py-4">
-										<div class="font-semibold">{{ sub.name }}</div>
-										<div class="text-sm text-muted md:hidden">
-											{{ sub.category }}
-										</div>
-										<div
-											class="text-xs text-muted sm:hidden flex items-center gap-1 mt-1"
-											v-if="sub.price"
-										>
-											<Icon
-												:name="getPriceIcon(sub.price)"
-												class="h-3 w-3"
-											/>
-											{{ getPriceLabel(sub.price) }}
-										</div>
-									</td>
-									<td class="px-4 md:px-6 py-4 hidden md:table-cell">
-										<span
-											class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary/10 text-primary"
-										>
-											{{ sub.category }}
-										</span>
-									</td>
-									<td class="px-4 md:px-6 py-4 hidden sm:table-cell">
-										<div
-											class="flex items-center gap-2"
-											v-if="sub.price"
-										>
-											<Icon
-												:name="getPriceIcon(sub.price)"
-												class="h-4 w-4 text-primary"
-											/>
-											<span class="text-sm">{{
-												getPriceLabel(sub.price)
-											}}</span>
-										</div>
-										<span
-											class="text-xs text-muted"
-											v-else
-											>Not specified</span
-										>
-									</td>
-									<td class="px-4 md:px-6 py-4 hidden lg:table-cell">
-										<a
-											:href="sub.url"
-											target="_blank"
-											rel="noopener noreferrer"
-											class="text-primary hover:underline text-sm break-all"
-										>
-											{{
-												sub.url.length > 40
-													? sub.url.slice(0, 40) + "..."
-													: sub.url
-											}}
-										</a>
-									</td>
-									<td
-										class="px-4 md:px-6 py-4 hidden xl:table-cell text-sm text-muted"
-									>
-										{{ sub.description.slice(0, 60) }}...
-									</td>
-									<td class="px-6 py-4">
-										<div class="text-muted text-sm">
-											{{ new Date(sub.createdAt).toLocaleDateString() }}
-										</div>
-									</td>
-									<td class="px-4 md:px-6 py-4">
-										<div class="flex flex-col sm:flex-row gap-1 sm:gap-2">
-											<button
-												class="btn btn-sm btn-secondary text-xs"
-												@click="viewDetails(sub)"
-											>
-												<Icon
-													name="heroicons:eye"
-													class="h-3 w-3 mr-1"
-												/>
-												<span class="hidden sm:inline">View</span>
-											</button>
-											<button
-												class="btn btn-sm bg-yellow-600 text-white text-xs"
-												@click="editSubmission(sub)"
-											>
-												<Icon
-													name="heroicons:pencil"
-													class="h-3 w-3 mr-1"
-												/>
-												<span class="hidden sm:inline">Edit</span>
-											</button>
-											<button
-												v-if="tab === 'pending'"
-												class="btn btn-sm bg-green-600 text-white text-xs"
-												@click="approve(sub._id)"
-											>
-												<Icon
-													name="heroicons:check"
-													class="h-3 w-3 mr-1"
-												/>
-												<span class="hidden sm:inline">Approve</span>
-											</button>
-											<button
-												v-if="tab === 'pending'"
-												class="btn btn-sm bg-red-600 text-white text-xs"
-												@click="reject(sub._id)"
-											>
-												<Icon
-													name="heroicons:x-mark"
-													class="h-3 w-3 mr-1"
-												/>
-												<span class="hidden sm:inline">Reject</span>
-											</button>
-										</div>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-
-						<!-- Empty State -->
-						<div
-							v-if="!submissions.length && !loading"
-							class="text-center py-12"
-						>
-							<Icon
-								name="heroicons:document-text"
-								class="h-16 w-16 text-subtle mx-auto mb-4"
-							/>
-							<h3 class="text-h4 text-muted mb-2">No submissions found</h3>
-							<p class="text-subtle">
-								There are no {{ tab }} submissions at the moment.
-							</p>
-						</div>
-
-						<!-- Loading State -->
-						<div
-							v-if="loading"
-							class="text-center py-12"
-						>
-							<div
-								class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"
-							></div>
-							<p class="text-muted">Loading submissions...</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- View Details Modal -->
-		<div
-			v-if="showDetails"
-			class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-			@click="showDetails = false"
-		>
-			<div
-				class="card max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-				@click.stop
-			>
-				<div class="flex items-center justify-between mb-6">
-					<h2 class="text-h2">Submission Details</h2>
-					<button
-						@click="showDetails = false"
-						class="btn btn-tertiary btn-sm"
-					>
-						<Icon
-							name="heroicons:x-mark"
-							class="h-4 w-4"
-						/>
-					</button>
-				</div>
-
-				<div class="space-y-4">
-					<div>
-						<label class="block text-sm font-medium mb-1">Name</label>
-						<p class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-							{{ selectedSub?.name }}
-						</p>
-					</div>
-					<div>
-						<label class="block text-sm font-medium mb-1">Category</label>
-						<p class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-							{{ selectedSub?.category }}
-						</p>
-					</div>
-					<div>
-						<label class="block text-sm font-medium mb-1">Price</label>
-						<div class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-							<div
-								class="flex items-center gap-2"
-								v-if="selectedSub?.price"
+				<SubmissionTable :items="submissions">
+					<template #actions="{ item }">
+						<div class="flex flex-col sm:flex-row gap-1 sm:gap-2">
+							<button
+								class="btn btn-sm btn-secondary text-xs"
+								@click="viewDetails(item)"
 							>
 								<Icon
-									:name="getPriceIcon(selectedSub.price)"
-									class="h-4 w-4 text-primary"
+									name="heroicons:eye"
+									class="h-3 w-3 mr-1"
 								/>
-								{{ getPriceLabel(selectedSub.price) }}
-							</div>
-							<span
-								class="text-muted"
-								v-else
-								>Not specified</span
+								<span class="hidden sm:inline">View</span>
+							</button>
+							<button
+								class="btn btn-sm bg-yellow-600 text-white text-xs"
+								@click="editSubmission(item)"
 							>
+								<Icon
+									name="heroicons:pencil"
+									class="h-3 w-3 mr-1"
+								/>
+								<span class="hidden sm:inline">Edit</span>
+							</button>
+							<button
+								v-if="item.status === 'pending'"
+								class="btn btn-sm btn-primary text-xs"
+								@click="approveSubmission(item._id)"
+							>
+								<Icon
+									name="heroicons:check"
+									class="h-3 w-3 mr-1"
+								/>
+								<span class="hidden sm:inline">Approve</span>
+							</button>
+							<button
+								v-if="item.status !== 'rejected'"
+								class="btn btn-sm bg-red-600 text-white text-xs"
+								@click="rejectSubmission(item._id)"
+							>
+								<Icon
+									name="heroicons:x-mark"
+									class="h-3 w-3 mr-1"
+								/>
+								<span class="hidden sm:inline">Reject</span>
+							</button>
 						</div>
-					</div>
-					<div>
-						<label class="block text-sm font-medium mb-1">URL</label>
-						<p
-							class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg break-all"
-						>
-							<a
-								:href="selectedSub?.url"
-								target="_blank"
-								rel="noopener noreferrer"
-								class="text-primary hover:underline"
-							>
-								{{ selectedSub?.url }}
-							</a>
-						</p>
-					</div>
-					<div>
-						<label class="block text-sm font-medium mb-1">Description</label>
-						<p class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-							{{ selectedSub?.description }}
-						</p>
-					</div>
-					<div>
-						<label class="block text-sm font-medium mb-1">Tags</label>
-						<div class="flex flex-wrap gap-2">
-							<span
-								v-for="tag in selectedSub?.tags"
-								:key="tag"
-								class="inline-flex items-center px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
-							>
-								{{ tag }}
-							</span>
-						</div>
-					</div>
+					</template>
+				</SubmissionTable>
+
+				<!-- Empty State -->
+				<div
+					v-if="!submissions.length && !loading"
+					class="text-center py-12"
+				>
+					<Icon
+						name="heroicons:document-text"
+						class="h-16 w-16 text-subtle mx-auto mb-4"
+					/>
+					<h3 class="text-h4 text-muted mb-2">No submissions found</h3>
+					<p class="text-subtle">
+						There are no {{ tab }} submissions at the moment.
+					</p>
+				</div>
+
+				<!-- Loading State -->
+				<div
+					v-if="loading"
+					class="text-center py-12"
+				>
+					<div
+						class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"
+					></div>
+					<p class="text-muted">Loading submissions...</p>
 				</div>
 			</div>
 		</div>
 
-		<!-- Edit Modal -->
-		<div
-			v-if="showEdit"
-			class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-			@click="showEdit = false"
+		<!-- Details Modal -->
+		<BaseModal
+			:show="showDetails"
+			title="Submission Details"
+			@close="showDetails = false"
 		>
-			<div
-				class="card max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-				@click.stop
-			>
-				<div class="flex items-center justify-between mb-6">
-					<h2 class="text-h2">Edit Submission</h2>
-					<button
-						@click="showEdit = false"
-						class="btn btn-tertiary btn-sm"
-					>
-						<Icon
-							name="heroicons:x-mark"
-							class="h-4 w-4"
-						/>
-					</button>
+			<div class="space-y-4">
+				<div>
+					<label class="block text-sm font-medium mb-1">Name</label>
+					<p class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+						{{ selectedSub?.name }}
+					</p>
 				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Category</label>
+					<p class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+						{{ selectedSub?.category }}
+					</p>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Price</label>
+					<p class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+						{{ selectedSub?.price }}
+					</p>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">URL</label>
+					<p class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+						<a
+							:href="selectedSub?.url"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="text-primary hover:underline"
+						>
+							{{ selectedSub?.url }}
+						</a>
+					</p>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Description</label>
+					<p class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+						{{ selectedSub?.description }}
+					</p>
+				</div>
+				<div>
+					<label class="block text-sm font-medium mb-1">Tags</label>
+					<div class="flex flex-wrap gap-2">
+						<span
+							v-for="tag in selectedSub?.tags"
+							:key="tag"
+							class="inline-flex items-center px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
+						>
+							{{ tag }}
+						</span>
+					</div>
+				</div>
+			</div>
+		</BaseModal>
 
-				<form
-					@submit.prevent="saveEdit"
-					class="space-y-6"
-				>
+		<!-- Edit Modal -->
+		<BaseModal
+			:show="showEdit"
+			title="Edit Submission"
+			@close="showEdit = false"
+		>
+			<form @submit.prevent="saveSubmission">
+				<div class="space-y-4">
 					<div>
 						<label class="block text-sm font-medium mb-2">Name *</label>
 						<input
@@ -878,150 +643,27 @@
 						/>
 					</div>
 
-					<div>
-						<label class="block text-sm font-medium mb-2">Category *</label>
-						<DropdownMenu
-							v-model="categoryExpanded"
-							content-class="glass rounded-lg shadow-xl"
-						>
-							<template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
-								<button
-									type="button"
-									class="flex items-center justify-between w-full p-3 form-select transition-colors"
-									:ref="setTriggerRef"
-									v-bind="triggerAttrs"
-									@click="toggle"
-								>
-									<span class="flex items-center gap-2 text-sm font-medium">
-										<Icon
-											v-if="editForm.category"
-											:name="getCategoryIcon(editForm.category)"
-											class="h-4 w-4"
-										/>
-										<Icon
-											v-else
-											name="heroicons:squares-2x2"
-											class="h-4 w-4 text-muted"
-										/>
-										{{
-											editForm.category
-												? getCategoryLabel(editForm.category)
-												: "Select a category"
-										}}
-									</span>
-									<Icon
-										:name="
-											categoryExpanded
-												? 'heroicons:chevron-up'
-												: 'heroicons:chevron-down'
-										"
-										class="h-4 w-4"
-									/>
-								</button>
-							</template>
-							<template #content="{ close }">
-								<div class="p-2">
-									<button
-										v-for="category in categories"
-										:key="category.slug"
-										type="button"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												editForm.category === category.slug,
-										}"
-										@click="
-											() => {
-												selectCategory(category.slug);
-												close();
-											}
-										"
-									>
-										<Icon
-											:name="category.icon"
-											class="h-4 w-4"
-										/>
-										{{ category.name }}
-									</button>
-								</div>
-							</template>
-						</DropdownMenu>
-					</div>
+					<FormDropdown
+						v-model="editForm.category"
+						label="Category"
+						placeholder="Select a category"
+						:options="
+							categories.map((c) => ({
+								value: c.slug,
+								label: c.name,
+								icon: getCategoryIcon(c.slug),
+							}))
+						"
+						required
+					/>
 
-					<div>
-						<label class="block text-sm font-medium mb-2">Price *</label>
-						<DropdownMenu
-							v-model="priceExpanded"
-							content-class="glass rounded-lg shadow-xl"
-						>
-							<template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
-								<button
-									type="button"
-									class="flex items-center justify-between w-full p-3 form-select transition-colors"
-									:ref="setTriggerRef"
-									v-bind="triggerAttrs"
-									@click="toggle"
-								>
-									<span class="flex items-center gap-2 text-sm font-medium">
-										<Icon
-											v-if="editForm.price"
-											:name="getPriceIcon(editForm.price)"
-											class="h-4 w-4"
-										/>
-										<Icon
-											v-else
-											name="heroicons:currency-dollar"
-											class="h-4 w-4 text-muted"
-										/>
-										{{
-											editForm.price
-												? getPriceLabel(editForm.price)
-												: "Select pricing model"
-										}}
-									</span>
-									<Icon
-										:name="
-											priceExpanded
-												? 'heroicons:chevron-up'
-												: 'heroicons:chevron-down'
-										"
-										class="h-4 w-4"
-									/>
-								</button>
-							</template>
-							<template #content="{ close }">
-								<div class="p-2">
-									<button
-										v-for="priceOption in priceOptions"
-										:key="priceOption.value"
-										type="button"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												editForm.price === priceOption.value,
-										}"
-										@click="
-											() => {
-												selectPrice(priceOption.value);
-												close();
-											}
-										"
-									>
-										<Icon
-											:name="priceOption.icon"
-											class="h-4 w-4"
-										/>
-										<div class="text-left">
-											<div class="font-medium">{{ priceOption.label }}</div>
-											<div class="text-xs text-muted">
-												{{ priceOption.description }}
-											</div>
-										</div>
-									</button>
-								</div>
-							</template>
-						</DropdownMenu>
-					</div>
+					<FormDropdown
+						v-model="editForm.price"
+						label="Price"
+						placeholder="Select pricing model"
+						:options="priceOptions"
+						required
+					/>
 
 					<div>
 						<label class="block text-sm font-medium mb-2">Tags</label>
@@ -1069,8 +711,8 @@
 							Cancel
 						</button>
 					</div>
-				</form>
-			</div>
-		</div>
+				</div>
+			</form>
+		</BaseModal>
 	</AdminGuard>
 </template>

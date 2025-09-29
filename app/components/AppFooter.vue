@@ -34,7 +34,7 @@
 					<ul class="space-y-2 text-muted">
 						<li>
 							<NuxtLink
-								to="/home"
+								to="/"
 								class="hover:text-primary transition-colors"
 								>Home</NuxtLink
 							>

@@ -321,57 +321,20 @@
 			<div class="container">
 				<!-- Admin Navigation -->
 				<div class="mb-8">
-					<nav class="flex items-center gap-2 text-sm text-muted mb-4">
-						<NuxtLink
-							to="/"
-							class="hover:text-primary transition-colors"
-							>Home</NuxtLink
-						>
+					<BreadcrumbNav
+						:items="[
+							{ label: 'Home', to: '/' },
+							{ label: 'Admin Panel', to: '/admin' },
+							{ label: 'Tools' },
+						]"
+					/>
 
-						<Icon
-							name="heroicons:chevron-right"
-							class="h-4 w-4"
-						/>
-						<NuxtLink
-							to="/admin"
-							class="hover:text-primary transition-colors"
-							>Admin Panel</NuxtLink
-						>
-
-						<Icon
-							name="heroicons:chevron-right"
-							class="h-4 w-4"
-						/>
-						<span class="text-primary">Tools</span>
-					</nav>
-
-					<div
-						class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
+					<AdminHeader
+						title="Manage Tools"
+						description="View and manage all approved tools in the database"
+						:admin-user="adminUser"
 					>
-						<div>
-							<h1 class="text-h1 mb-2">
-								<span class="gradient-text">Manage Tools</span>
-							</h1>
-							<p class="text-muted">
-								View and manage all approved tools in the database
-							</p>
-						</div>
-
-						<div class="flex flex-wrap items-center gap-3">
-							<!-- Admin info -->
-							<div class="hidden md:flex items-center gap-2 text-sm">
-								<Icon
-									name="heroicons:user-circle"
-									class="h-5 w-5 text-muted"
-								/>
-								<span class="text-muted">{{ adminUser?.email }}</span>
-								<span
-									class="px-2 py-1 text-xs bg-primary/20 text-primary rounded-full"
-								>
-									{{ adminUser?.role }}
-								</span>
-							</div>
-
+						<template #actions>
 							<NuxtLink
 								to="/admin"
 								class="btn btn-secondary"
@@ -392,7 +355,6 @@
 								/>
 								Add Tool
 							</NuxtLink>
-
 							<button
 								@click="logout"
 								class="btn btn-outline !border-red-500/30 !text-red-400 hover:!bg-red-500/10"
@@ -403,76 +365,29 @@
 								/>
 								Logout
 							</button>
-						</div>
-					</div>
+						</template>
+					</AdminHeader>
 
 					<!-- Stats Cards -->
-					<div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
-						<div class="card">
-							<div class="flex items-center gap-3">
-								<div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-									<Icon
-										name="heroicons:squares-2x2"
-										class="h-5 w-5 text-blue-600"
-									/>
-								</div>
-								<div>
-									<p class="text-sm text-muted">Total Tools</p>
-									<p class="text-lg font-semibold">{{ tools.length }}</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="card">
-							<div class="flex items-center gap-3">
-								<div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-									<Icon
-										name="heroicons:gift"
-										class="h-5 w-5 text-green-600"
-									/>
-								</div>
-								<div>
-									<p class="text-sm text-muted">Free Tools</p>
-									<p class="text-lg font-semibold">
-										{{ tools.filter((t) => t.price === "free").length }}
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="card">
-							<div class="flex items-center gap-3">
-								<div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-									<Icon
-										name="heroicons:star"
-										class="h-5 w-5 text-yellow-600"
-									/>
-								</div>
-								<div>
-									<p class="text-sm text-muted">Freemium</p>
-									<p class="text-lg font-semibold">
-										{{ tools.filter((t) => t.price === "free-plan").length }}
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="card">
-							<div class="flex items-center gap-3">
-								<div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-									<Icon
-										name="heroicons:currency-dollar"
-										class="h-5 w-5 text-purple-600"
-									/>
-								</div>
-								<div>
-									<p class="text-sm text-muted">Paid Tools</p>
-									<p class="text-lg font-semibold">
-										{{ tools.filter((t) => t.price === "paid").length }}
-									</p>
-								</div>
-							</div>
-						</div>
+					<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+						<StatsCard
+							icon="heroicons:gift"
+							label="Free Tools"
+							:value="tools.filter((t) => t.price === 'free').length"
+							color="green"
+						/>
+						<StatsCard
+							icon="heroicons:star"
+							label="Freemium"
+							:value="tools.filter((t) => t.price === 'free-plan').length"
+							color="yellow"
+						/>
+						<StatsCard
+							icon="heroicons:currency-dollar"
+							label="Paid"
+							:value="tools.filter((t) => t.price === 'paid').length"
+							color="blue"
+						/>
 					</div>
 				</div>
 
@@ -601,6 +516,7 @@
 					</div>
 				</div>
 
+				<!-- Tools Table -->
 				<div class="card overflow-hidden">
 					<div class="overflow-x-auto">
 						<table class="w-full">
@@ -704,7 +620,7 @@
 									<td class="px-4 md:px-6 py-4">
 										<div class="flex flex-col sm:flex-row gap-1 sm:gap-2">
 											<button
-												class="btn btn-sm btn-secondary text-xs"
+												class="btn btn-sm bg-yellow-600 text-white text-xs"
 												@click="editTool(tool)"
 											>
 												<Icon
@@ -777,32 +693,13 @@
 		</div>
 
 		<!-- Edit Tool Modal -->
-		<div
-			v-if="showEdit"
-			class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-			@click="showEdit = false"
+		<BaseModal
+			:show="showEdit"
+			title="Edit Tool"
+			@close="showEdit = false"
 		>
-			<div
-				class="card max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-				@click.stop
-			>
-				<div class="flex items-center justify-between mb-6">
-					<h2 class="text-h2">Edit Tool</h2>
-					<button
-						@click="showEdit = false"
-						class="btn btn-tertiary btn-sm"
-					>
-						<Icon
-							name="heroicons:x-mark"
-							class="h-4 w-4"
-						/>
-					</button>
-				</div>
-
-				<form
-					@submit.prevent="saveTool"
-					class="space-y-6"
-				>
+			<form @submit.prevent="saveTool">
+				<div class="space-y-4">
 					<div>
 						<label class="block text-sm font-medium mb-2">Name *</label>
 						<input
@@ -836,150 +733,27 @@
 						/>
 					</div>
 
-					<div>
-						<label class="block text-sm font-medium mb-2">Category *</label>
-						<DropdownMenu
-							v-model="categoryExpanded"
-							content-class="glass rounded-lg shadow-xl"
-						>
-							<template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
-								<button
-									type="button"
-									class="flex items-center justify-between w-full p-3 form-select transition-colors"
-									:ref="setTriggerRef"
-									v-bind="triggerAttrs"
-									@click="toggle"
-								>
-									<span class="flex items-center gap-2 text-sm font-medium">
-										<Icon
-											v-if="editForm.category"
-											:name="getCategoryIcon(editForm.category)"
-											class="h-4 w-4"
-										/>
-										<Icon
-											v-else
-											name="heroicons:squares-2x2"
-											class="h-4 w-4 text-muted"
-										/>
-										{{
-											editForm.category
-												? getCategoryLabel(editForm.category)
-												: "Select a category"
-										}}
-									</span>
-									<Icon
-										:name="
-											categoryExpanded
-												? 'heroicons:chevron-up'
-												: 'heroicons:chevron-down'
-										"
-										class="h-4 w-4"
-									/>
-								</button>
-							</template>
-							<template #content="{ close }">
-								<div class="p-2">
-									<button
-										v-for="category in categories"
-										:key="category.slug"
-										type="button"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												editForm.category === category.slug,
-										}"
-										@click="
-											() => {
-												selectCategory(category.slug);
-												close();
-											}
-										"
-									>
-										<Icon
-											:name="category.icon"
-											class="h-4 w-4"
-										/>
-										{{ category.name }}
-									</button>
-								</div>
-							</template>
-						</DropdownMenu>
-					</div>
+					<FormDropdown
+						v-model="editForm.category"
+						label="Category"
+						placeholder="Select a category"
+						:options="
+							categories.map((c) => ({
+								value: c.slug,
+								label: c.name,
+								icon: getCategoryIcon(c.slug),
+							}))
+						"
+						required
+					/>
 
-					<div>
-						<label class="block text-sm font-medium mb-2">Price *</label>
-						<DropdownMenu
-							v-model="priceExpanded"
-							content-class="glass rounded-lg shadow-xl"
-						>
-							<template #trigger="{ toggle, setTriggerRef, triggerAttrs }">
-								<button
-									type="button"
-									class="flex items-center justify-between w-full p-3 form-select transition-colors"
-									:ref="setTriggerRef"
-									v-bind="triggerAttrs"
-									@click="toggle"
-								>
-									<span class="flex items-center gap-2 text-sm font-medium">
-										<Icon
-											v-if="editForm.price"
-											:name="getPriceIcon(editForm.price)"
-											class="h-4 w-4"
-										/>
-										<Icon
-											v-else
-											name="heroicons:currency-dollar"
-											class="h-4 w-4 text-muted"
-										/>
-										{{
-											editForm.price
-												? getPriceLabel(editForm.price)
-												: "Select pricing model"
-										}}
-									</span>
-									<Icon
-										:name="
-											priceExpanded
-												? 'heroicons:chevron-up'
-												: 'heroicons:chevron-down'
-										"
-										class="h-4 w-4"
-									/>
-								</button>
-							</template>
-							<template #content="{ close }">
-								<div class="p-2">
-									<button
-										v-for="priceOption in priceOptions"
-										:key="priceOption.value"
-										type="button"
-										class="flex items-center gap-3 w-full p-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-										:class="{
-											'bg-primary/10 text-primary':
-												editForm.price === priceOption.value,
-										}"
-										@click="
-											() => {
-												selectPrice(priceOption.value);
-												close();
-											}
-										"
-									>
-										<Icon
-											:name="priceOption.icon"
-											class="h-4 w-4"
-										/>
-										<div class="text-left">
-											<div class="font-medium">{{ priceOption.label }}</div>
-											<div class="text-xs text-muted">
-												{{ priceOption.description }}
-											</div>
-										</div>
-									</button>
-								</div>
-							</template>
-						</DropdownMenu>
-					</div>
+					<FormDropdown
+						v-model="editForm.price"
+						label="Price"
+						placeholder="Select pricing model"
+						:options="priceOptions"
+						required
+					/>
 
 					<div>
 						<label class="block text-sm font-medium mb-2">Tags</label>
@@ -1030,8 +804,8 @@
 							Cancel
 						</button>
 					</div>
-				</form>
-			</div>
-		</div>
+				</div>
+			</form>
+		</BaseModal>
 	</AdminGuard>
 </template>
