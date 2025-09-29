@@ -26,30 +26,19 @@
 								class="h-5 w-5"
 							/>
 						</a>
-						<a
-							href="#"
-							class="btn btn-tertiary btn-sm p-2"
-						>
-							<Icon
-								name="simple-icons:discord"
-								class="h-5 w-5"
-							/>
-						</a>
-						<a
-							href="#"
-							class="btn btn-tertiary btn-sm p-2"
-						>
-							<Icon
-								name="simple-icons:twitter"
-								class="h-5 w-5"
-							/>
-						</a>
 					</div>
 				</div>
 
 				<div>
 					<h3 class="text-h6 text-primary mb-4">Quick Links</h3>
 					<ul class="space-y-2 text-muted">
+						<li>
+							<NuxtLink
+								to="/home"
+								class="hover:text-primary transition-colors"
+								>Home</NuxtLink
+							>
+						</li>
 						<li>
 							<NuxtLink
 								to="/tools"
@@ -88,21 +77,7 @@
 							<a
 								href="#"
 								class="hover:text-primary transition-colors"
-								>Contribute</a
-							>
-						</li>
-						<li>
-							<a
-								href="#"
-								class="hover:text-primary transition-colors"
-								>Guidelines</a
-							>
-						</li>
-						<li>
-							<a
-								href="#"
-								class="hover:text-primary transition-colors"
-								>Discord</a
+								>Contribution Guidelines</a
 							>
 						</li>
 						<li>

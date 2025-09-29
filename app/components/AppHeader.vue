@@ -23,6 +23,13 @@
 						Home
 					</NuxtLink>
 					<NuxtLink
+						to="/about"
+						class="text-secondary header-link hover:text-primary transition-colors"
+						@click="closeMenu"
+					>
+						About
+					</NuxtLink>
+					<NuxtLink
 						to="/tools"
 						class="text-secondary header-link hover:text-primary transition-colors"
 					>
@@ -44,12 +51,12 @@
 							class="h-5 w-5 ml-2"
 						/>
 					</NuxtLink>
-                                        <a
-                                                href="#"
-                                                class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                        >
+					<a
+						href="#"
+						class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
 						<Icon
 							name="simple-icons:github"
 							class="h-5 w-5"
@@ -89,24 +96,35 @@
 			<NuxtLink
 				to="/"
 				class="text-secondary header-link header-link hover:text-primary transition-colors"
+				@click="closeMenu"
 			>
 				Home
 			</NuxtLink>
 			<NuxtLink
+				to="/about"
+				class="text-secondary header-link header-link hover:text-primary transition-colors"
+				@click="closeMenu"
+			>
+				About
+			</NuxtLink>
+			<NuxtLink
 				to="/tools"
 				class="text-secondary header-link header-link hover:text-primary transition-colors"
+				@click="closeMenu"
 			>
 				Tools
 			</NuxtLink>
 			<NuxtLink
 				to="/categories"
 				class="text-secondary header-link header-link hover:text-primary transition-colors"
+				@click="closeMenu"
 			>
 				Categories
 			</NuxtLink>
 			<NuxtLink
 				to="/submit"
 				class="text-secondary btn btn-secondary hover:text-primary transition-colors"
+				@click="closeMenu"
 			>
 				Submit a Tool
 				<Icon
@@ -114,12 +132,13 @@
 					class="h-5 w-5 ml-2"
 				/>
 			</NuxtLink>
-                        <a
-                                href="#"
-                                class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                        >
+			<a
+				href="#"
+				class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
+				target="_blank"
+				rel="noopener noreferrer"
+				@click="closeMenu"
+			>
 				<Icon
 					name="simple-icons:github"
 					class="h-5 w-5"
