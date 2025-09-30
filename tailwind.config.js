@@ -11,10 +11,11 @@ module.exports = {
 	theme: {
 		extend: {
 			colors: {
-				"neon-green": "#22c55e",
+				"neon-green": "#00e5ff", // remapped to neon blue to preserve class usages
+				"neon-blue": "#00e5ff",
 				"glass-white": "rgba(255, 255, 255, 0.05)",
 				"glass-border": "rgba(255, 255, 255, 0.1)",
-				primary: "#22c55e",
+				primary: "#00e5ff",
 				secondary: "#d1d5db",
 			},
 			animation: {
@@ -56,8 +57,8 @@ module.exports = {
 					"66%": { transform: "translateX(-20px) translateY(15px)" },
 				},
 				glow: {
-					from: { boxShadow: "0 0 20px rgba(34, 197, 94, 0.3)" },
-					to: { boxShadow: "0 0 30px rgba(34, 197, 94, 0.6)" },
+					from: { boxShadow: "0 0 20px rgba(0, 229, 255, 0.3)" },
+					to: { boxShadow: "0 0 30px rgba(0, 229, 255, 0.6)" },
 				},
 			},
 		},

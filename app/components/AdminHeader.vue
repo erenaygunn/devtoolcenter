@@ -16,7 +16,7 @@
 					class="flex items-center gap-2"
 					v-if="showStatus"
 				>
-					<div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+					<div class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
 					<span class="text-muted">Authenticated</span>
 				</div>
 				<Icon

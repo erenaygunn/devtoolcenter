@@ -6,8 +6,9 @@
 			>
 				<div class="col-span-1 sm:col-span-2">
 					<div class="flex items-center space-x-2 mb-4">
-						<Icon
-							name="heroicons:cube-transparent"
+						<NuxtImg
+							src="/logo.png"
+							alt="DevTool Center Logo"
 							class="h-8 w-8 neon-green"
 						/>
 						<span class="text-h5 gradient-text">DevTool Center</span>

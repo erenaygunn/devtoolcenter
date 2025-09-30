@@ -172,9 +172,9 @@
 
 				<div
 					v-if="successMsg"
-					class="p-3 bg-green-400/10 border border-green-400/30 rounded-lg"
+					class="p-3 bg-cyan-400/10 border border-cyan-400/30 rounded-lg"
 				>
-					<p class="text-green-600 text-sm flex items-center">
+					<p class="text-cyan-500 text-sm flex items-center">
 						<Icon
 							name="heroicons:check-circle"
 							class="h-4 w-4 mr-2"

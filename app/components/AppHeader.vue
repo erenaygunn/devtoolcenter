@@ -7,8 +7,9 @@
 						to="/"
 						class="flex items-center space-x-2"
 					>
-						<Icon
-							name="heroicons:cube-transparent"
+						<NuxtImg
+							src="/logo.png"
+							alt="DevTool Center Logo"
 							class="h-8 w-8 neon-green"
 						/>
 						<span class="text-h5 gradient-text">DevTool Center</span>

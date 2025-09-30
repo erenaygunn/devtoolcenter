@@ -24,7 +24,7 @@
 					v-if="tool.price"
 				>
 					<span
-						class="px-2 py-1 capitalize glass rounded-lg text-primary border border-green-400/30"
+						class="px-2 py-1 capitalize glass rounded-lg text-primary border border-cyan-300/30"
 						>{{ tool.price }}</span
 					>
 				</div>
@@ -48,7 +48,7 @@
 					<span
 						v-for="tag in tool.tags.slice(0, 3)"
 						:key="tag"
-						class="px-2 py-1 text-small glass rounded-full text-primary border border-green-400/30"
+						class="px-2 py-1 text-small glass rounded-full text-primary border border-cyan-300/30"
 					>
 						{{ tag }}
 					</span>
@@ -63,12 +63,12 @@
 					</div>
 				</div>
 
-                                <a
-                                        :href="tool.url"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="btn btn-primary mt-3 btn-sm"
-                                >
+				<a
+					:href="tool.url"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="btn btn-primary mt-3 btn-sm"
+				>
 					Visit
 					<Icon
 						name="heroicons:arrow-top-right-on-square"

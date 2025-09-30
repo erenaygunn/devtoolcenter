@@ -431,11 +431,11 @@
 			<div class="text-center">
 				<div class="mb-6">
 					<div
-						class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4"
+						class="w-16 h-16 bg-cyan-100 dark:bg-cyan-900/30 rounded-full flex items-center justify-center mx-auto mb-4"
 					>
 						<Icon
 							name="heroicons:check-circle"
-							class="h-8 w-8 text-green-600"
+							class="h-8 w-8 text-cyan-500"
 						/>
 					</div>
 					<h2 class="text-h3 mb-2">Submission Received!</h2>
