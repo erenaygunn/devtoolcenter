@@ -18,7 +18,7 @@
 					</p>
 					<div class="flex flex-wrap justify-center sm:justify-start space-x-4">
 						<a
-							href="#"
+							href="https://github.com/erenaygunn/devtoolcenter"
 							class="btn btn-tertiary btn-sm p-2"
 						>
 							<Icon
@@ -75,7 +75,7 @@
 					<ul class="space-y-2 text-muted">
 						<li>
 							<a
-								href="#"
+								href="https://github.com/erenaygunn/devtoolcenter?tab=contributing-ov-file"
 								class="hover:text-primary transition-colors"
 								>Contribution Guidelines</a
 							>

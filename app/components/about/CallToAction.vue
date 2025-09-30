@@ -24,7 +24,7 @@
 								Submit a Tool
 							</NuxtLink>
 							<a
-								href="#"
+								href="https://github.com/erenaygunn/devtoolcenter"
 								class="btn btn-secondary"
 								target="_blank"
 								rel="noopener noreferrer"

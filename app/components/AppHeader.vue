@@ -52,7 +52,7 @@
 						/>
 					</NuxtLink>
 					<a
-						href="#"
+						href="https://github.com/erenaygunn/devtoolcenter"
 						class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
 						target="_blank"
 						rel="noopener noreferrer"
@@ -133,7 +133,7 @@
 				/>
 			</NuxtLink>
 			<a
-				href="#"
+				href="https://github.com/erenaygunn/devtoolcenter"
 				class="text-secondary btn btn-secondary hover:text-primary transition-colors !p-3"
 				target="_blank"
 				rel="noopener noreferrer"
