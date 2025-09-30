@@ -11,7 +11,7 @@
 							name="heroicons:cube-transparent"
 							class="h-8 w-8 neon-green"
 						/>
-						<span class="text-h5 gradient-text">DevShelf</span>
+						<span class="text-h5 gradient-text">DevTool Center</span>
 					</NuxtLink>
 				</div>
 

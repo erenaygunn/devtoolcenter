@@ -222,7 +222,7 @@
 					to="/"
 					class="block text-sm text-muted hover:text-primary"
 				>
-					← Back to DevShelf
+					← Back to DevTool Center
 				</NuxtLink>
 			</div>
 		</div>

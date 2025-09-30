@@ -440,7 +440,7 @@
 					</div>
 					<h2 class="text-h3 mb-2">Submission Received!</h2>
 					<p class="text-muted">
-						Thank you for your contribution to the DevShelf community.
+						Thank you for your contribution to the DevTool Center community.
 					</p>
 				</div>
 

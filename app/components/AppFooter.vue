@@ -95,7 +95,8 @@
 				class="border-t border-white/10 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-muted px-4"
 			>
 				<p class="text-body-sm">
-					&copy; {{ currentYear }} DevShelf. Open source and community driven.
+					&copy; {{ currentYear }} DevTool Center. Open source and community
+					driven.
 				</p>
 			</div>
 		</div>
