@@ -77,7 +77,7 @@
 	const categories = computed(() => data.value?.data ?? []);
 
 	useHead({
-		title: "Categories - DevShelf",
+		title: "Categories - DevTool Center",
 		meta: [
 			{
 				name: "description",

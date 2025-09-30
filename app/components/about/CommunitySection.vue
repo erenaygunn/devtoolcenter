@@ -53,7 +53,8 @@
 						</div>
 						<h3 class="text-h6 text-primary mb-3">Spread the Word</h3>
 						<p class="text-muted text-sm">
-							Share DevShelf with other developers and help grow our community.
+							Share DevTool Center with other developers and help grow our
+							community.
 						</p>
 					</div>
 				</div>

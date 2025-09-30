@@ -8,7 +8,7 @@
 						class="h-16 w-16 neon-green"
 					/>
 				</div>
-				<h1 class="text-h1 gradient-text mb-4">About DevShelf</h1>
+				<h1 class="text-h1 gradient-text mb-4">About DevTool Center</h1>
 				<p class="text-h6 text-muted max-w-2xl mx-auto">
 					Discover the story behind the platform that's connecting developers
 					with the best free productivity tools in the ecosystem.

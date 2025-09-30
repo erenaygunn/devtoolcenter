@@ -19,9 +19,9 @@
 								before.
 							</p>
 							<p class="text-body">
-								DevShelf helps developers discover new tools that can boost
-								their productivity. This platform serves as the definitive,
-								community-driven directory for finding the best free
+								DevTool Center helps developers discover new tools that can
+								boost their productivity. This platform serves as the
+								definitive, community-driven directory for finding the best free
 								productivity tools that can enhance your development workflow.
 							</p>
 						</div>

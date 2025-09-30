@@ -537,7 +537,7 @@
 	const apiBase = config.public.apiBase;
 
 	useHead({
-		title: "Browse Tools - DevShelf",
+		title: "Browse Tools - DevTool Center",
 		meta: [
 			{
 				name: "description",

@@ -481,7 +481,7 @@
 
 <script lang="ts" setup>
 	useHead({
-		title: "Submit a Tool - DevShelf",
+		title: "Submit a Tool - DevTool Center",
 		meta: [
 			{
 				name: "description",

@@ -14,8 +14,8 @@
 	import CallToAction from "~/components/about/CallToAction.vue";
 
 	useSeoMeta({
-		title: "About DevShelf - Community-Driven Developer Tools Directory",
+		title: "About DevTool Center - Community-Driven Developer Tools Directory",
 		description:
-			"Learn about DevShelf's mission to connect developers with the best free productivity tools. Created by Eren Aygün to build a stronger developer community.",
+			"Learn about DevTool Center's mission to connect developers with the best free productivity tools. Created by Eren Aygün to build a stronger developer community.",
 	});
 </script>

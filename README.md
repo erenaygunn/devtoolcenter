@@ -1,75 +1,123 @@
-# Nuxt Minimal Starter
+# DevTool Center Frontend
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A modern Nuxt 4 + TailwindCSS application for browsing, filtering, and submitting developer tools. Features an intuitive interface for discovering development resources and includes an admin panel for content moderation.
 
-## Setup
-
-Make sure to install dependencies:
+## Quick Start
 
 ```bash
-# npm
+# Clone the frontend repo
+git clone https://github.com/erenaygunn/devtoolcenter.git
+cd devtoolcenter
+
+# Install dependencies
 npm install
 
-# pnpm
-pnpm install
+# Copy environment file
+cp .env.example .env
 
-# yarn
-yarn install
-
-# bun
-bun install
+# Start development server (backend must be running first!)
+npm run dev
 ```
 
-## Development Server
+## Backend Dependency
 
-Start the development server on `http://localhost:3000`:
+⚠️ **Important**: This frontend requires the backend repository (`devtoolcenter-backend`) to be running.
+
+### Backend Setup
+
+1. **Clone the backend repository**:
+
+   ```bash
+   git clone https://github.com/erenaygunn/devtoolcenter-backend.git
+   cd devtoolcenter-backend
+   ```
+
+2. **Set up the backend**:
+
+   ```bash
+   npm install
+   cp .env.example .env
+   npm run dev
+   ```
+
+3. **Verify backend is running**: The backend should be accessible at `http://localhost:5050/api/v1`
+
+**Backend Repository**: [devtoolcenter-backend](https://github.com/erenaygunn/devtoolcenter-backend)
+
+## Environment Variables
+
+Create a `.env` file in the root directory:
 
 ```bash
-# npm
+NUXT_PUBLIC_API_BASE=http://localhost:5050/api/v1
+```
+
+## Features
+
+- **Browse and Search Tools**: Discover developer tools with powerful search functionality
+- **Advanced Filters**: Filter by category, price range, and keywords
+- **Submit New Tools**: Submit tools with built-in validation and form handling
+- **Admin Panel**: Review submissions and manage tools with moderation capabilities
+
+## Project Structure
+
+```
+frontend/
+├── pages/           # Application routes (file-based routing)
+├── components/      # Reusable UI components
+├── layouts/         # Shared page layouts
+├── composables/     # State management and utility functions
+├── assets/          # Static assets and styles
+└── public/          # Public files
+```
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server (ensure backend is running first)
 npm run dev
 
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
+# Build for production
 npm run build
 
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
+# Preview production build
 npm run preview
 
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+# Run linting
+npm run lint
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Deployment
+
+1. **Build the application**:
+
+   ```bash
+   npm run build
+   ```
+
+2. **Preview the build locally**:
+
+   ```bash
+   npm run preview
+   ```
+
+3. **Production Environment**:
+
+   - Set `NUXT_PUBLIC_API_BASE` to your production backend URL
+   - Ensure your backend is deployed and accessible
+
+4. **Deploy** to your preferred hosting platform (Vercel, Netlify, etc.)
+
+## Tech Stack
+
+- **Nuxt 4**: Vue.js framework with server-side rendering
+- **TailwindCSS**: Utility-first CSS framework
+- **TypeScript**: Type-safe development
+- **Vue 3**: Progressive JavaScript framework
+
+## License
+
+MIT License - see LICENSE file for details.

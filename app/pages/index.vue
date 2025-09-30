@@ -8,7 +8,7 @@
 
 <script setup>
 	useHead({
-		title: "DevShelf - Discover the Best Free Developer Tools",
+		title: "DevTool Center - Discover the Best Free Developer Tools",
 		meta: [
 			{
 				name: "description",

@@ -9,7 +9,7 @@
 				</h1>
 
 				<p class="text-lg">
-					DevShelf is a platform that helps you find the best productivity
+					DevTool Center is a platform that helps you find the best productivity
 					tools.
 				</p>
 				<p class="text-lg">
@@ -59,7 +59,7 @@
 					<div class="text-small">Categories</div>
 				</div>
 				<div class="text-center">
-					<div class="text-h2 neon-green">5K+</div>
+					<div class="text-h2 neon-green">5K+</</div>
 					<div class="text-small">Users</div>
 				</div>
 			</div> -->

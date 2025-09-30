@@ -1,4 +1,4 @@
-# Contributing to DevShelf Frontend
+# Contributing to DevTool Center Frontend
 
 Thank you for your interest in contributing! This guide will help you get started with development and submitting contributions.
 
@@ -8,7 +8,7 @@ Thank you for your interest in contributing! This guide will help you get starte
 
 - Node.js (v18+)
 - npm or yarn
-- The DevShelf backend repository running locally
+- The DevTool Center backend repository running locally
 
 ### Step-by-Step Setup
 
@@ -17,8 +17,8 @@ Thank you for your interest in contributing! This guide will help you get starte
 2. **Clone your fork**:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/devshelf-frontend.git
-   cd devshelf-frontend
+   git clone https://github.com/erenaygunn/devtoolcenter.git
+   cd devtoolcenter
    ```
 
 3. **Install dependencies**:
@@ -37,8 +37,8 @@ Thank you for your interest in contributing! This guide will help you get starte
 
    ```bash
    # In a separate terminal/directory
-   git clone https://github.com/YOUR_NAME/devshelf-backend.git
-   cd devshelf-backend
+   git clone https://github.com/erenaygunn/devtoolcenter-backend.git
+   cd devtoolcenter-backend
    npm install
    cp .env.example .env
    npm run dev
@@ -144,7 +144,7 @@ Use **conventional commit** format:
 
 ## Getting Help
 
-- Check existing [issues](https://github.com/YOUR_NAME/devshelf-frontend/issues)
+- Check existing [issues](https://github.com/YOUR_NAME/devtoolcenter-frontend/issues)
 - Create a new issue for bugs or feature requests
 - Join discussions in pull requests
 - Review the codebase to understand patterns
@@ -156,4 +156,4 @@ Use **conventional commit** format:
 - **CORS issues**: Check backend CORS configuration
 - **Build failures**: Run `npm run lint` and fix any issues
 
-Thank you for contributing to DevShelf! 🚀
+Thank you for contributing to DevTool Center! 🚀
