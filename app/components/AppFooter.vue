@@ -82,7 +82,7 @@
 						</li>
 						<li>
 							<a
-								href="#"
+								href="https://github.com/erenaygunn/devtoolcenter"
 								class="hover:text-primary transition-colors"
 								>GitHub</a
 							>
