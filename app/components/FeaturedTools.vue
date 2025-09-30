@@ -53,7 +53,8 @@
 	import "swiper/css";
 	import "swiper/css/pagination";
 
-	const apiBase = "http://localhost:5050/api/v1";
+	const config = useRuntimeConfig();
+	const apiBase = config.public.apiBase;
 	const swiperContainer = ref(null);
 
 	// Use cached fetch for featured tools

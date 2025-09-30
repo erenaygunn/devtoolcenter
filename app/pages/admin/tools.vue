@@ -4,7 +4,8 @@
 		middleware: "admin",
 	});
 
-	const apiBase = "http://localhost:5050/api/v1";
+	const config = useRuntimeConfig();
+	const apiBase = config.public.apiBase;
 	const { logout, adminUser, getToken, initAuth, checkAuth, isAuthenticated } =
 		useAdminAuth();
 
@@ -193,7 +194,7 @@
 		async () => {
 			// Test if backend is available
 			try {
-				await $fetch(`http://localhost:5050/health`);
+				await $fetch(`${apiBase.replace("/api/v1", "")}/health`);
 			} catch (healthError) {
 				throw new Error("Backend server not available");
 			}

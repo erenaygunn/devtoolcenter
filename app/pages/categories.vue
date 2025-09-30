@@ -71,7 +71,8 @@
 </template>
 
 <script setup>
-	const apiBase = "http://localhost:5050/api/v1";
+	const config = useRuntimeConfig();
+	const apiBase = config.public.apiBase;
 	const { data } = await useFetch(`${apiBase}/categories`);
 	const categories = computed(() => data.value?.data ?? []);
 

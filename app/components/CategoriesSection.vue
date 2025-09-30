@@ -31,7 +31,8 @@
 </template>
 
 <script setup>
-	const apiBase = "http://localhost:5050/api/v1";
+	const config = useRuntimeConfig();
+	const apiBase = config.public.apiBase;
 
 	// Use cached fetch for categories
 	const { cachedFetch } = useApiCache();

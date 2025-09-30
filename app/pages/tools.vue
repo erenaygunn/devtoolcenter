@@ -533,7 +533,8 @@
 </template>
 
 <script setup lang="ts">
-	const apiBase = "http://localhost:5050/api/v1";
+	const config = useRuntimeConfig();
+	const apiBase = config.public.apiBase;
 
 	useHead({
 		title: "Browse Tools - DevShelf",
