@@ -53,7 +53,7 @@
 	body {
 		background-color: #111827;
 		color: white;
-		background: linear-gradient(135deg, #000705 0%, #0e171a 50%, #020d0d 100%);
+		background: linear-gradient(135deg, #000b13 0%, #0e131a 50%, #02070d 100%);
 		min-height: 100vh;
 		line-height: 1.6;
 	}
