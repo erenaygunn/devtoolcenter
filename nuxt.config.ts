@@ -21,6 +21,8 @@ export default defineNuxtConfig({
 				process.env.NUXT_PUBLIC_API_BASE || "http://localhost:5050/api/v1",
 			maxSubmissionsPerDay: 5,
 			enableRateLimit: true,
+			// GA4 Measurement ID (optional). Put in .env as NUXT_PUBLIC_GA_ID=G-XXXXXXX
+			googleAnalyticsId: process.env.NUXT_PUBLIC_GA_ID || "",
 		},
 	},
 
