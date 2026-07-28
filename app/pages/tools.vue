@@ -473,10 +473,7 @@
 			<div class="mb-6 flex items-center justify-between">
 				<div class="flex items-center gap-3">
 					<p class="text-muted">
-						{{ filteredTools.length }} tool{{
-							filteredTools.length !== 1 ? "s" : ""
-						}}
-						found
+						{{ totalTools }} tool{{ totalTools !== 1 ? "s" : "" }} found
 					</p>
 					<div
 						v-if="isSearching"
@@ -528,6 +525,58 @@
 				<h3 class="text-h4 text-muted mb-2">No tools found</h3>
 				<p class="text-subtle">Try adjusting your search or filters</p>
 			</div>
+
+			<!-- Pagination -->
+			<div
+				v-if="totalPages > 1"
+				class="mt-10 flex items-center justify-center gap-2"
+			>
+				<button
+					class="btn btn-secondary px-3 py-2 disabled:opacity-40 disabled:cursor-not-allowed"
+					:disabled="currentPage <= 1"
+					@click="goToPage(currentPage - 1)"
+				>
+					<Icon
+						name="heroicons:chevron-left"
+						class="h-4 w-4"
+					/>
+				</button>
+
+				<template
+					v-for="(page, index) in pageNumbers"
+					:key="index"
+				>
+					<span
+						v-if="page === null"
+						class="px-2 text-muted"
+					>
+						…
+					</span>
+					<button
+						v-else
+						class="px-3 py-2 rounded-md text-sm transition-colors"
+						:class="
+							page === currentPage
+								? 'bg-primary text-white'
+								: 'btn-secondary hover:bg-primary/10'
+						"
+						@click="goToPage(page)"
+					>
+						{{ page }}
+					</button>
+				</template>
+
+				<button
+					class="btn btn-secondary px-3 py-2 disabled:opacity-40 disabled:cursor-not-allowed"
+					:disabled="currentPage >= totalPages"
+					@click="goToPage(currentPage + 1)"
+				>
+					<Icon
+						name="heroicons:chevron-right"
+						class="h-4 w-4"
+					/>
+				</button>
+			</div>
 		</div>
 	</div>
 </template>
@@ -572,6 +621,9 @@
 	const route = useRoute();
 	const router = useRouter();
 
+	// Current page for pagination (reset to 1 whenever filters change)
+	const currentPage = ref(Number(route.query.page) || 1);
+
 	// Set up debounced filters with initial values from URL
 	const {
 		filters,
@@ -605,10 +657,13 @@
 			sortBy: (route.query.sort as string) || "name",
 		},
 		onFilterChange: async (newFilters) => {
-			// Update URL without triggering navigation
+			// Filters changed, so start back at page 1
+			currentPage.value = 1;
+			// Update URL without triggering navigation (drop any stale page param)
+			const { page: _page, ...restQuery } = route.query;
 			await router.replace({
 				query: {
-					...route.query,
+					...restQuery,
 					...getQueryParams(),
 				},
 			});
@@ -662,7 +717,7 @@
 			? filters.value.selectedKeywords
 			: undefined,
 		sort: filters.value.sortBy || "name",
-		page: 1,
+		page: currentPage.value,
 		limit: 24,
 	});
 
@@ -763,6 +818,50 @@
 
 	// Computed tools data
 	const filteredTools = computed(() => apiData.value?.data ?? []);
+
+	// Pagination metadata from the API response
+	const totalTools = computed(
+		() => apiData.value?.meta?.total ?? filteredTools.value.length
+	);
+	const totalPages = computed(() => apiData.value?.meta?.pages ?? 1);
+
+	// Windowed page numbers with ellipsis gaps (null = ellipsis)
+	const pageNumbers = computed(() => {
+		const total = totalPages.value;
+		const current = currentPage.value;
+		const delta = 1;
+		const pages: (number | null)[] = [];
+
+		for (let page = 1; page <= total; page++) {
+			if (
+				page === 1 ||
+				page === total ||
+				(page >= current - delta && page <= current + delta)
+			) {
+				pages.push(page);
+			} else if (pages[pages.length - 1] !== null) {
+				pages.push(null);
+			}
+		}
+
+		return pages;
+	});
+
+	// Navigate to a given page, syncing the URL and refetching
+	const goToPage = async (page: number) => {
+		if (page < 1 || page > totalPages.value || page === currentPage.value) {
+			return;
+		}
+		currentPage.value = page;
+		await router.replace({
+			query: {
+				...route.query,
+				...getQueryParams(),
+				page: page > 1 ? page : undefined,
+			},
+		});
+		await refresh();
+	};
 
 	// Force refresh cache when needed
 	const refreshWithCache = async (force = false) => {
